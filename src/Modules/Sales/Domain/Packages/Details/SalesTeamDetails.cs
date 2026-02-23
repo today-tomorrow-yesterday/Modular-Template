@@ -1,0 +1,45 @@
+using Rtl.Core.Domain.Entities;
+using System.Text.Json;
+
+namespace Modules.Sales.Domain.Packages.Details;
+
+public enum SalesTeamRole
+{
+    Primary,
+    Secondary
+}
+
+public sealed class SalesTeamDetails : IVersionedDetails
+{
+    public int SchemaVersion => 1;
+    public Dictionary<string, JsonElement>? ExtensionData { get; set; }
+
+    public List<SalesTeamMember> SalesTeamMembers { get; private set; } = [];
+
+    public static SalesTeamDetails Create(List<SalesTeamMember> members)
+    {
+        return new SalesTeamDetails { SalesTeamMembers = members };
+    }
+}
+
+public sealed class SalesTeamMember
+{
+    public int? AuthorizedUserId { get; private set; }
+    public SalesTeamRole Role { get; private set; }
+    public decimal? CommissionSplitPercentage { get; private set; }
+    public decimal CommissionAmount { get; private set; } // Populated by commission calculation journey
+
+    public static SalesTeamMember Create(
+        int? authorizedUserId,
+        SalesTeamRole role,
+        decimal? commissionSplitPercentage)
+    {
+        return new SalesTeamMember
+        {
+            AuthorizedUserId = authorizedUserId,
+            Role = role,
+            CommissionSplitPercentage = commissionSplitPercentage,
+            CommissionAmount = 0m
+        };
+    }
+}

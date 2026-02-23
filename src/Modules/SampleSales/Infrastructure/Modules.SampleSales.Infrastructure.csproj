@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Modules.SampleSales.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Infrastructure\Rtl.Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\Application\Modules.SampleSales.Application.csproj" />
+    <ProjectReference Include="..\Presentation\Modules.SampleSales.Presentation.csproj" />
+  </ItemGroup>
+
+</Project>

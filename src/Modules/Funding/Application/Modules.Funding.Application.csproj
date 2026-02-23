@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>Modules.Funding.Application</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Modules.Funding.Application.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Application\Rtl.Core.Application.csproj" />
+    <ProjectReference Include="..\Domain\Modules.Funding.Domain.csproj" />
+    <ProjectReference Include="..\IntegrationEvents\Modules.Funding.IntegrationEvents.csproj" />
+  </ItemGroup>
+</Project>

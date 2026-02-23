@@ -1,0 +1,89 @@
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Rtl.Core.Infrastructure.Application;
+using Rtl.Core.Presentation.Endpoints;
+
+namespace Rtl.Core.Api.Shared;
+
+/// <summary>
+/// Extension methods for configuring per-module API hosts with common defaults.
+/// Use these methods in module-specific host projects for consistent configuration.
+/// </summary>
+public static class HostExtensions
+{
+    public static WebApplicationBuilder AddModuleHostDefaults(
+        this WebApplicationBuilder builder,
+        string moduleName,
+        string databaseConnectionString,
+        string? cacheConnectionString = null,
+        IModuleEndpoints? moduleEndpoints = null)
+    {
+        // Application identity - must be registered first as other services depend on it
+        builder.Services.AddOptions<ApplicationOptions>()
+            .Bind(builder.Configuration.GetSection(ApplicationOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        // Health checks
+        var healthChecks = builder.Services.AddHealthChecks()
+            .AddNpgSql(databaseConnectionString, name: "database");
+
+        if (!string.IsNullOrEmpty(cacheConnectionString))
+        {
+            healthChecks.AddRedis(cacheConnectionString, name: "cache");
+        }
+
+        // API versioning
+        builder.Services.AddApiVersioningServices();
+
+        // OpenAPI/Swagger
+        if (moduleEndpoints != null)
+        {
+            builder.Services.AddOpenApiForModule(moduleName, moduleEndpoints);
+        }
+        else
+        {
+            builder.Services.AddOpenApiSimple(moduleName);
+        }
+
+        builder.Services
+            .AddGlobalExceptionHandling()
+            .AddCorsServices(builder.Configuration, builder.Environment);
+
+        return builder;
+    }
+
+    /// <summary>
+    /// Configures the middleware pipeline for a module API host.
+    /// </summary>
+    public static WebApplication UseModuleHostDefaults(
+        this WebApplication app,
+        IModuleEndpoints? moduleEndpoints = null)
+    {
+        // OpenAPI/Swagger (development only)
+        if (moduleEndpoints != null)
+        {
+            app.UseOpenApiForModule(moduleEndpoints);
+        }
+        else
+        {
+            app.UseOpenApiSimple();
+        }
+
+        // Health checks
+        app.MapHealthCheckEndpoint();
+
+        // Exception handling
+        app.UseGlobalExceptionHandling();
+
+        // CORS
+        app.UseCors();
+
+        // Auth
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        return app;
+    }
+}

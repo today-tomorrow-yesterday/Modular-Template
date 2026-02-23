@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Modules.Customer.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Modules.Customer.Application.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Application\Rtl.Core.Application.csproj" />
+    <ProjectReference Include="..\Domain\Modules.Customer.Domain.csproj" />
+    <ProjectReference Include="..\IntegrationEvents\Modules.Customer.IntegrationEvents.csproj" />
+  </ItemGroup>
+
+</Project>

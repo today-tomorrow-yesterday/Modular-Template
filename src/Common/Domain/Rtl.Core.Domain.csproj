@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Rtl.Core.Domain</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Rtl.Core.Infrastructure" />
+    <InternalsVisibleTo Include="Rtl.Core.Domain.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>Rtl.Core.Api.SampleSales</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Shared host extensions -->
+    <ProjectReference Include="..\Shared\Rtl.Core.Api.Shared.csproj" />
+
+    <!-- Common infrastructure for shared services -->
+    <ProjectReference Include="..\..\Common\Infrastructure\Rtl.Core.Infrastructure.csproj" />
+
+    <!-- SampleSales module -->
+    <ProjectReference Include="..\..\Modules\SampleSales\Infrastructure\Modules.SampleSales.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\SampleSales\Presentation\Modules.SampleSales.Presentation.csproj" />
+  </ItemGroup>
+
+</Project>

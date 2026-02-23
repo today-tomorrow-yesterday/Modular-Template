@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Modules.Sales.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="35.6.5" />
+    <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Infrastructure\Rtl.Core.Infrastructure.csproj" />
+    <ProjectReference Include="..\Application\Modules.Sales.Application.csproj" />
+    <ProjectReference Include="..\Presentation\Modules.Sales.Presentation.csproj" />
+  </ItemGroup>
+
+</Project>

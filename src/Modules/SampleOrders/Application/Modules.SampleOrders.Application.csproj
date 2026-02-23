@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Modules.SampleOrders.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Modules.SampleOrders.Application.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.66" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Application\Rtl.Core.Application.csproj" />
+    <ProjectReference Include="..\Domain\Modules.SampleOrders.Domain.csproj" />
+    <ProjectReference Include="..\IntegrationEvents\Modules.SampleOrders.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\..\SampleSales\IntegrationEvents\Modules.SampleSales.IntegrationEvents.csproj" />
+  </ItemGroup>
+
+</Project>

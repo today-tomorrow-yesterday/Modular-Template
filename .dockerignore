@@ -1,0 +1,47 @@
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+
+# IDE and editor files
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+**/*.suo
+**/*.sln.docstates
+
+# Test results
+**/TestResults/
+**/coverage/
+
+# Package files
+**/*.nupkg
+
+# Logs
+**/*.log
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+**/*.md
+!**/README.md
+LICENSE
+
+# Docker files in subdirectories
+**/Dockerfile*
+**/.dockerignore
+docker-compose*.yml
+
+# Local settings
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/.env
+**/.env.*
+
+# Misc
+**/.DS_Store
+**/Thumbs.db
