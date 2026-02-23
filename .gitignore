@@ -47,6 +47,10 @@ project.fragment.lock.json
 appsettings.*.json
 !appsettings.json
 !appsettings.Development.json
+!appsettings.dev.json
+!appsettings.itg.json
+!appsettings.qua.json
+!appsettings.pro.json
 
 # Windows
 Thumbs.db
