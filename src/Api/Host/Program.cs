@@ -1,3 +1,6 @@
+#if DEBUG
+using Rtl.Core.Api.Diagnostics;
+#endif
 using Modules.Customer.Infrastructure;
 using Modules.Customer.Infrastructure.Persistence;
 using Modules.Funding.Infrastructure;
@@ -170,6 +173,11 @@ app.UseAuthorization();
 
 // Map versioned module endpoints
 app.MapVersionedModuleEndpoints(apiVersionSet, modules);
+
+#if DEBUG
+// Diagnostic endpoints for local adapter testing — compiled out of Release builds
+app.MapISeriesDiagnostics();
+#endif
 
 app.Run();
 
