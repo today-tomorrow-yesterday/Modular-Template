@@ -7,12 +7,8 @@ namespace Rtl.Core.Application.Secrets;
 public interface ISecretProvider
 {
     /// <summary>
-    /// Returns the raw secret string for the given secret name.
-    /// </summary>
-    Task<string> GetSecretStringAsync(string secretName, CancellationToken ct = default);
-
-    /// <summary>
     /// Retrieves a secret and deserializes it from JSON to <typeparamref name="T"/>.
+    /// For raw string secrets, use <c>GetSecretAsync&lt;string&gt;</c>.
     /// </summary>
-    Task<T> GetSecretAsync<T>(string secretName, CancellationToken ct = default) where T : class;
+    Task<T> GetSecretAsync<T>(string secretName, CancellationToken ct = default);
 }

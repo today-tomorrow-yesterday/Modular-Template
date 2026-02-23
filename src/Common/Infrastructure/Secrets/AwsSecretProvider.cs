@@ -8,6 +8,10 @@ using Rtl.Core.Application.Secrets;
 
 namespace Rtl.Core.Infrastructure.Secrets;
 
+/// <summary>
+/// AWS Secrets Manager implementation of <see cref="ISecretProvider"/>
+/// with per-key in-memory caching.
+/// </summary>
 internal sealed class AwsSecretProvider(
     IAmazonSecretsManager secretsManager,
     IMemoryCache cache,
@@ -19,7 +23,20 @@ internal sealed class AwsSecretProvider(
         PropertyNameCaseInsensitive = true
     };
 
-    public async Task<string> GetSecretStringAsync(string secretName, CancellationToken ct = default)
+    /// <inheritdoc />
+    public async Task<T> GetSecretAsync<T>(string secretName, CancellationToken ct = default)
+    {
+        var raw = await GetSecretStringAsync(secretName, ct);
+
+        if (typeof(T) == typeof(string))
+            return (T)(object)raw;
+
+        return JsonSerializer.Deserialize<T>(raw, JsonOptions)
+            ?? throw new InvalidOperationException(
+                $"Secret '{secretName}' deserialized to null for type {typeof(T).Name}.");
+    }
+
+    private async Task<string> GetSecretStringAsync(string secretName, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(secretName);
 
@@ -30,25 +47,44 @@ internal sealed class AwsSecretProvider(
 
         logger.LogInformation("Fetching secret '{SecretName}' from AWS Secrets Manager", secretName);
 
-        var response = await secretsManager.GetSecretValueAsync(
-            new GetSecretValueRequest
-            {
-                SecretId = secretName,
-                VersionStage = "AWSCURRENT"
-            }, ct);
+        try
+        {
+            var response = await secretsManager.GetSecretValueAsync(
+                new GetSecretValueRequest
+                {
+                    SecretId = secretName,
+                    VersionStage = "AWSCURRENT"
+                }, ct);
 
-        var ttl = TimeSpan.FromMinutes(options.Value.CacheDurationMinutes);
-        cache.Set(cacheKey, response.SecretString, ttl);
+            var ttl = TimeSpan.FromMinutes(options.Value.CacheDurationMinutes);
+            cache.Set(cacheKey, response.SecretString, ttl);
 
-        return response.SecretString;
-    }
-
-    public async Task<T> GetSecretAsync<T>(string secretName, CancellationToken ct = default) where T : class
-    {
-        var json = await GetSecretStringAsync(secretName, ct);
-
-        return JsonSerializer.Deserialize<T>(json, JsonOptions)
-            ?? throw new InvalidOperationException(
-                $"Secret '{secretName}' deserialized to null for type {typeof(T).Name}.");
+            return response.SecretString;
+        }
+        catch (ResourceNotFoundException ex)
+        {
+            logger.LogError(ex, "Secret '{SecretName}' was not found in AWS Secrets Manager", secretName);
+            throw;
+        }
+        catch (DecryptionFailureException ex)
+        {
+            logger.LogError(ex, "Failed to decrypt secret '{SecretName}' — verify KMS key permissions", secretName);
+            throw;
+        }
+        catch (InvalidRequestException ex)
+        {
+            logger.LogError(ex, "Invalid request for secret '{SecretName}' — it may be pending deletion", secretName);
+            throw;
+        }
+        catch (InvalidParameterException ex)
+        {
+            logger.LogError(ex, "Invalid parameter when fetching secret '{SecretName}'", secretName);
+            throw;
+        }
+        catch (InternalServiceErrorException ex)
+        {
+            logger.LogError(ex, "AWS Secrets Manager internal error fetching '{SecretName}'", secretName);
+            throw;
+        }
     }
 }

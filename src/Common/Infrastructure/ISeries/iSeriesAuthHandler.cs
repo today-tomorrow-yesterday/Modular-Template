@@ -20,7 +20,7 @@ internal sealed class iSeriesAuthHandler(
 
         if (!string.IsNullOrEmpty(opts.SigningKeySecretName))
         {
-            var signingKey = await secretProvider.GetSecretStringAsync(
+            var signingKey = await secretProvider.GetSecretAsync<string>(
                 opts.SigningKeySecretName, cancellationToken);
 
             if (!string.IsNullOrEmpty(signingKey))
