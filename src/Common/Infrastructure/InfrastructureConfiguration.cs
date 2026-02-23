@@ -15,6 +15,7 @@ using Rtl.Core.Infrastructure.Persistence;
 using Rtl.Core.Infrastructure.Quartz;
 using Rtl.Core.Infrastructure.ISeries;
 using Rtl.Core.Infrastructure.Resilience;
+using Rtl.Core.Infrastructure.Secrets;
 
 namespace Rtl.Core.Infrastructure;
 
@@ -54,7 +55,8 @@ public static class InfrastructureConfiguration
             .AddMessagingServices(configuration, environment)
             .AddAuthenticationServices(configuration)
             .AddAuthorizationServices()
-            .AddISeriesAdapter(configuration, environment);
+            .AddSecretProvider(configuration, environment)
+            .AddISeriesAdapter(configuration);
 
         return services;
     }

@@ -1,7 +1,5 @@
-using Amazon.SecretsManager;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http.Resilience;
 using Microsoft.Extensions.Options;
 using Rtl.Core.Application.Adapters.ISeries;
@@ -12,16 +10,12 @@ internal static class Startup
 {
     internal static IServiceCollection AddISeriesAdapter(
         this IServiceCollection services,
-        IConfiguration configuration,
-        IHostEnvironment environment)
+        IConfiguration configuration)
     {
         services.AddOptions<iSeriesOptions>()
             .Bind(configuration.GetSection(iSeriesOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        if (!environment.IsDevelopment())
-            services.AddSingleton<IAmazonSecretsManager>(new AmazonSecretsManagerClient());
 
         services.AddTransient<iSeriesAuthHandler>();
 
