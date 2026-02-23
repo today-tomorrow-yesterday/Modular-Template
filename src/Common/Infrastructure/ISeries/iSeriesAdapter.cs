@@ -114,6 +114,24 @@ internal sealed class iSeriesAdapter(
         return response.ToDomain();
     }
 
+    #pragma warning disable CS0618 // Obsolete
+    public async Task<string> PingHealthCheckAsync(CancellationToken ct)
+    {
+        logger.LogDebug("GET v1/health-check (diag)");
+        var response = await httpClient.GetAsync("v1/health-check?echoMessage=diag-ping", ct);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync(ct);
+    }
+
+    public async Task<string> PingTaxExemptionsAsync(CancellationToken ct)
+    {
+        logger.LogDebug("GET v1/taxes/exemptions (diag)");
+        var response = await httpClient.GetAsync("v1/taxes/exemptions", ct);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadAsStringAsync(ct);
+    }
+    #pragma warning restore CS0618
+
     private async Task<TResponse> PostAsync<TRequest, TResponse>(
         string path, TRequest body, CancellationToken ct)
     {

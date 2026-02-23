@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Builder;
@@ -8,7 +9,7 @@ namespace Rtl.Core.Api.Diagnostics;
 
 /// <summary>
 /// Development-only diagnostic endpoints to verify iSeries adapter connectivity.
-/// These are NOT mapped in non-Development environments.
+/// Compiled out of Release builds via #if DEBUG in Program.cs.
 /// </summary>
 internal static class ISeriesDiagnosticsEndpoints
 {
@@ -20,33 +21,35 @@ internal static class ISeriesDiagnosticsEndpoints
 
         group.MapGet("/ping", async (IiSeriesAdapter adapter, CancellationToken ct) =>
         {
-            // W&A by count is a local calculation (no HTTP call) — verifies DI wiring
             var price = await adapter.CalculateWheelAndAxlePrice(
                 new WheelAndAxlePriceByCountRequest { NumberOfWheels = 4, NumberOfAxles = 2 }, ct);
 
-            return Results.Ok(new { Test = "WheelAndAxleByCount", Price = price, Status = "OK" });
+            return Results.Ok(new { Test = "WheelAndAxleByCount (local)", Price = price, Status = "OK" });
         })
         .WithName("DiagISeriesPing")
-        .WithSummary("Verify iSeries adapter DI wiring (local calculation, no HTTP)");
+        .WithSummary("Verify adapter DI wiring — local calculation, no HTTP");
 
-        group.MapGet("/w-and-a/{homeCenterNumber}/{stockNumber}", async (
-            int homeCenterNumber,
-            string stockNumber,
-            IiSeriesAdapter adapter,
-            CancellationToken ct) =>
+#pragma warning disable CS0618 // Obsolete — intentional use for diagnostics
+        group.MapGet("/health-check", async (IiSeriesAdapter adapter, CancellationToken ct) =>
         {
-            // Actually hits the iSeries gateway — verifies HTTP connectivity + auth
-            var price = await adapter.CalculateWheelAndAxlePrice(
-                new WheelAndAxlePriceByStockRequest
-                {
-                    HomeCenterNumber = homeCenterNumber,
-                    StockNumber = stockNumber
-                }, ct);
-
-            return Results.Ok(new { HomeCenterNumber = homeCenterNumber, StockNumber = stockNumber, WheelAndAxlePrice = price });
+            var sw = Stopwatch.StartNew();
+            var body = await adapter.PingHealthCheckAsync(ct);
+            sw.Stop();
+            return Results.Ok(new { Endpoint = "v1/health-check", ElapsedMs = sw.ElapsedMilliseconds, Response = body });
         })
-        .WithName("DiagISeriesWheelAndAxle")
-        .WithSummary("Hit iSeries gateway for W&A price by stock (verifies HTTP + auth)");
+        .WithName("DiagISeriesHealthCheck")
+        .WithSummary("Hit iSeries gateway health-check — verifies HTTP + auth");
+
+        group.MapGet("/tax-exemptions", async (IiSeriesAdapter adapter, CancellationToken ct) =>
+        {
+            var sw = Stopwatch.StartNew();
+            var body = await adapter.PingTaxExemptionsAsync(ct);
+            sw.Stop();
+            return Results.Ok(new { Endpoint = "v1/taxes/exemptions", ElapsedMs = sw.ElapsedMilliseconds, Response = body });
+        })
+        .WithName("DiagISeriesTaxExemptions")
+        .WithSummary("GET tax exemption codes — verifies HTTP + auth + real data");
+#pragma warning restore CS0618
 
         return app;
     }

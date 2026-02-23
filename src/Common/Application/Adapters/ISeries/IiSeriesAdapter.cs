@@ -28,4 +28,11 @@ public interface IiSeriesAdapter
 
     // Commission — sequential: UpdateAllowances then CalculateCommission
     Task<CommissionResult> CalculateCommission(CommissionCalculationRequest request, CancellationToken ct);
+
+    // Diagnostics — for testing auth/connectivity only. Do not use in production code.
+    [Obsolete("Testing auth only — do not use in production code.")]
+    Task<string> PingHealthCheckAsync(CancellationToken ct);
+
+    [Obsolete("Testing auth only — do not use in production code.")]
+    Task<string> PingTaxExemptionsAsync(CancellationToken ct);
 }
