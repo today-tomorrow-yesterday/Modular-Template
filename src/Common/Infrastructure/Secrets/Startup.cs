@@ -20,7 +20,11 @@ internal static class Startup
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        if (!environment.IsDevelopment())
+        var useAws = configuration
+            .GetSection(SecretProviderOptions.SectionName)
+            .GetValue<bool?>("UseAws") ?? true;
+
+        if (useAws)
         {
             services.AddSingleton<IAmazonSecretsManager>(new AmazonSecretsManagerClient());
             services.AddSingleton<ISecretProvider, AwsSecretProvider>();

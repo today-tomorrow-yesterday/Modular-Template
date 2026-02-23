@@ -13,6 +13,13 @@ public sealed class SecretProviderOptions : IValidatableObject
     public const string SectionName = "Secrets";
 
     /// <summary>
+    /// Gets whether to use AWS Secrets Manager. When false, a no-op provider is used
+    /// that returns empty strings (auth headers will be skipped).
+    /// Defaults to true. Set to false only for local development without AWS credentials.
+    /// </summary>
+    public bool UseAws { get; init; } = true;
+
+    /// <summary>
     /// Gets the duration in minutes to cache each secret in memory before re-fetching.
     /// </summary>
     [Range(1, 60)]
