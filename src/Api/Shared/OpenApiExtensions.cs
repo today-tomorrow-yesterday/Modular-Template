@@ -42,13 +42,7 @@ public static class OpenApiExtensions
                 return string.Equals(groupName, docName, StringComparison.OrdinalIgnoreCase);
             });
 
-            options.CustomOperationIds(apiDesc =>
-                apiDesc.ActionDescriptor.EndpointMetadata
-                    .OfType<EndpointNameMetadata>()
-                    .FirstOrDefault()?.EndpointName
-                ?? (apiDesc.TryGetMethodInfo(out var methodInfo)
-                    ? methodInfo.Name
-                    : null));
+            ApplyCommonOptions(options);
         });
 
         return services;
@@ -72,13 +66,7 @@ public static class OpenApiExtensions
                 Description = $"API endpoints for the {moduleName} module"
             });
 
-            options.CustomOperationIds(apiDesc =>
-                apiDesc.ActionDescriptor.EndpointMetadata
-                    .OfType<EndpointNameMetadata>()
-                    .FirstOrDefault()?.EndpointName
-                ?? (apiDesc.TryGetMethodInfo(out var methodInfo)
-                    ? methodInfo.Name
-                    : null));
+            ApplyCommonOptions(options);
         });
 
         return services;
@@ -116,13 +104,7 @@ public static class OpenApiExtensions
                 return string.Equals(groupName, docName, StringComparison.OrdinalIgnoreCase);
             });
 
-            options.CustomOperationIds(apiDesc =>
-                apiDesc.ActionDescriptor.EndpointMetadata
-                    .OfType<EndpointNameMetadata>()
-                    .FirstOrDefault()?.EndpointName
-                ?? (apiDesc.TryGetMethodInfo(out var methodInfo)
-                    ? methodInfo.Name
-                    : null));
+            ApplyCommonOptions(options);
         });
 
         return services;
@@ -208,5 +190,18 @@ public static class OpenApiExtensions
         }
 
         return app;
+    }
+
+    private static void ApplyCommonOptions(SwaggerGenOptions options)
+    {
+        options.CustomOperationIds(apiDesc =>
+            apiDesc.ActionDescriptor.EndpointMetadata
+                .OfType<EndpointNameMetadata>()
+                .FirstOrDefault()?.EndpointName
+            ?? (apiDesc.TryGetMethodInfo(out var methodInfo)
+                ? methodInfo.Name
+                : null));
+
+        options.OperationFilter<RequestBodyExampleOperationFilter>();
     }
 }

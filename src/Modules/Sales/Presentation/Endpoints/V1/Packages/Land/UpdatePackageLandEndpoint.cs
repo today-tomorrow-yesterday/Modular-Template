@@ -9,7 +9,7 @@ using Rtl.Core.Presentation.Results;
 
 namespace Modules.Sales.Presentation.Endpoints.V1.Packages.Land;
 
-internal sealed class UpdatePackageLandEndpoint : IEndpoint
+internal sealed partial class UpdatePackageLandEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
@@ -21,7 +21,8 @@ internal sealed class UpdatePackageLandEndpoint : IEndpoint
             .Produces<PackageUpdatedResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
     }
 
     private static async Task<IResult> HandleAsync(
