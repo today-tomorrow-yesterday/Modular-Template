@@ -27,10 +27,15 @@ internal sealed class iSeriesAdapter(
         PropertyNameCaseInsensitive = true
     };
 
+    // Both methods below call iSeries for W&A pricing — they hit different stored procedures:
+    //   By stock → "home-inventory-ancillary-data" (legacy iSeries name; returns OData with wheelAndAxlePrice)
+    //   By count → "wheels-and-axles/price"         (returns salePrice + cost)
+
     public async Task<decimal> GetWheelAndAxlePriceByStock(
         WheelAndAxlePriceByStockRequest request, CancellationToken ct)
     {
-        // Legacy iSeries endpoint name — "ancillary data" is the iSeries term for wheel & axle pricing by stock number
+        // The path looks unrelated to W&A, but "ancillary data" is the iSeries term for this lookup.
+        // This is the iSeries endpoint name — we cannot rename it.
         var url = $"v1/inventory/home-inventory-ancillary-data?homeCenterNumber={request.HomeCenterNumber}&stockNumbers={request.StockNumber}";
         logger.LogDebug("GET {Url}", url);
 
