@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Modules.Sales.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SalesDbContext))]
-    [Migration("20260217025508_InitialCreate")]
+    [Migration("20260224155314_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -88,6 +88,10 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_authorized_users_cache");
 
+                    b.HasIndex("EmployeeNumber")
+                        .IsUnique()
+                        .HasDatabaseName("uq_authorized_users_cache_employee_number");
+
                     b.HasIndex("FederatedId")
                         .IsUnique()
                         .HasDatabaseName("ix_authorized_users_cache_federated_id")
@@ -98,6 +102,676 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_authorized_users_cache_ref_user_id");
 
                     b.ToTable("authorized_users_cache", "cache");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcPricingHomeMultiplier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<decimal>("DuesMultiplier")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("numeric(4,2)")
+                        .HasColumnName("dues_multiplier");
+
+                    b.Property<DateOnly>("EffectiveDate")
+                        .HasColumnType("date")
+                        .HasColumnName("effective_date");
+
+                    b.Property<decimal>("FreightMultiplier")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("numeric(4,2)")
+                        .HasColumnName("freight_multiplier");
+
+                    b.Property<decimal>("HomeMultiplierValue")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("numeric(4,2)")
+                        .HasColumnName("home_multiplier_value");
+
+                    b.Property<int>("Homident")
+                        .HasColumnType("integer")
+                        .HasColumnName("homident");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("StateCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("state_code");
+
+                    b.Property<decimal>("UpgradesMultiplier")
+                        .HasPrecision(4, 2)
+                        .HasColumnType("numeric(4,2)")
+                        .HasColumnName("upgrades_multiplier");
+
+                    b.Property<decimal>("WheelsAxlesMultiplier")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("wheels_axles_multiplier");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pricing_home_multiplier");
+
+                    b.HasIndex("Homident")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_pricing_home_multiplier_homident");
+
+                    b.ToTable("pricing_home_multiplier", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcPricingHomeOptionWhitelist", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateOnly>("EffectiveDate")
+                        .HasColumnType("date")
+                        .HasColumnName("effective_date");
+
+                    b.Property<int>("Howident")
+                        .HasColumnType("integer")
+                        .HasColumnName("howident");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("MultiplierCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("multiplier_code");
+
+                    b.Property<int>("OptionNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("option_number");
+
+                    b.Property<int>("PlantNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("plant_number");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pricing_home_option_whitelist");
+
+                    b.HasIndex("Howident")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_pricing_home_option_whitelist_howident");
+
+                    b.ToTable("pricing_home_option_whitelist", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcProjectCostCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<int>("CategoryNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_number");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("DisplayForCash")
+                        .HasColumnType("boolean")
+                        .HasColumnName("display_for_cash");
+
+                    b.Property<bool>("IsCreditConsideration")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_credit_consideration");
+
+                    b.Property<bool>("IsLandDot")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_land_dot");
+
+                    b.Property<int>("MasterDealer")
+                        .HasColumnType("integer")
+                        .HasColumnName("master_dealer");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<bool>("RestrictCss")
+                        .HasColumnType("boolean")
+                        .HasColumnName("restrict_css");
+
+                    b.Property<bool>("RestrictFha")
+                        .HasColumnType("boolean")
+                        .HasColumnName("restrict_fha");
+
+                    b.HasKey("Id")
+                        .HasName("pk_project_cost_category");
+
+                    b.HasIndex("MasterDealer", "CategoryNumber")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_project_cost_category_dealer_number");
+
+                    b.ToTable("project_cost_category", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcProjectCostItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(25)
+                        .HasColumnType("character varying(25)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsCssRestricted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_css_restricted");
+
+                    b.Property<bool>("IsDisplayForCash")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_display_for_cash");
+
+                    b.Property<bool>("IsFeeItem")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_fee_item");
+
+                    b.Property<bool>("IsFhaRestricted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_fha_restricted");
+
+                    b.Property<bool>("IsHopeRefundsIncluded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_hope_refunds_included");
+
+                    b.Property<bool>("IsRestrictCssCost")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_restrict_css_cost");
+
+                    b.Property<bool>("IsRestrictOptionPrice")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_restrict_option_price");
+
+                    b.Property<int>("ItemNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("item_number");
+
+                    b.Property<int>("MasterDealer")
+                        .HasColumnType("integer")
+                        .HasColumnName("master_dealer");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<decimal?>("ProfitPercentage")
+                        .HasPrecision(7, 2)
+                        .HasColumnType("numeric(7,2)")
+                        .HasColumnName("profit_percentage");
+
+                    b.Property<int>("ProjectCostCategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("project_cost_category_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_project_cost_item");
+
+                    b.HasIndex("ProjectCostCategoryId")
+                        .HasDatabaseName("ix_project_cost_item_project_cost_category_id");
+
+                    b.HasIndex("MasterDealer", "CategoryId", "ItemNumber")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_project_cost_item_dealer_cat_number");
+
+                    b.ToTable("project_cost_item", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcProjectCostStateMatrix", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
+                    b.Property<int>("CategoryItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_item_id");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("HomeType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("home_type");
+
+                    b.Property<bool?>("IsAdjStructInsurable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_adj_struct_insurable");
+
+                    b.Property<bool?>("IsFeeItemAllowed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_fee_item_allowed");
+
+                    b.Property<bool>("IsInsurable")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_insurable");
+
+                    b.Property<bool?>("IsTotalImprovementIncluded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_total_improvement_included");
+
+                    b.Property<int>("MasterDealer")
+                        .HasColumnType("integer")
+                        .HasColumnName("master_dealer");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<int>("ProjectCostCategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("project_cost_category_id");
+
+                    b.Property<int>("ProjectCostItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("project_cost_item_id");
+
+                    b.Property<string>("StateCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("state_code");
+
+                    b.Property<decimal>("TaxBasisManufactured")
+                        .HasPrecision(4, 3)
+                        .HasColumnType("numeric(4,3)")
+                        .HasColumnName("tax_basis_manufactured");
+
+                    b.Property<decimal>("TaxBasisModularOff")
+                        .HasPrecision(4, 3)
+                        .HasColumnType("numeric(4,3)")
+                        .HasColumnName("tax_basis_modular_off");
+
+                    b.Property<decimal>("TaxBasisModularOn")
+                        .HasPrecision(4, 3)
+                        .HasColumnType("numeric(4,3)")
+                        .HasColumnName("tax_basis_modular_on");
+
+                    b.HasKey("Id")
+                        .HasName("pk_project_cost_state_matrix");
+
+                    b.HasIndex("ProjectCostCategoryId")
+                        .HasDatabaseName("ix_project_cost_state_matrix_project_cost_category_id");
+
+                    b.HasIndex("ProjectCostItemId")
+                        .HasDatabaseName("ix_project_cost_state_matrix_project_cost_item_id");
+
+                    b.HasIndex("MasterDealer", "CategoryId", "CategoryItemId", "HomeType", "StateCode")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_project_cost_state_matrix_composite");
+
+                    b.ToTable("project_cost_state_matrix", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcTaxAllowancePosition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
+                    b.Property<int>("CostGlClayton")
+                        .HasColumnType("integer")
+                        .HasColumnName("cost_gl_clayton");
+
+                    b.Property<string>("CostGlGlobal")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cost_gl_global");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsMandatory")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_mandatory");
+
+                    b.Property<bool>("IsMandatorySale")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_mandatory_sale");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("integer")
+                        .HasColumnName("position");
+
+                    b.Property<int>("SaleGlClayton")
+                        .HasColumnType("integer")
+                        .HasColumnName("sale_gl_clayton");
+
+                    b.Property<string>("SaleGlGlobal")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("sale_gl_global");
+
+                    b.Property<string>("TypeCode")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type_code");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tax_allowance_position");
+
+                    b.HasIndex("Position")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_tax_allowance_position");
+
+                    b.ToTable("tax_allowance_position", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcTaxCalculationError", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("FieldName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("field_name");
+
+                    b.Property<int>("FundingId")
+                        .HasColumnType("integer")
+                        .HasColumnName("funding_id");
+
+                    b.Property<int>("HomeCenterNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("home_center_number");
+
+                    b.Property<int?>("LinkId")
+                        .HasColumnType("integer")
+                        .HasColumnName("link_id");
+
+                    b.Property<int>("MasterDealer")
+                        .HasColumnType("integer")
+                        .HasColumnName("master_dealer");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<string>("MessageId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message_id");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("ProgramName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("program_name");
+
+                    b.Property<int>("SequenceNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("sequence_number");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tax_calculation_error");
+
+                    b.HasIndex("FundingId", "SequenceNumber")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_tax_calc_error_funding_seq");
+
+                    b.ToTable("tax_calculation_error", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcTaxExemption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<int>("ExemptionCode")
+                        .HasColumnType("integer")
+                        .HasColumnName("exemption_code");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<string>("RulesText")
+                        .HasColumnType("text")
+                        .HasColumnName("rules_text");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tax_exemption");
+
+                    b.HasIndex("ExemptionCode")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_tax_exemption_code");
+
+                    b.ToTable("tax_exemption", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcTaxQuestion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<bool>("AskForLand")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ask_for_land");
+
+                    b.Property<bool>("AskForNew")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ask_for_new");
+
+                    b.Property<bool>("AskForRepo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ask_for_repo");
+
+                    b.Property<bool>("AskForUsed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ask_for_used");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateOnly>("EffectiveDate")
+                        .HasColumnType("date")
+                        .HasColumnName("effective_date");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date")
+                        .HasColumnName("end_date");
+
+                    b.Property<int>("MasterDealer")
+                        .HasColumnType("integer")
+                        .HasColumnName("master_dealer");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<int>("QuestionNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("question_number");
+
+                    b.Property<string>("StateCode")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)")
+                        .HasColumnName("state_code");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tax_question");
+
+                    b.HasIndex("MasterDealer", "StateCode", "QuestionNumber")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_tax_question_dealer_state_number");
+
+                    b.ToTable("tax_question", "cdc");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcTaxQuestionText", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<DateOnly?>("InactivateDate")
+                        .HasColumnType("date")
+                        .HasColumnName("inactivate_date");
+
+                    b.Property<string>("InactivatedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("inactivated_by");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<int>("QuestionNumber")
+                        .HasColumnType("integer")
+                        .HasColumnName("question_number");
+
+                    b.Property<int>("TaxQuestionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tax_question_id");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("text");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tax_question_text");
+
+                    b.HasIndex("QuestionNumber")
+                        .IsUnique()
+                        .HasDatabaseName("uq_cdc_tax_question_text_number");
+
+                    b.HasIndex("TaxQuestionId")
+                        .HasDatabaseName("ix_tax_question_text_tax_question_id");
+
+                    b.ToTable("tax_question_text", "cdc");
                 });
 
             modelBuilder.Entity("Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress", b =>
@@ -234,6 +908,10 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     b.Property<int>("RefFundingRequestId")
                         .HasColumnType("integer")
                         .HasColumnName("ref_funding_request_id");
+
+                    b.Property<decimal>("RequestAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("request_amount");
 
                     b.Property<int>("SaleId")
                         .HasColumnType("integer")
@@ -1232,6 +1910,63 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     b.HasDiscriminator().HasValue("Warranty");
                 });
 
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcProjectCostItem", b =>
+                {
+                    b.HasOne("Modules.Sales.Domain.Cdc.CdcProjectCostCategory", "Category")
+                        .WithMany("Items")
+                        .HasForeignKey("ProjectCostCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_project_cost_item_project_cost_category_project_cost_catego");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcProjectCostStateMatrix", b =>
+                {
+                    b.HasOne("Modules.Sales.Domain.Cdc.CdcProjectCostCategory", "Category")
+                        .WithMany()
+                        .HasForeignKey("ProjectCostCategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_project_cost_state_matrix_project_cost_category_project_cos");
+
+                    b.HasOne("Modules.Sales.Domain.Cdc.CdcProjectCostItem", "Item")
+                        .WithMany()
+                        .HasForeignKey("ProjectCostItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_project_cost_state_matrix_project_cost_item_project_cost_it");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcTaxCalculationError", b =>
+                {
+                    b.HasOne("Modules.Sales.Domain.FundingCache.FundingRequestCache", "FundingRequest")
+                        .WithMany()
+                        .HasForeignKey("FundingId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_tax_calculation_error_funding_requests_cache_funding_id");
+
+                    b.Navigation("FundingRequest");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcTaxQuestionText", b =>
+                {
+                    b.HasOne("Modules.Sales.Domain.Cdc.CdcTaxQuestion", "TaxQuestion")
+                        .WithMany("QuestionTexts")
+                        .HasForeignKey("TaxQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tax_question_text_tax_question_tax_question_id");
+
+                    b.Navigation("TaxQuestion");
+                });
+
             modelBuilder.Entity("Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress", b =>
                 {
                     b.HasOne("Modules.Sales.Domain.Sales.Sale", "Sale")
@@ -1354,6 +2089,16 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_package_lines_land_parcels_cache_land_parcel_id");
 
                     b.Navigation("LandParcel");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcProjectCostCategory", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Modules.Sales.Domain.Cdc.CdcTaxQuestion", b =>
+                {
+                    b.Navigation("QuestionTexts");
                 });
 
             modelBuilder.Entity("Modules.Sales.Domain.Packages.Package", b =>

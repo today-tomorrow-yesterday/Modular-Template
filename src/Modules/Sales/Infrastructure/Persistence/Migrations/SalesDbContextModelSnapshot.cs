@@ -85,6 +85,10 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_authorized_users_cache");
 
+                    b.HasIndex("EmployeeNumber")
+                        .IsUnique()
+                        .HasDatabaseName("uq_authorized_users_cache_employee_number");
+
                     b.HasIndex("FederatedId")
                         .IsUnique()
                         .HasDatabaseName("ix_authorized_users_cache_federated_id")
@@ -555,9 +559,9 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("field_name");
 
-                    b.Property<int>("FundingCacheId")
+                    b.Property<int>("FundingId")
                         .HasColumnType("integer")
-                        .HasColumnName("funding_cache_id");
+                        .HasColumnName("funding_id");
 
                     b.Property<int>("HomeCenterNumber")
                         .HasColumnType("integer")
@@ -597,7 +601,7 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     b.HasKey("Id")
                         .HasName("pk_tax_calculation_error");
 
-                    b.HasIndex("FundingCacheId", "SequenceNumber")
+                    b.HasIndex("FundingId", "SequenceNumber")
                         .IsUnique()
                         .HasDatabaseName("uq_cdc_tax_calc_error_funding_seq");
 
@@ -901,6 +905,10 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     b.Property<int>("RefFundingRequestId")
                         .HasColumnType("integer")
                         .HasColumnName("ref_funding_request_id");
+
+                    b.Property<decimal>("RequestAmount")
+                        .HasColumnType("numeric")
+                        .HasColumnName("request_amount");
 
                     b.Property<int>("SaleId")
                         .HasColumnType("integer")
@@ -1936,10 +1944,10 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                 {
                     b.HasOne("Modules.Sales.Domain.FundingCache.FundingRequestCache", "FundingRequest")
                         .WithMany()
-                        .HasForeignKey("FundingCacheId")
+                        .HasForeignKey("FundingId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_tax_calculation_error_funding_requests_cache_funding_cache_");
+                        .HasConstraintName("fk_tax_calculation_error_funding_requests_cache_funding_id");
 
                     b.Navigation("FundingRequest");
                 });

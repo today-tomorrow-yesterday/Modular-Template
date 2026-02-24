@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Modules.SampleSales.Infrastructure.Persistence;
+using Modules.SampleOrders.Infrastructure.Persistence;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
+namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
 {
-    [DbContext(typeof(SampleDbContext))]
-    [Migration("20260217025527_InitialCreate")]
+    [DbContext(typeof(OrdersDbContext))]
+    [Migration("20260224155337_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,23 +20,23 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("sample")
+                .HasDefaultSchema("orders")
                 .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.HasSequence<int>("sample_hilo_seq", "sample")
+            modelBuilder.HasSequence<int>("orders_hilo_seq", "orders")
                 .IncrementsBy(10);
 
-            modelBuilder.Entity("Modules.SampleSales.Domain.Catalogs.Catalog", b =>
+            modelBuilder.Entity("Modules.SampleOrders.Domain.Customers.Customer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sample_hilo_seq", "sample");
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "orders_hilo_seq", "orders");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -53,11 +53,6 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("DeletedByUserId")
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by_user_id");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("description");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -80,67 +75,56 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                         .HasColumnName("name");
 
                     b.HasKey("Id")
-                        .HasName("pk_catalogs");
+                        .HasName("pk_customers");
 
                     b.HasIndex("IsDeleted")
-                        .HasDatabaseName("ix_catalog_is_deleted");
+                        .HasDatabaseName("ix_customer_is_deleted");
 
-                    b.ToTable("catalogs", "sample");
+                    b.ToTable("customers", "orders");
                 });
 
-            modelBuilder.Entity("Modules.SampleSales.Domain.Catalogs.CatalogProduct", b =>
+            modelBuilder.Entity("Modules.SampleOrders.Domain.Orders.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sample_hilo_seq", "sample");
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "orders_hilo_seq", "orders");
 
-                    b.Property<DateTime>("AddedAtUtc")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("added_at_utc");
+                        .HasColumnName("created_at_utc");
 
-                    b.Property<int>("CatalogId")
-                        .HasColumnType("integer")
-                        .HasColumnName("catalog_id");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_catalog_products");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("ix_catalog_products_product_id");
-
-                    b.HasIndex("CatalogId", "ProductId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_catalog_products_catalog_id_product_id");
-
-                    b.ToTable("catalog_products", "sample");
-                });
-
-            modelBuilder.Entity("Modules.SampleSales.Domain.OrdersCache.OrderCache", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("currency");
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by_user_id");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer")
                         .HasColumnName("customer_id");
 
-                    b.Property<DateTime>("LastSyncedAtUtc")
+                    b.Property<DateTime?>("DeletedAtUtc")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_synced_at_utc");
+                        .HasColumnName("deleted_at_utc");
+
+                    b.Property<Guid?>("DeletedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by_user_id");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<DateTime?>("ModifiedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("modified_at_utc");
+
+                    b.Property<Guid?>("ModifiedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("modified_by_user_id");
 
                     b.Property<DateTime>("OrderedAtUtc")
                         .HasColumnType("timestamp with time zone")
@@ -152,74 +136,69 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("status");
 
-                    b.Property<decimal>("TotalPrice")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("total_price");
-
                     b.HasKey("Id")
-                        .HasName("pk_orders_cache");
+                        .HasName("pk_orders");
 
                     b.HasIndex("CustomerId")
-                        .HasDatabaseName("ix_orders_cache_customer_id");
+                        .HasDatabaseName("ix_orders_customer_id");
 
-                    b.ToTable("orders_cache", "cache");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("ix_order_is_deleted");
+
+                    b.ToTable("orders", "orders");
                 });
 
-            modelBuilder.Entity("Modules.SampleSales.Domain.Products.Product", b =>
+            modelBuilder.Entity("Modules.SampleOrders.Domain.Orders.OrderLine", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sample_hilo_seq", "sample");
+                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "orders_hilo_seq", "orders");
 
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
 
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_user_id");
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
 
-                    b.Property<DateTime?>("DeletedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_at_utc");
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
 
-                    b.Property<Guid?>("DeletedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by_user_id");
+                    b.HasKey("Id")
+                        .HasName("pk_order_lines");
+
+                    b.HasIndex("OrderId")
+                        .HasDatabaseName("ix_order_lines_order_id");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("ix_order_lines_product_id");
+
+                    b.ToTable("order_lines", "orders");
+                });
+
+            modelBuilder.Entity("Modules.SampleOrders.Domain.ProductsCache.ProductCache", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)")
                         .HasColumnName("description");
 
-                    b.Property<string>("InternalCost")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("text")
-                        .HasColumnName("internal_cost");
-
                     b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
-                        .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_deleted");
-
-                    b.Property<DateTime?>("ModifiedAtUtc")
+                    b.Property<DateTime>("LastSyncedAtUtc")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<Guid?>("ModifiedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("modified_by_user_id");
+                        .HasColumnName("last_synced_at_utc");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -227,13 +206,18 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("name");
 
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("price");
+
                     b.HasKey("Id")
-                        .HasName("pk_products");
+                        .HasName("pk_products_cache");
 
-                    b.HasIndex("IsDeleted")
-                        .HasDatabaseName("ix_product_is_deleted");
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("ix_products_cache_is_active");
 
-                    b.ToTable("products", "sample");
+                    b.ToTable("products_cache", "cache");
                 });
 
             modelBuilder.Entity("Rtl.Core.Infrastructure.Auditing.AuditLog", b =>
@@ -314,7 +298,7 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                     b.HasIndex("EntityName", "EntityId")
                         .HasDatabaseName("ix_audit_logs_entity");
 
-                    b.ToTable("audit_logs", "sample");
+                    b.ToTable("audit_logs", "orders");
                 });
 
             modelBuilder.Entity("Rtl.Core.Infrastructure.Inbox.Persistence.InboxMessage", b =>
@@ -447,79 +431,79 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                     b.ToTable("outbox_message_consumers", "messaging");
                 });
 
-            modelBuilder.Entity("Modules.SampleSales.Domain.Catalogs.CatalogProduct", b =>
+            modelBuilder.Entity("Modules.SampleOrders.Domain.Customers.Customer", b =>
                 {
-                    b.HasOne("Modules.SampleSales.Domain.Catalogs.Catalog", null)
-                        .WithMany("Products")
-                        .HasForeignKey("CatalogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_catalog_products_catalogs_catalog_id");
-
-                    b.OwnsOne("Rtl.Core.Domain.ValueObjects.Money", "CustomPrice", b1 =>
+                    b.OwnsOne("Modules.SampleOrders.Domain.ValueObjects.Email", "Email", b1 =>
                         {
-                            b1.Property<int>("CatalogProductId")
+                            b1.Property<int>("CustomerId")
                                 .HasColumnType("integer")
                                 .HasColumnName("id");
 
-                            b1.Property<decimal>("Amount")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
-                                .HasColumnName("custom_price_amount");
-
-                            b1.Property<string>("Currency")
+                            b1.Property<string>("Value")
                                 .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("custom_price_currency");
+                                .HasMaxLength(255)
+                                .HasColumnType("character varying(255)")
+                                .HasColumnName("email");
 
-                            b1.HasKey("CatalogProductId");
+                            b1.HasKey("CustomerId");
 
-                            b1.ToTable("catalog_products", "sample");
+                            b1.HasIndex("Value")
+                                .IsUnique()
+                                .HasDatabaseName("ix_customers_email");
+
+                            b1.ToTable("customers", "orders");
 
                             b1.WithOwner()
-                                .HasForeignKey("CatalogProductId")
-                                .HasConstraintName("fk_catalog_products_catalog_products_id");
+                                .HasForeignKey("CustomerId")
+                                .HasConstraintName("fk_customers_customers_id");
                         });
 
-                    b.Navigation("CustomPrice");
-                });
-
-            modelBuilder.Entity("Modules.SampleSales.Domain.Products.Product", b =>
-                {
-                    b.OwnsOne("Rtl.Core.Domain.ValueObjects.Money", "Price", b1 =>
-                        {
-                            b1.Property<int>("ProductId")
-                                .HasColumnType("integer")
-                                .HasColumnName("id");
-
-                            b1.Property<decimal>("Amount")
-                                .HasPrecision(18, 2)
-                                .HasColumnType("numeric(18,2)")
-                                .HasColumnName("price_amount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("price_currency");
-
-                            b1.HasKey("ProductId");
-
-                            b1.ToTable("products", "sample");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ProductId")
-                                .HasConstraintName("fk_products_products_id");
-                        });
-
-                    b.Navigation("Price")
+                    b.Navigation("Email")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Modules.SampleSales.Domain.Catalogs.Catalog", b =>
+            modelBuilder.Entity("Modules.SampleOrders.Domain.Orders.OrderLine", b =>
                 {
-                    b.Navigation("Products");
+                    b.HasOne("Modules.SampleOrders.Domain.Orders.Order", null)
+                        .WithMany("Lines")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_lines_orders_order_id");
+
+                    b.OwnsOne("Rtl.Core.Domain.ValueObjects.Money", "UnitPrice", b1 =>
+                        {
+                            b1.Property<int>("OrderLineId")
+                                .HasColumnType("integer")
+                                .HasColumnName("id");
+
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(18, 2)
+                                .HasColumnType("numeric(18,2)")
+                                .HasColumnName("unit_price_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("unit_price_currency");
+
+                            b1.HasKey("OrderLineId");
+
+                            b1.ToTable("order_lines", "orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderLineId")
+                                .HasConstraintName("fk_order_lines_order_lines_id");
+                        });
+
+                    b.Navigation("UnitPrice")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Modules.SampleOrders.Domain.Orders.Order", b =>
+                {
+                    b.Navigation("Lines");
                 });
 #pragma warning restore 612, 618
         }
