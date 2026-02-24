@@ -18,7 +18,13 @@ internal sealed class RetailPriceWireResponse
     public decimal RetailPrice { get; set; }
 }
 
-internal sealed class InventoryAncillaryWireResponse
+internal sealed class WheelAndAxlePriceWireResponse
 {
     public decimal WheelAndAxlePrice { get; set; }
+}
+
+internal sealed class WheelAndAxlePriceByCountWireResponse
+{
+    public decimal SalePrice { get; set; }
+    public decimal Cost { get; set; }
 }

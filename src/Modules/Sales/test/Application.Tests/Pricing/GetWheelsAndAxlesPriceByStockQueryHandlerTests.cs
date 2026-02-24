@@ -39,7 +39,7 @@ public sealed class GetWheelsAndAxlesPriceByStockQueryHandlerTests
         _saleRepository.GetByPublicIdAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
 
-        _iSeriesAdapter.CalculateWheelAndAxlePrice(Arg.Any<WheelAndAxlePriceByStockRequest>(), Arg.Any<CancellationToken>())
+        _iSeriesAdapter.GetWheelAndAxlePriceByStock(Arg.Any<WheelAndAxlePriceByStockRequest>(), Arg.Any<CancellationToken>())
             .Returns(3200m);
 
         var result = await _sut.Handle(

@@ -21,33 +21,38 @@ internal sealed class iSeriesAdapter(
     ILogger<iSeriesAdapter> logger) : IiSeriesAdapter
 #pragma warning restore IDE1006 // Naming Styles
 {
-    private const decimal PricePerWheel = 100m;
-    private const decimal PricePerAxle = 250m;
-
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         PropertyNameCaseInsensitive = true
     };
 
-    public async Task<decimal> CalculateWheelAndAxlePrice(
+    public async Task<decimal> GetWheelAndAxlePriceByStock(
         WheelAndAxlePriceByStockRequest request, CancellationToken ct)
     {
+        // Legacy iSeries endpoint name — "ancillary data" is the iSeries term for wheel & axle pricing by stock number
         var url = $"v1/inventory/home-inventory-ancillary-data?homeCenterNumber={request.HomeCenterNumber}&stockNumbers={request.StockNumber}";
         logger.LogDebug("GET {Url}", url);
 
         var response = await httpClient.GetAsync(url, ct);
         response.EnsureSuccessStatusCode();
 
-        var odata = await response.Content.ReadFromJsonAsync<ODataResponse<InventoryAncillaryWireResponse>>(JsonOptions, ct);
+        var odata = await response.Content.ReadFromJsonAsync<ODataResponse<WheelAndAxlePriceWireResponse>>(JsonOptions, ct);
         return odata?.Values.FirstOrDefault()?.WheelAndAxlePrice ?? 0m;
     }
 
-    public Task<decimal> CalculateWheelAndAxlePrice(
+    public async Task<decimal> CalculateWheelAndAxlePriceByCount(
         WheelAndAxlePriceByCountRequest request, CancellationToken ct)
     {
-        var total = request.NumberOfWheels * PricePerWheel + request.NumberOfAxles * PricePerAxle;
-        return Task.FromResult(total);
+        var date = DateTime.UtcNow.ToString("yyyyMMdd");
+        var url = $"v1/wheels-and-axles/price?date={date}&numberOfWheels={request.NumberOfWheels}&numberOfAxles={request.NumberOfAxles}";
+        logger.LogDebug("GET {Url}", url);
+
+        var response = await httpClient.GetAsync(url, ct);
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<WheelAndAxlePriceByCountWireResponse>(JsonOptions, ct);
+        return result?.SalePrice ?? 0m;
     }
 
     public async Task<decimal> CalculateRetailPrice(

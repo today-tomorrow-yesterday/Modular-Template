@@ -11,8 +11,8 @@ public interface IiSeriesAdapter
 #pragma warning restore IDE1006 // Naming Styles
 {
     // Pricing
-    Task<decimal> CalculateWheelAndAxlePrice(WheelAndAxlePriceByStockRequest request, CancellationToken ct);
-    Task<decimal> CalculateWheelAndAxlePrice(WheelAndAxlePriceByCountRequest request, CancellationToken ct);
+    Task<decimal> GetWheelAndAxlePriceByStock(WheelAndAxlePriceByStockRequest request, CancellationToken ct);
+    Task<decimal> CalculateWheelAndAxlePriceByCount(WheelAndAxlePriceByCountRequest request, CancellationToken ct);
     Task<decimal> CalculateRetailPrice(RetailPriceRequest request, CancellationToken ct);
     Task<OptionTotalsResult> CalculateOptionTotals(OptionTotalsRequest request, CancellationToken ct);
 

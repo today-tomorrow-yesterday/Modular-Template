@@ -203,7 +203,7 @@ internal sealed class UpdatePackageHomeCommandHandler(
             && !string.IsNullOrEmpty(home.StockNumber))
         {
             var homeCenterNumber = package.Sale.RetailLocation.RefHomeCenterNumber ?? 0;
-            waPrice = await iSeriesAdapter.CalculateWheelAndAxlePrice(
+            waPrice = await iSeriesAdapter.GetWheelAndAxlePriceByStock(
                 new WheelAndAxlePriceByStockRequest
                 {
                     HomeCenterNumber = homeCenterNumber,
@@ -212,7 +212,7 @@ internal sealed class UpdatePackageHomeCommandHandler(
         }
         else if (home.NumberOfWheels.HasValue && home.NumberOfAxles.HasValue)
         {
-            waPrice = await iSeriesAdapter.CalculateWheelAndAxlePrice(
+            waPrice = await iSeriesAdapter.CalculateWheelAndAxlePriceByCount(
                 new WheelAndAxlePriceByCountRequest
                 {
                     NumberOfWheels = home.NumberOfWheels.Value,

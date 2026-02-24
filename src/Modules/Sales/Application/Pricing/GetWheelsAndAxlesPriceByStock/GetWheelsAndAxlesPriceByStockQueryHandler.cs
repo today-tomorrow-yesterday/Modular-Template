@@ -35,7 +35,7 @@ internal sealed class GetWheelsAndAxlesPriceByStockQueryHandler(
             IsRetaining = request.IsRetaining
         };
 
-        var price = await iSeriesAdapter.CalculateWheelAndAxlePrice(adapterRequest, cancellationToken);
+        var price = await iSeriesAdapter.GetWheelAndAxlePriceByStock(adapterRequest, cancellationToken);
 
         return price;
     }

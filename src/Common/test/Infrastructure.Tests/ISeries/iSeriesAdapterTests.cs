@@ -33,41 +33,49 @@ public class iSeriesAdapterTests
         };
     }
 
-    // --- Wheel & Axle by Count (local calculation, no HTTP) ---
+    // --- Wheel & Axle by Count (iSeries GET) ---
 
     [Fact]
-    public async Task CalculateWheelAndAxlePrice_ByCount_Returns_Correct_Total()
+    public async Task CalculateWheelAndAxlePriceByCount_Returns_Correct_Total()
     {
+        SetJsonResponse("""{"salePrice": 875.00, "cost": 650.00}""");
         var sut = CreateSut();
         var request = new WheelAndAxlePriceByCountRequest { NumberOfWheels = 4, NumberOfAxles = 2 };
 
-        var result = await sut.CalculateWheelAndAxlePrice(request, CancellationToken.None);
+        var result = await sut.CalculateWheelAndAxlePriceByCount(request, CancellationToken.None);
 
-        Assert.Equal(900m, result); // 4 * $100 + 2 * $250
-        Assert.Equal(0, _handler.CallCount); // no HTTP call
+        Assert.Equal(875m, result);
+        Assert.Equal(HttpMethod.Get, _handler.LastRequest!.Method);
+        Assert.Contains("numberOfWheels=4", _handler.LastRequest.RequestUri!.ToString());
+        Assert.Contains("numberOfAxles=2", _handler.LastRequest.RequestUri.ToString());
+        Assert.Contains("v1/wheels-and-axles/price", _handler.LastRequest.RequestUri.ToString());
     }
 
     [Fact]
-    public async Task CalculateWheelAndAxlePrice_ByCount_Zero_Returns_Zero()
+    public async Task CalculateWheelAndAxlePriceByCount_Zero_Returns_Zero()
     {
+        SetJsonResponse("""{"salePrice": 0, "cost": 0}""");
         var sut = CreateSut();
         var request = new WheelAndAxlePriceByCountRequest { NumberOfWheels = 0, NumberOfAxles = 0 };
 
-        var result = await sut.CalculateWheelAndAxlePrice(request, CancellationToken.None);
+        var result = await sut.CalculateWheelAndAxlePriceByCount(request, CancellationToken.None);
 
         Assert.Equal(0m, result);
+        Assert.Equal(HttpMethod.Get, _handler.LastRequest!.Method);
+        Assert.Contains("numberOfWheels=0", _handler.LastRequest.RequestUri!.ToString());
+        Assert.Contains("numberOfAxles=0", _handler.LastRequest.RequestUri.ToString());
     }
 
     // --- Wheel & Axle by Stock (OData GET) ---
 
     [Fact]
-    public async Task CalculateWheelAndAxlePrice_ByStock_Sends_Get_With_Correct_QueryParams()
+    public async Task GetWheelAndAxlePriceByStock_Sends_Get_With_Correct_QueryParams()
     {
         SetJsonResponse("""{"$values": [{"wheelAndAxlePrice": 575.00}]}""");
         var sut = CreateSut();
         var request = new WheelAndAxlePriceByStockRequest { HomeCenterNumber = 42, StockNumber = "ABC123" };
 
-        var result = await sut.CalculateWheelAndAxlePrice(request, CancellationToken.None);
+        var result = await sut.GetWheelAndAxlePriceByStock(request, CancellationToken.None);
 
         Assert.Equal(575m, result);
         Assert.Equal(HttpMethod.Get, _handler.LastRequest!.Method);
@@ -76,13 +84,13 @@ public class iSeriesAdapterTests
     }
 
     [Fact]
-    public async Task CalculateWheelAndAxlePrice_ByStock_Empty_Values_Returns_Zero()
+    public async Task GetWheelAndAxlePriceByStock_Empty_Values_Returns_Zero()
     {
         SetJsonResponse("""{"$values": []}""");
         var sut = CreateSut();
         var request = new WheelAndAxlePriceByStockRequest { HomeCenterNumber = 1, StockNumber = "X" };
 
-        var result = await sut.CalculateWheelAndAxlePrice(request, CancellationToken.None);
+        var result = await sut.GetWheelAndAxlePriceByStock(request, CancellationToken.None);
 
         Assert.Equal(0m, result);
     }
@@ -254,6 +262,6 @@ public class iSeriesAdapterTests
         var request = new WheelAndAxlePriceByStockRequest { HomeCenterNumber = 1, StockNumber = "X" };
 
         await Assert.ThrowsAsync<HttpRequestException>(
-            () => sut.CalculateWheelAndAxlePrice(request, CancellationToken.None));
+            () => sut.GetWheelAndAxlePriceByStock(request, CancellationToken.None));
     }
 }

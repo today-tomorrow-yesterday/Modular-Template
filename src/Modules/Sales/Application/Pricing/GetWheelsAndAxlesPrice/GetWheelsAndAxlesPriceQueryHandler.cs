@@ -32,7 +32,7 @@ internal sealed class GetWheelsAndAxlesPriceQueryHandler(
             NumberOfAxles = request.NumberOfAxles
         };
 
-        var price = await iSeriesAdapter.CalculateWheelAndAxlePrice(adapterRequest, cancellationToken);
+        var price = await iSeriesAdapter.CalculateWheelAndAxlePriceByCount(adapterRequest, cancellationToken);
 
         return price;
     }

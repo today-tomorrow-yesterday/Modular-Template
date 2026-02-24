@@ -21,13 +21,13 @@ internal static class ISeriesDiagnosticsEndpoints
 
         group.MapGet("/ping", async (IiSeriesAdapter adapter, CancellationToken ct) =>
         {
-            var price = await adapter.CalculateWheelAndAxlePrice(
+            var price = await adapter.CalculateWheelAndAxlePriceByCount(
                 new WheelAndAxlePriceByCountRequest { NumberOfWheels = 4, NumberOfAxles = 2 }, ct);
 
-            return Results.Ok(new { Test = "WheelAndAxleByCount (local)", Price = price, Status = "OK" });
+            return Results.Ok(new { Test = "WheelAndAxleByCount", Price = price, Status = "OK" });
         })
         .WithName("DiagISeriesPing")
-        .WithSummary("Verify adapter DI wiring — local calculation, no HTTP");
+        .WithSummary("W&A by-count pricing via iSeries — verifies HTTP + auth");
 
 #pragma warning disable CS0618 // Obsolete — intentional use for diagnostics
         group.MapGet("/health-check", async (IiSeriesAdapter adapter, CancellationToken ct) =>
