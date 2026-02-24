@@ -21,7 +21,8 @@ internal sealed class UpdatePackageDownPaymentEndpoint : IEndpoint
             .Produces<PackageUpdatedResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
     }
 
     private static async Task<IResult> HandleAsync(
@@ -40,6 +41,15 @@ internal sealed class UpdatePackageDownPaymentEndpoint : IEndpoint
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes)),
             ApiResults.Problem);
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        {
+            "amount": 10000.00
+        }
+        """;
     }
 }
 

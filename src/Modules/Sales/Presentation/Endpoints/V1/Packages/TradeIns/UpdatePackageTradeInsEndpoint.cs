@@ -21,7 +21,8 @@ internal sealed class UpdatePackageTradeInsEndpoint : IEndpoint
             .Produces<PackageUpdatedResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
     }
 
     private static async Task<IResult> HandleAsync(
@@ -54,6 +55,28 @@ internal sealed class UpdatePackageTradeInsEndpoint : IEndpoint
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes)),
             ApiResults.Problem);
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        [
+            {
+                "salePrice": -15000.00,
+                "estimatedCost": 10000.00,
+                "retailSalePrice": -15000.00,
+                "tradeType": "Home",
+                "year": 2015,
+                "make": "Clayton",
+                "model": "Model-B",
+                "floorWidth": 14.0,
+                "floorLength": 70.0,
+                "tradeAllowance": 15000.00,
+                "payoffAmount": 5000.00,
+                "bookInAmount": 12000.00
+            }
+        ]
+        """;
     }
 }
 

@@ -21,7 +21,8 @@ internal sealed class UpdatePackageInsuranceEndpoint : IEndpoint
             .Produces<PackageUpdatedResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
     }
 
     private static async Task<IResult> HandleAsync(
@@ -51,6 +52,24 @@ internal sealed class UpdatePackageInsuranceEndpoint : IEndpoint
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes)),
             ApiResults.Problem);
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        {
+            "insuranceType": "HomeFirst",
+            "coverageAmount": 100000.00,
+            "hasFoundationOrMasonry": false,
+            "inParkOrSubdivision": false,
+            "isLandOwnedByCustomer": true,
+            "isPremiumFinanced": true,
+            "quoteId": "42",
+            "companyName": "HomeFirst Insurance Co",
+            "maxCoverage": 250000.00,
+            "totalPremium": 1500.00
+        }
+        """;
     }
 }
 

@@ -21,7 +21,8 @@ internal sealed class UpdatePackageProjectCostsEndpoint : IEndpoint
             .Produces<PackageUpdatedResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
     }
 
     private static async Task<IResult> HandleAsync(
@@ -49,6 +50,23 @@ internal sealed class UpdatePackageProjectCostsEndpoint : IEndpoint
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes)),
             ApiResults.Problem);
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        [
+            {
+                "categoryId": 1,
+                "itemId": 101,
+                "salePrice": 3500.00,
+                "estimatedCost": 2800.00,
+                "retailSalePrice": 4000.00,
+                "shouldExcludeFromPricing": false,
+                "responsibility": null
+            }
+        ]
+        """;
     }
 }
 

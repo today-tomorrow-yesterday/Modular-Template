@@ -21,7 +21,8 @@ internal sealed class UpdatePackageNameEndpoint : IEndpoint
             .Produces(StatusCodes.Status204NoContent)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
     }
 
     private static async Task<IResult> HandleAsync(
@@ -35,6 +36,15 @@ internal sealed class UpdatePackageNameEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(() => Results.NoContent(), ApiResults.Problem);
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        {
+            "name": "Alternate Package"
+        }
+        """;
     }
 }
 

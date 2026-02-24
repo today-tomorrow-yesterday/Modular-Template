@@ -21,7 +21,8 @@ internal sealed class UpdatePackageSalesTeamEndpoint : IEndpoint
             .Produces<PackageUpdatedResponse>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
     }
 
     private static async Task<IResult> HandleAsync(
@@ -40,5 +41,23 @@ internal sealed class UpdatePackageSalesTeamEndpoint : IEndpoint
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes)),
             ApiResults.Problem);
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        [
+            {
+                "authorizedUserId": 1001,
+                "role": 0,
+                "commissionSplitPercentage": 70.0
+            },
+            {
+                "authorizedUserId": 1002,
+                "role": 1,
+                "commissionSplitPercentage": 30.0
+            }
+        ]
+        """;
     }
 }

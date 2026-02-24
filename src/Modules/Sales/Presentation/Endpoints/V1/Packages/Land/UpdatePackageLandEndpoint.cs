@@ -9,7 +9,7 @@ using Rtl.Core.Presentation.Results;
 
 namespace Modules.Sales.Presentation.Endpoints.V1.Packages.Land;
 
-internal sealed partial class UpdatePackageLandEndpoint : IEndpoint
+internal sealed class UpdatePackageLandEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
@@ -70,6 +70,42 @@ internal sealed partial class UpdatePackageLandEndpoint : IEndpoint
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes)),
             ApiResults.Problem);
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        {
+            "salePrice": 45000.00,
+            "estimatedCost": 40000.00,
+            "retailSalePrice": 50000.00,
+            "landPurchaseType": "CustomerHasLand",
+            "typeOfLandWanted": null,
+            "customerLandType": "CustomerOwnedLand",
+            "landInclusion": "CustomerLandPayoff",
+            "landStockNumber": null,
+            "landSalesPrice": null,
+            "landCost": null,
+            "propertyOwner": "John Doe",
+            "financedBy": "Local Bank",
+            "estimatedValue": 55000.00,
+            "sizeInAcres": 2.5,
+            "payoffAmountFinancing": 20000.00,
+            "landEquity": 35000.00,
+            "originalPurchaseDate": "2018-06-15",
+            "originalPurchasePrice": 30000.00,
+            "realtor": null,
+            "purchasePrice": null,
+            "propertyOwnerPhoneNumber": "8651234567",
+            "propertyLotRent": null,
+            "communityNumber": null,
+            "communityName": null,
+            "communityManagerName": null,
+            "communityManagerPhoneNumber": null,
+            "communityManagerEmail": null,
+            "communityMonthlyCost": null
+        }
+        """;
     }
 }
 

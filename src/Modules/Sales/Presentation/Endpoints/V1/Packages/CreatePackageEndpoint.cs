@@ -22,7 +22,8 @@ internal sealed class CreatePackageEndpoint : IEndpoint
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
     }
 
     private static async Task<IResult> HandleAsync(
@@ -38,6 +39,15 @@ internal sealed class CreatePackageEndpoint : IEndpoint
         return result.Match(
             r => Results.Created($"/api/v1/sales/{publicSaleId}/packages/{r.PublicId}", new CreatePackageResponse(r.PublicId)),
             ApiResults.Problem);
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        {
+            "name": "Primary"
+        }
+        """;
     }
 }
 
