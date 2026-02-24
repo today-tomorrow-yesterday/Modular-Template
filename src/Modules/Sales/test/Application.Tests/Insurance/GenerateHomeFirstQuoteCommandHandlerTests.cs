@@ -10,7 +10,7 @@ using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
-using Rtl.Core.Application.Adapters.ISeries.Insurance;
+using ISeriesInsurance = Rtl.Core.Application.Adapters.ISeries.Insurance;
 using Rtl.Core.Application.Persistence;
 using Xunit;
 
@@ -99,8 +99,8 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
         var sale = CreateSaleWithContext();
         _saleRepository.GetByPublicIdWithFullContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
-        _iSeriesAdapter.CalculateHomeFirstQuote(Arg.Any<HomeFirstQuoteRequest>(), Arg.Any<CancellationToken>())
-            .Returns(new HomeFirstQuoteResult
+        _iSeriesAdapter.CalculateHomeFirstQuote(Arg.Any<ISeriesInsurance.HomeFirstQuoteRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ISeriesInsurance.HomeFirstQuoteResult
             {
                 TempLinkId = 0,
                 InsuranceCompanyName = "HomeFirst",
@@ -122,8 +122,8 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
         var sale = CreateSaleWithContext();
         _saleRepository.GetByPublicIdWithFullContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
-        _iSeriesAdapter.CalculateHomeFirstQuote(Arg.Any<HomeFirstQuoteRequest>(), Arg.Any<CancellationToken>())
-            .Returns(new HomeFirstQuoteResult
+        _iSeriesAdapter.CalculateHomeFirstQuote(Arg.Any<ISeriesInsurance.HomeFirstQuoteRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ISeriesInsurance.HomeFirstQuoteResult
             {
                 TempLinkId = 42,
                 InsuranceCompanyName = "HomeFirst Insurance Co",

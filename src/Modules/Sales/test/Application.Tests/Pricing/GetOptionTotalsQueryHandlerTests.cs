@@ -4,7 +4,7 @@ using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
-using Rtl.Core.Application.Adapters.ISeries.Pricing;
+using ISeriesPricing = Rtl.Core.Application.Adapters.ISeries.Pricing;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Pricing;
@@ -39,8 +39,8 @@ public sealed class GetOptionTotalsQueryHandlerTests
         _saleRepository.GetByPublicIdWithPartyContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
 
-        _iSeriesAdapter.CalculateOptionTotals(Arg.Any<OptionTotalsRequest>(), Arg.Any<CancellationToken>())
-            .Returns(new OptionTotalsResult { FactoryOptionTotal = 1000m, RetailOptionTotal = 1500m });
+        _iSeriesAdapter.CalculateOptionTotals(Arg.Any<ISeriesPricing.OptionTotalsRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new ISeriesPricing.OptionTotalsResult { FactoryOptionTotal = 1000m, RetailOptionTotal = 1500m });
 
         var result = await _sut.Handle(
             new GetOptionTotalsQuery(sale.PublicId, 1, 100, 200, "2025-01-01"), CancellationToken.None);

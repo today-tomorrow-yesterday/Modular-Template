@@ -65,8 +65,8 @@ public sealed class UpdatePackageHomeCommandHandlerTests
         _packageRepository.GetByPublicIdWithSaleContextAsync(package.PublicId, Arg.Any<CancellationToken>())
             .Returns(package);
 
-        // OrderedHome doesn't need inventory lookup
-        var home = CreateHomeRequest(homeSourceType: HomeSourceType.OrderedHome);
+        // Quoted doesn't need inventory lookup
+        var home = CreateHomeRequest(homeSourceType: HomeSourceType.Quoted);
         var result = await _sut.Handle(
             new UpdatePackageHomeCommand(package.PublicId, home), CancellationToken.None);
 
@@ -77,7 +77,7 @@ public sealed class UpdatePackageHomeCommandHandlerTests
     // --- Helpers ---
 
     private static UpdatePackageHomeRequest CreateHomeRequest(
-        HomeSourceType homeSourceType = HomeSourceType.OrderedHome,
+        HomeSourceType homeSourceType = HomeSourceType.Quoted,
         HomeType homeType = HomeType.New,
         string? stockNumber = null) =>
         new(

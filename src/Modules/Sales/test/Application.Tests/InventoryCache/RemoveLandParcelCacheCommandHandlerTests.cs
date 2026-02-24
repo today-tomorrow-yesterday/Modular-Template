@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Modules.Sales.Application.InventoryCache.RemoveLandParcelCache;
 using Modules.Sales.Domain.InventoryCache;
 using NSubstitute;
@@ -12,7 +13,7 @@ public sealed class RemoveLandParcelCacheCommandHandlerTests
     private readonly ICacheWriteScope _cacheWriteScope = Substitute.For<ICacheWriteScope>();
     private readonly ILandParcelCacheWriter _cacheWriter = Substitute.For<ILandParcelCacheWriter>();
     private readonly IInventoryCacheQueries _cacheQueries = Substitute.For<IInventoryCacheQueries>();
-    private readonly ILogger<RemoveLandParcelCacheCommandHandler> _logger = Substitute.For<ILogger<RemoveLandParcelCacheCommandHandler>>();
+    private readonly ILogger<RemoveLandParcelCacheCommandHandler> _logger = NullLogger<RemoveLandParcelCacheCommandHandler>.Instance;
     private readonly RemoveLandParcelCacheCommandHandler _sut;
 
     public RemoveLandParcelCacheCommandHandlerTests()

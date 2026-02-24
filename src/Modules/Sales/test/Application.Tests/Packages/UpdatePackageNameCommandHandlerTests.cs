@@ -1,3 +1,4 @@
+using System.Reflection;
 using Modules.Sales.Application.Packages.UpdatePackageName;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
@@ -34,10 +35,12 @@ public sealed class UpdatePackageNameCommandHandlerTests
     public async Task Returns_failure_when_duplicate_name_exists()
     {
         var package = Package.Create(saleId: 1, name: "Primary", isPrimary: true);
+        SetId(package, 1);
         _packageRepository.GetByPublicIdAsync(package.PublicId, Arg.Any<CancellationToken>())
             .Returns(package);
 
         var sibling = Package.Create(saleId: 1, name: "Alternate", isPrimary: false);
+        SetId(sibling, 2);
         _packageRepository.GetBySaleIdAsync(package.SaleId, Arg.Any<CancellationToken>())
             .Returns(new List<Package> { package, sibling });
 
@@ -46,6 +49,21 @@ public sealed class UpdatePackageNameCommandHandlerTests
 
         Assert.True(result.IsFailure);
         Assert.Equal("Package.DuplicateName", result.Error.Code);
+    }
+
+    private static void SetId(Package p, int id)
+    {
+        var type = typeof(Package);
+        while (type is not null)
+        {
+            var field = type.GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field is not null)
+            {
+                field.SetValue(p, id);
+                return;
+            }
+            type = type.BaseType;
+        }
     }
 
     [Fact]

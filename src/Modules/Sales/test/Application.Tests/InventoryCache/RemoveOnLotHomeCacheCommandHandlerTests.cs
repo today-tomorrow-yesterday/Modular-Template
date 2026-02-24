@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Modules.Sales.Application.InventoryCache.RemoveOnLotHomeCache;
 using Modules.Sales.Domain.InventoryCache;
 using NSubstitute;
@@ -12,7 +13,7 @@ public sealed class RemoveOnLotHomeCacheCommandHandlerTests
     private readonly ICacheWriteScope _cacheWriteScope = Substitute.For<ICacheWriteScope>();
     private readonly IOnLotHomeCacheWriter _cacheWriter = Substitute.For<IOnLotHomeCacheWriter>();
     private readonly IInventoryCacheQueries _cacheQueries = Substitute.For<IInventoryCacheQueries>();
-    private readonly ILogger<RemoveOnLotHomeCacheCommandHandler> _logger = Substitute.For<ILogger<RemoveOnLotHomeCacheCommandHandler>>();
+    private readonly ILogger<RemoveOnLotHomeCacheCommandHandler> _logger = NullLogger<RemoveOnLotHomeCacheCommandHandler>.Instance;
     private readonly RemoveOnLotHomeCacheCommandHandler _sut;
 
     public RemoveOnLotHomeCacheCommandHandlerTests()
