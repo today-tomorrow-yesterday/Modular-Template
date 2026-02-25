@@ -29,6 +29,8 @@ public sealed class InsuranceDetails : IVersionedDetails
     public int? TempLinkId { get; private set; } // HomeFirst: TempLinkId (1-10000) for PDF retrieval
     public DateTimeOffset? QuotedAt { get; private set; } // When the quote was generated
 
+    private InsuranceDetails() { }
+
     public static InsuranceDetails Create(
         InsuranceType insuranceType,
         decimal coverageAmount,
@@ -41,7 +43,8 @@ public sealed class InsuranceDetails : IVersionedDetails
         decimal? maxCoverage = null,
         decimal? totalPremium = null,
         string? providerName = null,
-        int? tempLinkId = null)
+        int? tempLinkId = null,
+        DateTimeOffset? quotedAt = null)
     {
         return new InsuranceDetails
         {
@@ -57,7 +60,7 @@ public sealed class InsuranceDetails : IVersionedDetails
             TotalPremium = totalPremium,
             ProviderName = providerName,
             TempLinkId = tempLinkId,
-            QuotedAt = DateTimeOffset.UtcNow
+            QuotedAt = quotedAt ?? DateTimeOffset.UtcNow
         };
     }
 }

@@ -107,7 +107,7 @@ internal static class PackageLineFakers
             estimatedCost: landCost,
             retailSalePrice: landCost + faker.Finance.Amount(5_000m, 15_000m),
             responsibility: Responsibility.Buyer,
-            details: new LandDetails(),
+            details: LandDetails.Create(LandPurchaseType.CustomerHasLand),
             landParcelId: landParcelId);
     }
 

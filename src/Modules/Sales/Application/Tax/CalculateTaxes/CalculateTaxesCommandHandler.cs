@@ -155,7 +155,7 @@ internal sealed class CalculateTaxesCommandHandler(
             + (grossReceiptCityTax ?? 0m) + (grossReceiptCountyTax ?? 0m) + (mhit ?? 0m);
 
         // Step 11: Update Tax line with results
-        package.RemoveLine(existingTaxLine);
+        package.RemoveTaxLine();
 
         var updatedTaxDetails = TaxDetails.Create(
             previouslyTitled: taxConfig.PreviouslyTitled,
@@ -194,7 +194,7 @@ internal sealed class CalculateTaxesCommandHandler(
     {
         var taxConfig = existingTaxLine.Details!;
 
-        package.RemoveLine(existingTaxLine);
+        package.RemoveTaxLine();
 
         var errorTaxDetails = TaxDetails.Create(
             previouslyTitled: taxConfig.PreviouslyTitled,

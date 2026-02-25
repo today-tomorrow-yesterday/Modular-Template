@@ -47,6 +47,7 @@ internal sealed class UpdatePackageLandCommandHandler(
         // Step 4: Land pricing recalculation — overwrite SalePrice/EstimatedCost from detail fields
         var landLine = package.Lines.OfType<LandLine>().Single();
         RecalculateLandPricing(landLine);
+        package.RecalculateGrossProfit(); // UpdatePricing changed prices after AddLine
 
         // Step 5: Land Payoff project cost sync — Cat 2 / Item 1
         SyncLandPayoffProjectCost(package, landLine);
@@ -76,11 +77,7 @@ internal sealed class UpdatePackageLandCommandHandler(
 
     private static void UpsertLandLine(Package package, UpdatePackageLandCommand request)
     {
-        var existing = package.Lines.OfType<LandLine>().SingleOrDefault();
-        if (existing is not null)
-        {
-            package.RemoveLine(existing);
-        }
+        package.RemoveLandLine();
 
         var landPurchaseType = Enum.Parse<LandPurchaseType>(request.LandPurchaseType);
 

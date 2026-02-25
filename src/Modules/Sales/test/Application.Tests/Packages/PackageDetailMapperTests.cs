@@ -36,7 +36,7 @@ public sealed class PackageDetailMapperTests
 
         var response = PackageDetailMapper.MapToResponse(package);
 
-        Assert.Equal(0, response.Ranking);
+        Assert.Equal(2, response.Ranking);
         Assert.False(response.IsPrimaryPackage);
     }
 
@@ -225,7 +225,7 @@ public sealed class PackageDetailMapperTests
     public void Maps_tax_section_with_default_details()
     {
         var package = Package.Create(saleId: 1, name: "P", isPrimary: true);
-        package.AddLine(TaxLine.Create(package.Id, 1200m, 0m, 0m, false, details: new TaxDetails()));
+        package.AddLine(TaxLine.Create(package.Id, 1200m, 0m, 0m, false, details: TaxDetails.Create(null, null, [], [], null)));
 
         var response = PackageDetailMapper.MapToResponse(package);
 
@@ -405,7 +405,7 @@ public sealed class PackageDetailMapperTests
     public void SalesTeam_is_empty_when_members_list_is_empty()
     {
         var package = Package.Create(saleId: 1, name: "P", isPrimary: true);
-        package.AddLine(SalesTeamLine.Create(package.Id, details: new SalesTeamDetails()));
+        package.AddLine(SalesTeamLine.Create(package.Id, details: SalesTeamDetails.Create([])));
 
         var response = PackageDetailMapper.MapToResponse(package);
 
@@ -416,8 +416,7 @@ public sealed class PackageDetailMapperTests
     public void Maps_sales_team_members()
     {
         var package = Package.Create(saleId: 1, name: "P", isPrimary: true);
-        var details = new SalesTeamDetails();
-        details.SalesTeamMembers.Add(new SalesTeamMember());
+        var details = SalesTeamDetails.Create([SalesTeamMember.Create(null, SalesTeamRole.Primary, null)]);
         package.AddLine(SalesTeamLine.Create(package.Id, details));
 
         var response = PackageDetailMapper.MapToResponse(package);
@@ -497,13 +496,13 @@ public sealed class PackageDetailMapperTests
         var homeDetails = HomeDetails.Create(HomeType.New, HomeSourceType.OnLot, stockNumber: "STK-100");
         package.AddLine(HomeLine.Create(package.Id, 80000m, 50000m, 85000m, Responsibility.Buyer, homeDetails));
         package.AddLine(LandLine.Create(package.Id, 25000m, 15000m, 30000m, null, details: null));
-        package.AddLine(TaxLine.Create(package.Id, 1200m, 0m, 0m, false, details: new TaxDetails()));
+        package.AddLine(TaxLine.Create(package.Id, 1200m, 0m, 0m, false, details: TaxDetails.Create(null, null, [], [], null)));
         package.AddLine(InsuranceLine.Create(package.Id, 1500m, 1000m, 2000m, null, false, details: null));
         package.AddLine(WarrantyLine.Create(package.Id, 800m, 400m, 900m, false, details: null));
         package.AddLine(CreditLine.CreateDownPayment(package.Id, 5000m));
         package.AddLine(CreditLine.CreateConcession(package.Id, 2000m));
         package.AddLine(TradeInLine.Create(package.Id, 8000m, 6000m, 10000m, null, details: null));
-        package.AddLine(SalesTeamLine.Create(package.Id, details: new SalesTeamDetails()));
+        package.AddLine(SalesTeamLine.Create(package.Id, details: SalesTeamDetails.Create([])));
         package.AddLine(ProjectCostLine.Create(
             package.Id, 1500m, 1000m, 2000m, null, false, ProjectCostDetails.Create(1, 1)));
 

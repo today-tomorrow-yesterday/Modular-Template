@@ -46,10 +46,13 @@ internal sealed class UpdatePackageInsuranceCommandHandler(
 
     private static void UpsertInsuranceLine(Package package, UpdatePackageInsuranceCommand request)
     {
-        // Remove existing insurance line (1:1 section, not 1:many)
-        package.RemoveInsuranceLine();
-
         var insuranceType = Enum.Parse<InsuranceType>(request.InsuranceType);
+
+        // Remove existing insurance line of the same type (insurance is 1:many by type)
+        if (insuranceType == InsuranceType.HomeFirst)
+            package.RemoveHomeFirstInsuranceLine();
+        else
+            package.RemoveOutsideInsuranceLine();
 
         var details = InsuranceDetails.Create(
             insuranceType: insuranceType,

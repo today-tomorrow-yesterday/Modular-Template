@@ -152,7 +152,7 @@ public sealed class HomeDetails : IVersionedDetails
             Bedrooms = bedrooms,
             Bathrooms = bathrooms,
             SquareFootage = squareFootage,
-            SerialNumbers = serialNumbers,
+            SerialNumbers = serialNumbers?.ToArray(),
             BaseCost = baseCost,
             OptionsCost = optionsCost,
             FreightCost = freightCost,

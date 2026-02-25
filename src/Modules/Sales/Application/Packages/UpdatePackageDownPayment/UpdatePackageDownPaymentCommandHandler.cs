@@ -44,7 +44,7 @@ internal sealed class UpdatePackageDownPaymentCommandHandler(
         }
         else if (IsDelete(existing, request.Amount))
         {
-            package.RemoveLine(existing!);
+            package.RemoveDownPaymentLine();
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

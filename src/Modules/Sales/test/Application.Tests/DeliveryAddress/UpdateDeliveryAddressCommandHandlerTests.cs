@@ -1,6 +1,9 @@
 using System.Reflection;
 using Modules.Sales.Application.DeliveryAddresses.UpdateDeliveryAddress;
 using Modules.Sales.Domain;
+using Modules.Sales.Domain.Packages;
+using Modules.Sales.Domain.Packages.Details;
+using Modules.Sales.Domain.Packages.Lines;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Persistence;
@@ -11,11 +14,12 @@ namespace Modules.Sales.Application.Tests.DeliveryAddresses;
 public sealed class UpdateDeliveryAddressCommandHandlerTests
 {
     private readonly ISaleRepository _saleRepository = Substitute.For<ISaleRepository>();
+    private readonly IPackageRepository _packageRepository = Substitute.For<IPackageRepository>();
     private readonly IUnitOfWork<ISalesModule> _unitOfWork = Substitute.For<IUnitOfWork<ISalesModule>>();
     private readonly UpdateDeliveryAddressCommandHandler _sut;
 
     public UpdateDeliveryAddressCommandHandlerTests() =>
-        _sut = new UpdateDeliveryAddressCommandHandler(_saleRepository, _unitOfWork);
+        _sut = new UpdateDeliveryAddressCommandHandler(_saleRepository, _packageRepository, _unitOfWork);
 
     [Fact]
     public async Task Returns_failure_when_sale_not_found()
@@ -80,6 +84,101 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task Does_not_load_packages_when_no_relevant_changes()
+    {
+        // Address: OH, Columbus, Franklin, 43004, Primary Residence, withinCityLimits=true
+        // Command: OH, Columbus, Franklin, 43004, Primary Residence, withinCityLimits=true (same values)
+        var sale = CreateSaleWithDeliveryAddress();
+
+        _saleRepository.GetByPublicIdWithDeliveryAddressAsync(sale.PublicId, Arg.Any<CancellationToken>())
+            .Returns(sale);
+
+        var command = new UpdateDeliveryAddressCommand(
+            sale.PublicId, "Primary Residence", true,
+            "999 New St", "Columbus", "Franklin", "OH", "43004");
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        await _packageRepository.DidNotReceive()
+            .GetBySaleIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task State_change_clears_tax_question_answers_and_flags_recalculation()
+    {
+        var sale = CreateSaleWithDeliveryAddress();
+        var package = CreateDraftPackageWithTaxLine(sale.Id);
+
+        _saleRepository.GetByPublicIdWithDeliveryAddressAsync(sale.PublicId, Arg.Any<CancellationToken>())
+            .Returns(sale);
+        _packageRepository.GetBySaleIdWithTrackingAsync(sale.Id, Arg.Any<CancellationToken>())
+            .Returns(new[] { package });
+
+        // Change state from OH to TX
+        var command = new UpdateDeliveryAddressCommand(
+            sale.PublicId, "Primary Residence", true,
+            "999 New St", "Columbus", "Franklin", "TX", "43004");
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        var taxLine = package.Lines.OfType<TaxLine>().Single();
+        // Q&A should be cleared, but calculations should remain
+        Assert.Empty(taxLine.Details!.StateTaxQuestionAnswers);
+        Assert.True(package.MustRecalculateTaxes);
+    }
+
+    [Fact]
+    public async Task Occupancy_became_ineligible_removes_insurance_and_warranty_from_all_packages()
+    {
+        var sale = CreateSaleWithDeliveryAddress();
+        var package = CreateDraftPackageWithInsuranceAndWarranty(sale.Id);
+
+        _saleRepository.GetByPublicIdWithDeliveryAddressAsync(sale.PublicId, Arg.Any<CancellationToken>())
+            .Returns(sale);
+        _packageRepository.GetBySaleIdWithTrackingAsync(sale.Id, Arg.Any<CancellationToken>())
+            .Returns(new[] { package });
+
+        // Change occupancy to Rental (insurance-ineligible)
+        var command = new UpdateDeliveryAddressCommand(
+            sale.PublicId, "Rental", true,
+            "999 New St", "Columbus", "Franklin", "OH", "43004");
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        Assert.DoesNotContain(package.Lines.OfType<InsuranceLine>(),
+            l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
+        Assert.DoesNotContain(package.Lines, l => l is WarrantyLine);
+    }
+
+    [Fact]
+    public async Task Location_change_clears_tax_calculations_and_removes_use_tax_on_draft_packages()
+    {
+        var sale = CreateSaleWithDeliveryAddress();
+        var package = CreateDraftPackageWithTaxLineAndUseTax(sale.Id);
+
+        _saleRepository.GetByPublicIdWithDeliveryAddressAsync(sale.PublicId, Arg.Any<CancellationToken>())
+            .Returns(sale);
+        _packageRepository.GetBySaleIdWithTrackingAsync(sale.Id, Arg.Any<CancellationToken>())
+            .Returns(new[] { package });
+
+        // Change city from Columbus to Dublin (location change)
+        var command = new UpdateDeliveryAddressCommand(
+            sale.PublicId, "Primary Residence", true,
+            "999 New St", "Dublin", "Franklin", "OH", "43017");
+
+        await _sut.Handle(command, CancellationToken.None);
+
+        var taxLine = package.Lines.OfType<TaxLine>().Single();
+        // Tax calculations should be cleared
+        Assert.Empty(taxLine.Details!.Taxes);
+        // Use Tax project cost (Cat 9/21) should be removed
+        Assert.Empty(package.Lines.OfType<ProjectCostLine>());
+        Assert.True(package.MustRecalculateTaxes);
+    }
+
+    // -- Helpers --
+
     private static UpdateDeliveryAddressCommand CreateCommand(Guid salePublicId) =>
         new(salePublicId, "Secondary Residence", false,
             "999 New St", "Dublin", "Franklin", "OH", "43017");
@@ -95,6 +194,70 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
         SetProperty(sale, nameof(Sale.DeliveryAddress), address);
 
         return sale;
+    }
+
+    private static Package CreateDraftPackageWithTaxLine(int saleId)
+    {
+        var package = Package.Create(saleId: saleId, name: "Primary", isPrimary: true);
+        package.ClearDomainEvents();
+
+        var taxDetails = TaxDetails.Create(
+            previouslyTitled: null,
+            taxExemptionId: null,
+            questionAnswers: [TaxQuestionAnswer.Create(1, "Yes", "Is this taxable?")],
+            taxes: [TaxItem.Create("State Tax", 50m)],
+            errors: null);
+
+        package.AddLine(TaxLine.Create(package.Id, 500m, 0m, 0m, shouldExcludeFromPricing: false, details: taxDetails));
+        package.ClearDomainEvents();
+        package.ClearTaxRecalculationFlag();
+
+        return package;
+    }
+
+    private static Package CreateDraftPackageWithInsuranceAndWarranty(int saleId)
+    {
+        var package = Package.Create(saleId: saleId, name: "Primary", isPrimary: true);
+        package.ClearDomainEvents();
+
+        var insuranceDetails = InsuranceDetails.Create(InsuranceType.HomeFirst, 100_000m, totalPremium: 250m);
+        package.AddLine(InsuranceLine.Create(
+            package.Id, 250m, 0m, 0m, Responsibility.Buyer,
+            shouldExcludeFromPricing: false, details: insuranceDetails));
+
+        var warrantyDetails = WarrantyDetails.Create(875m, 72.19m);
+        package.AddLine(WarrantyLine.Create(
+            package.Id, 875m, 0m, 0m,
+            shouldExcludeFromPricing: false, details: warrantyDetails));
+
+        package.ClearDomainEvents();
+
+        return package;
+    }
+
+    private static Package CreateDraftPackageWithTaxLineAndUseTax(int saleId)
+    {
+        var package = Package.Create(saleId: saleId, name: "Primary", isPrimary: true);
+        package.ClearDomainEvents();
+
+        var taxDetails = TaxDetails.Create(
+            previouslyTitled: null,
+            taxExemptionId: null,
+            questionAnswers: [],
+            taxes: [TaxItem.Create("County Tax", 25m)],
+            errors: null);
+
+        package.AddLine(TaxLine.Create(package.Id, 500m, 0m, 0m, shouldExcludeFromPricing: false, details: taxDetails));
+
+        var pcDetails = ProjectCostDetails.Create(9, 21, "Use Tax");
+        package.AddLine(ProjectCostLine.Create(
+            package.Id, 100m, 100m, 100m, Responsibility.Seller,
+            shouldExcludeFromPricing: false, details: pcDetails));
+
+        package.ClearDomainEvents();
+        package.ClearTaxRecalculationFlag();
+
+        return package;
     }
 
     private static void SetProperty(object obj, string propertyName, object? value)

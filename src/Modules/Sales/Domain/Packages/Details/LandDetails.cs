@@ -74,6 +74,8 @@ public sealed class LandDetails : IVersionedDetails
     public string? CommunityManagerEmail { get; private set; }
     public decimal? CommunityMonthlyCost { get; private set; }
 
+    private LandDetails() { }
+
     public static LandDetails Create(
         LandPurchaseType landPurchaseType,
         CustomerLandType? customerLandType = null,

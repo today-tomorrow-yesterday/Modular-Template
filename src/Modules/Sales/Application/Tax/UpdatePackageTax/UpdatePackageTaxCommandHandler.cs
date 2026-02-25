@@ -48,9 +48,7 @@ internal sealed class UpdatePackageTaxCommandHandler(
             .ToList();
 
         // Step 3: Upsert Tax line (PUT semantics — delete old, insert new)
-        var existingTaxLine = package.Lines.OfType<TaxLine>().SingleOrDefault();
-        if (existingTaxLine is not null)
-            package.RemoveLine(existingTaxLine);
+        package.RemoveTaxLine();
 
         var taxDetails = TaxDetails.Create(
             previouslyTitled: request.PreviouslyTitled,

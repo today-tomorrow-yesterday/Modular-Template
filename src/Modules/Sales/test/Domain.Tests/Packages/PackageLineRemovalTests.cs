@@ -130,24 +130,43 @@ public sealed class PackageLineRemovalTests
     // --- Insurance ---
 
     [Fact]
-    public void RemoveInsuranceLine_removes_single_insurance()
+    public void RemoveOutsideInsuranceLine_removes_outside_insurance()
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
-        var details = InsuranceDetails.Create(InsuranceType.HomeFirst, 100_000m, totalPremium: 250m);
-        package.AddLine(InsuranceLine.Create(package.Id, 250m, 0m, 0m, Responsibility.Buyer, shouldExcludeFromPricing: false, details: details));
+        var details = InsuranceDetails.Create(InsuranceType.Outside, 100_000m, providerName: "StateFarm", totalPremium: 300m);
+        package.AddLine(InsuranceLine.Create(package.Id, 300m, 0m, 0m, Responsibility.Buyer, shouldExcludeFromPricing: false, details: details));
 
-        var removed = package.RemoveInsuranceLine();
+        var removed = package.RemoveOutsideInsuranceLine();
 
         Assert.NotNull(removed);
-        Assert.Empty(package.Lines.OfType<InsuranceLine>());
+        Assert.Equal(InsuranceType.Outside, removed.Details!.InsuranceType);
     }
 
     [Fact]
-    public void RemoveInsuranceLine_returns_null_when_absent()
+    public void RemoveOutsideInsuranceLine_returns_null_when_absent()
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
 
-        Assert.Null(package.RemoveInsuranceLine());
+        Assert.Null(package.RemoveOutsideInsuranceLine());
+    }
+
+    [Fact]
+    public void RemoveOutsideInsuranceLine_leaves_HomeFirst_intact()
+    {
+        var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
+
+        var homeFirst = InsuranceDetails.Create(InsuranceType.HomeFirst, 100_000m, totalPremium: 250m);
+        package.AddLine(InsuranceLine.Create(package.Id, 250m, 0m, 0m, Responsibility.Buyer, shouldExcludeFromPricing: false, details: homeFirst));
+
+        var outside = InsuranceDetails.Create(InsuranceType.Outside, 100_000m, providerName: "StateFarm", totalPremium: 300m);
+        package.AddLine(InsuranceLine.Create(package.Id, 300m, 0m, 0m, Responsibility.Buyer, shouldExcludeFromPricing: false, details: outside));
+
+        var removed = package.RemoveOutsideInsuranceLine();
+
+        Assert.NotNull(removed);
+        Assert.Equal(InsuranceType.Outside, removed.Details!.InsuranceType);
+        Assert.Single(package.Lines.OfType<InsuranceLine>());
+        Assert.Equal(InsuranceType.HomeFirst, package.Lines.OfType<InsuranceLine>().Single().Details!.InsuranceType);
     }
 
     [Fact]

@@ -130,10 +130,7 @@ internal sealed class GenerateWarrantyQuoteCommandHandler(
     private static void UpsertWarrantyLine(
         Package primaryPackage, WarrantyLine? existingLine, WarrantyQuoteResult quoteResult)
     {
-        if (existingLine is not null)
-        {
-            primaryPackage.RemoveLine(existingLine);
-        }
+        primaryPackage.RemoveWarrantyLine();
 
         var warrantyDetails = WarrantyDetails.Create(quoteResult.Premium, quoteResult.SalesTaxPremium);
         primaryPackage.AddLine(WarrantyLine.Create(

@@ -62,9 +62,7 @@ internal sealed class UpdatePackageWarrantyCommandHandler(
 
     private static void UpsertWarrantyLine(Package package, UpdatePackageWarrantyCommand request)
     {
-        var existing = package.Lines.OfType<WarrantyLine>().SingleOrDefault();
-        if (existing is not null)
-            package.RemoveLine(existing);
+        package.RemoveWarrantyLine();
 
         var details = WarrantyDetails.Create(
             warrantyAmount: request.WarrantyAmount,

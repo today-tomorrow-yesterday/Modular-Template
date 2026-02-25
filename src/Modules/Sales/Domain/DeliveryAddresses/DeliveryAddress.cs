@@ -5,6 +5,11 @@ using Rtl.Core.Domain.Entities;
 
 namespace Modules.Sales.Domain.DeliveryAddresses;
 
+public sealed record DeliveryAddressChangeResult(
+    bool StateChanged,
+    bool OccupancyBecameIneligible,
+    bool LocationChanged);
+
 public sealed class DeliveryAddress : AuditableEntity
 {
     private static readonly string[] InsuranceIneligibleOccupancyTypes = ["Rental", "Investment"];
@@ -68,7 +73,7 @@ public sealed class DeliveryAddress : AuditableEntity
         return address;
     }
 
-    public void Update(
+    public DeliveryAddressChangeResult Update(
         string? occupancyType,
         bool isWithinCityLimits,
         string? addressStyle,
@@ -105,20 +110,10 @@ public sealed class DeliveryAddress : AuditableEntity
 
         Raise(new DeliveryAddressChangedDomainEvent { SaleId = SaleId, DeliveryAddressId = Id });
 
-        if (StateChanged(oldState))
-        {
-            Raise(new DeliveryAddressStateChangedDomainEvent { SaleId = SaleId, OldState = oldState, NewState = State });
-        }
-
-        if (OccupancyBecameInsuranceIneligible(oldOccupancyType))
-        {
-            Raise(new DeliveryAddressOccupancyBecameIneligibleDomainEvent { SaleId = SaleId, NewOccupancyType = OccupancyType! });
-        }
-
-        if (LocationChanged(oldCity, oldState, oldPostalCode, oldCounty, oldIsWithinCityLimits))
-        {
-            Raise(new DeliveryAddressLocationChangedDomainEvent { SaleId = SaleId });
-        }
+        return new DeliveryAddressChangeResult(
+            StateChanged: StateChanged(oldState),
+            OccupancyBecameIneligible: OccupancyBecameInsuranceIneligible(oldOccupancyType),
+            LocationChanged: LocationChanged(oldCity, oldState, oldPostalCode, oldCounty, oldIsWithinCityLimits));
     }
 
     private bool StateChanged(string? oldState) =>

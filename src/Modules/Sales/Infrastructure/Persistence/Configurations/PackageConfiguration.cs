@@ -25,7 +25,8 @@ internal sealed class PackageConfiguration : IEntityTypeConfiguration<Package>
             .IsRequired();
 
         builder.Property(p => p.Version)
-            .HasColumnName("version");
+            .HasColumnName("version")
+            .IsConcurrencyToken();
 
         builder.Property(p => p.Ranking)
             .HasColumnName("ranking")

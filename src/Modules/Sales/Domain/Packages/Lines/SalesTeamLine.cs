@@ -3,9 +3,11 @@ using Modules.Sales.Domain.Packages.Details;
 namespace Modules.Sales.Domain.Packages.Lines;
 
 // Sales team line — commission assignments. 1:1 per package.
-// ShouldExcludeFromPricing defaults to false (base class default).
+// ShouldExcludeFromPricing is explicitly true — metadata-only line with all-zero prices.
 public sealed class SalesTeamLine : PackageLine<SalesTeamDetails>
 {
+    public override bool ShouldExcludeFromPricing => true;
+
     private SalesTeamLine() { }
 
     public static SalesTeamLine Create(

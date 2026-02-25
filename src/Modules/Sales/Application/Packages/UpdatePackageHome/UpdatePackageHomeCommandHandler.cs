@@ -42,10 +42,7 @@ internal sealed class UpdatePackageHomeCommandHandler(
         var taxSnapshot = TakeTaxSnapshot(package, existingHome);
 
         // Step 3: Upsert home line (delete-then-insert — PUT semantics)
-        if (existingHome is not null)
-        {
-            package.RemoveLine(existingHome);
-        }
+        package.RemoveHomeLine();
 
         // Resolve inventory cache FK for OnLot homes
         int? onLotHomeId = null;

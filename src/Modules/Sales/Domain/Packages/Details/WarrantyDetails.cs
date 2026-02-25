@@ -18,14 +18,15 @@ public sealed class WarrantyDetails : IVersionedDetails
     public static WarrantyDetails Create(
         decimal warrantyAmount,
         decimal salesTaxPremium,
-        bool warrantySelected = true)
+        bool warrantySelected = true,
+        DateTimeOffset? quotedAt = null)
     {
         return new WarrantyDetails
         {
             WarrantySelected = warrantySelected,
             WarrantyAmount = warrantyAmount,
             SalesTaxPremium = salesTaxPremium,
-            QuotedAt = DateTimeOffset.UtcNow
+            QuotedAt = quotedAt ?? DateTimeOffset.UtcNow
         };
     }
 }

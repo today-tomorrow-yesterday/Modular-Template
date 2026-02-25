@@ -16,10 +16,9 @@ public sealed class SalesTeamDetails : IVersionedDetails
 
     public List<SalesTeamMember> SalesTeamMembers { get; private set; } = [];
 
-    public static SalesTeamDetails Create(List<SalesTeamMember> members)
-    {
-        return new SalesTeamDetails { SalesTeamMembers = members };
-    }
+    private SalesTeamDetails() { }
+
+    public static SalesTeamDetails Create(List<SalesTeamMember> members) => new() { SalesTeamMembers = members.ToList() };
 }
 
 public sealed class SalesTeamMember

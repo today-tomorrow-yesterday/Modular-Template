@@ -11,11 +11,11 @@ internal sealed class PackageRepository(SalesDbContext dbContext)
     protected override Expression<Func<Package, int>> IdSelector => entity => entity.Id;
 
     public override async Task<Package?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
-    {
-        return await DbSet
-            .Include(p => p.Lines)
-            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
-    }
+        => await DbSet.AsNoTracking().Include(p => p.Lines)
+                      .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
+    public override async Task<IReadOnlyCollection<Package>> GetAllAsync(int? limit = 100, CancellationToken cancellationToken = default)
+        => await DbSet.AsNoTracking().Include(p => p.Lines).ToListAsync(cancellationToken);
 
     public async Task<Package?> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken = default)
     {

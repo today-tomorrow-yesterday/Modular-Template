@@ -22,7 +22,7 @@ public sealed class TaxDetails : IVersionedDetails
             PreviouslyTitled = PreviouslyTitled,
             TaxExemptionId = TaxExemptionId,
             StateTaxQuestionAnswers = [],
-            Taxes = Taxes,
+            Taxes = [.. Taxes],
             Errors = Errors
         };
     }
@@ -34,7 +34,7 @@ public sealed class TaxDetails : IVersionedDetails
         {
             PreviouslyTitled = PreviouslyTitled,
             TaxExemptionId = TaxExemptionId,
-            StateTaxQuestionAnswers = StateTaxQuestionAnswers,
+            StateTaxQuestionAnswers = [.. StateTaxQuestionAnswers],
             Taxes = [],
             Errors = null
         };
@@ -47,8 +47,8 @@ public sealed class TaxDetails : IVersionedDetails
         {
             PreviouslyTitled = PreviouslyTitled,
             TaxExemptionId = TaxExemptionId,
-            StateTaxQuestionAnswers = StateTaxQuestionAnswers,
-            Taxes = Taxes,
+            StateTaxQuestionAnswers = [.. StateTaxQuestionAnswers],
+            Taxes = [.. Taxes],
             Errors = null
         };
     }
@@ -60,11 +60,13 @@ public sealed class TaxDetails : IVersionedDetails
         {
             PreviouslyTitled = null,
             TaxExemptionId = TaxExemptionId,
-            StateTaxQuestionAnswers = StateTaxQuestionAnswers,
-            Taxes = Taxes,
+            StateTaxQuestionAnswers = [.. StateTaxQuestionAnswers],
+            Taxes = [.. Taxes],
             Errors = Errors
         };
     }
+
+    private TaxDetails() { }
 
     public static TaxDetails Create(
         string? previouslyTitled,
@@ -77,9 +79,9 @@ public sealed class TaxDetails : IVersionedDetails
         {
             PreviouslyTitled = previouslyTitled,
             TaxExemptionId = taxExemptionId,
-            StateTaxQuestionAnswers = questionAnswers,
-            Taxes = taxes,
-            Errors = errors
+            StateTaxQuestionAnswers = [.. questionAnswers],
+            Taxes = [.. taxes],
+            Errors = errors?.ToList()
         };
     }
 }

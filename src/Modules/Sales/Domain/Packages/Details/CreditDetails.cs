@@ -13,10 +13,10 @@ public sealed class CreditDetails : IVersionedDetails
 {
     private CreditDetails() { }
 
-    public CreditDetails(CreditType creditType) => CreditType = creditType;
-
     public int SchemaVersion => 1;
     public Dictionary<string, JsonElement>? ExtensionData { get; set; }
 
     public CreditType CreditType { get; private set; }
+
+    public static CreditDetails Create(CreditType creditType) => new() { CreditType = creditType };
 }

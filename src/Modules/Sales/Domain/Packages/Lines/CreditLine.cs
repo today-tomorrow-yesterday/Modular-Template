@@ -21,7 +21,7 @@ public sealed class CreditLine : PackageLine<CreditDetails>
             EstimatedCost = 0m,
             RetailSalePrice = 0m,
             Responsibility = Packages.Responsibility.Buyer,
-            Details = new CreditDetails(CreditType.DownPayment)
+            Details = CreditDetails.Create(CreditType.DownPayment)
         };
     }
 
@@ -35,7 +35,7 @@ public sealed class CreditLine : PackageLine<CreditDetails>
             EstimatedCost = 0m, // Seller's cost captured via Seller Paid Closing Cost project cost (Cat 14/Item 1)
             RetailSalePrice = 0m,
             Responsibility = Packages.Responsibility.Seller,
-            Details = new CreditDetails(CreditType.Concessions)
+            Details = CreditDetails.Create(CreditType.Concessions)
         };
     }
 

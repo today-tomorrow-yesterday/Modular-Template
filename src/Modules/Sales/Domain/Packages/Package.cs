@@ -43,7 +43,7 @@ public sealed class Package : AuditableEntity
             PublicId = Guid.CreateVersion7(),
             SaleId = saleId,
             Name = name,
-            Ranking = isPrimary ? 1 : 0,
+            Ranking = isPrimary ? 1 : 2,
             Status = PackageStatus.Draft,
             GrossProfit = 0m,
             CommissionableGrossProfit = 0m,
@@ -150,11 +150,11 @@ public sealed class Package : AuditableEntity
     public WarrantyLine? RemoveWarrantyLine() => RemoveSingleLine<WarrantyLine>();
     public SalesTeamLine? RemoveSalesTeamLine() => RemoveSingleLine<SalesTeamLine>();
 
-    public InsuranceLine? RemoveInsuranceLine()
+    public InsuranceLine? RemoveOutsideInsuranceLine()
     {
         var line = _lines
             .OfType<InsuranceLine>()
-            .SingleOrDefault();
+            .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.Outside);
 
         if (line is not null)
         {
@@ -252,13 +252,12 @@ public sealed class Package : AuditableEntity
         return removed;
     }
 
-    private void RecalculateGrossProfit()
+    // Public to allow callers to trigger recalculation after mutating line pricing
+    // directly via PackageLine.UpdatePricing() (e.g., land pricing recalculation).
+    public void RecalculateGrossProfit()
     {
-        var grossProfit = _lines
+        GrossProfit = _lines
             .Where(l => !l.ShouldExcludeFromPricing)
             .Sum(l => l.SalePrice - l.EstimatedCost);
-
-        GrossProfit = grossProfit;
-        CommissionableGrossProfit = grossProfit;
     }
 }
