@@ -46,7 +46,7 @@ internal sealed class UpdatePackageWarrantyCommandHandler(
             var taxLine = package.Lines.OfType<TaxLine>().SingleOrDefault();
             taxLine?.ClearCalculations();
 
-            RemoveUseTaxProjectCost(package);
+            package.RemoveProjectCost(9, 21);
 
             package.FlagForTaxRecalculation();
         }
@@ -82,17 +82,4 @@ internal sealed class UpdatePackageWarrantyCommandHandler(
         package.AddLine(newLine);
     }
 
-    private static void RemoveUseTaxProjectCost(Package package)
-    {
-        var useTaxPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == 9
-                && l.Details?.ItemId == 21);
-
-        if (useTaxPc is not null)
-        {
-            package.RemoveLine(useTaxPc);
-        }
-    }
 }

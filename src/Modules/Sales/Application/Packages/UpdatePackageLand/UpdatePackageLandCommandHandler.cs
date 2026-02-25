@@ -22,6 +22,7 @@ internal sealed class UpdatePackageLandCommandHandler(
     private const int UseTaxCategoryNumber = 9;
     private const int UseTaxItemNumber = 21;
 
+
     public async Task<Result<UpdatePackageLandResult>> Handle(
         UpdatePackageLandCommand request,
         CancellationToken cancellationToken)
@@ -57,7 +58,7 @@ internal sealed class UpdatePackageLandCommandHandler(
             var taxLine = package.Lines.OfType<TaxLine>().SingleOrDefault();
             taxLine?.ClearCalculations();
 
-            RemoveUseTaxProjectCost(package);
+            package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
 
             package.FlagForTaxRecalculation();
         }
@@ -170,16 +171,7 @@ internal sealed class UpdatePackageLandCommandHandler(
     private static void SyncLandPayoffProjectCost(Package package, LandLine landLine)
     {
         // Remove existing Land Payoff if present
-        var existingPayoff = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == LandPayoffCategoryNumber
-                && l.Details?.ItemId == LandPayoffItemNumber);
-
-        if (existingPayoff is not null)
-        {
-            package.RemoveLine(existingPayoff);
-        }
+        package.RemoveProjectCost(LandPayoffCategoryNumber, LandPayoffItemNumber);
 
         // Only create for priced land types
         if (landLine.Details is null)
@@ -212,17 +204,4 @@ internal sealed class UpdatePackageLandCommandHandler(
             details: details));
     }
 
-    private static void RemoveUseTaxProjectCost(Package package)
-    {
-        var useTaxPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == UseTaxCategoryNumber
-                && l.Details?.ItemId == UseTaxItemNumber);
-
-        if (useTaxPc is not null)
-        {
-            package.RemoveLine(useTaxPc);
-        }
-    }
 }

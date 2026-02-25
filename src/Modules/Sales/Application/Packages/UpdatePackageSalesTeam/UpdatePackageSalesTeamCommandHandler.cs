@@ -64,14 +64,7 @@ internal sealed class UpdatePackageSalesTeamCommandHandler(
 
     private static void ReplaceSalesTeamLine(Package package, UpdatePackageSalesTeamMemberRequest[] memberRequests)
     {
-        var existing = package.Lines
-            .OfType<SalesTeamLine>()
-            .SingleOrDefault();
-
-        if (existing is not null)
-        {
-            package.RemoveLine(existing);
-        }
+        package.RemoveSalesTeamLine();
 
         var members = memberRequests
             .Select(m => SalesTeamMember.Create(m.AuthorizedUserId, m.Role, m.CommissionSplitPercentage))

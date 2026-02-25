@@ -1,3 +1,4 @@
+using Modules.Sales.Domain.Packages.Details;
 using Modules.Sales.Domain.Packages.Events;
 using Modules.Sales.Domain.Packages.Lines;
 using Modules.Sales.Domain.Sales;
@@ -124,6 +125,131 @@ public sealed class Package : AuditableEntity
     {
         _lines.RemoveAll(line => lineTypes.Contains(line.LineType));
         RecalculateGrossProfit();
+    }
+
+    // --- Typed line removal methods ---
+
+    private T? RemoveSingleLine<T>() where T : PackageLine
+    {
+        var line = _lines
+            .OfType<T>()
+            .SingleOrDefault();
+
+        if (line is not null)
+        {
+            _lines.Remove(line);
+            RecalculateGrossProfit();
+        }
+
+        return line;
+    }
+
+    public HomeLine? RemoveHomeLine() => RemoveSingleLine<HomeLine>();
+    public LandLine? RemoveLandLine() => RemoveSingleLine<LandLine>();
+    public TaxLine? RemoveTaxLine() => RemoveSingleLine<TaxLine>();
+    public WarrantyLine? RemoveWarrantyLine() => RemoveSingleLine<WarrantyLine>();
+    public SalesTeamLine? RemoveSalesTeamLine() => RemoveSingleLine<SalesTeamLine>();
+
+    public InsuranceLine? RemoveInsuranceLine()
+    {
+        var line = _lines
+            .OfType<InsuranceLine>()
+            .SingleOrDefault();
+
+        if (line is not null)
+        {
+            _lines.Remove(line);
+            RecalculateGrossProfit();
+        }
+
+        return line;
+    }
+
+    public InsuranceLine? RemoveHomeFirstInsuranceLine()
+    {
+        var line = _lines
+            .OfType<InsuranceLine>()
+            .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
+
+        if (line is not null)
+        {
+            _lines.Remove(line);
+            RecalculateGrossProfit();
+        }
+
+        return line;
+    }
+
+    public CreditLine? RemoveDownPaymentLine()
+    {
+        var line = _lines
+            .OfType<CreditLine>()
+            .SingleOrDefault(l => l.IsDownPayment);
+
+        if (line is not null)
+        {
+            _lines.Remove(line);
+            RecalculateGrossProfit();
+        }
+
+        return line;
+    }
+
+    public CreditLine? RemoveConcessionLine()
+    {
+        var line = _lines
+            .OfType<CreditLine>()
+            .SingleOrDefault(l => l.IsConcession);
+
+        if (line is not null)
+        {
+            _lines.Remove(line);
+            RecalculateGrossProfit();
+        }
+
+        return line;
+    }
+
+    public ProjectCostLine? RemoveProjectCost(int categoryId, int itemId)
+    {
+        var line = _lines
+            .OfType<ProjectCostLine>()
+            .SingleOrDefault(l =>
+                l.Details?.CategoryId == categoryId
+                && l.Details?.ItemId == itemId);
+
+        if (line is not null)
+        {
+            _lines.Remove(line);
+            RecalculateGrossProfit();
+        }
+
+        return line;
+    }
+
+    public int RemoveProjectCostsByCategory(int categoryId)
+    {
+        var removed = _lines
+            .RemoveAll(l => l is ProjectCostLine pc && pc.Details?.CategoryId == categoryId);
+
+        if (removed > 0)
+            RecalculateGrossProfit();
+
+        return removed;
+    }
+
+    public int RemoveAllProjectCosts(int categoryId, int itemId)
+    {
+        var removed = _lines
+            .RemoveAll(l =>
+                l is ProjectCostLine pc
+                && pc.Details?.CategoryId == categoryId
+                && pc.Details?.ItemId == itemId);
+
+        if (removed > 0)
+            RecalculateGrossProfit();
+
+        return removed;
     }
 
     private void RecalculateGrossProfit()

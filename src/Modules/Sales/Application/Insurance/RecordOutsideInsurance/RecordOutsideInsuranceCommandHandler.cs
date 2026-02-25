@@ -44,9 +44,7 @@ internal sealed class RecordOutsideInsuranceCommandHandler(
 
     private static void UpsertOutsideInsuranceLine(Package package, RecordOutsideInsuranceCommand request)
     {
-        var existing = package.Lines.OfType<InsuranceLine>().SingleOrDefault();
-        if (existing is not null)
-            package.RemoveLine(existing);
+        package.RemoveInsuranceLine();
 
         var details = InsuranceDetails.Create(
             insuranceType: InsuranceType.Outside,

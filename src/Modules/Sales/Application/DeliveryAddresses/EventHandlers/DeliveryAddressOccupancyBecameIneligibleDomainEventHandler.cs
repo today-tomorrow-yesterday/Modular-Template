@@ -1,7 +1,5 @@
 using Modules.Sales.Domain.DeliveryAddresses.Events;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 
@@ -27,23 +25,8 @@ internal sealed class DeliveryAddressOccupancyBecameIneligibleDomainEventHandler
             // overrides regardless of package status.
             // Legacy only removed HomeFirst specifically — Outside Insurance is unaffected
             // by occupancy type changes.
-            var homeFirstLine = package.Lines
-                .OfType<InsuranceLine>()
-                .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
-
-            if (homeFirstLine is not null)
-            {
-                package.RemoveLine(homeFirstLine);
-            }
-
-            var warrantyLine = package.Lines
-                .OfType<WarrantyLine>()
-                .SingleOrDefault();
-
-            if (warrantyLine is not null)
-            {
-                package.RemoveLine(warrantyLine);
-            }
+            package.RemoveHomeFirstInsuranceLine();
+            package.RemoveWarrantyLine();
         }
 
         await unitOfWork.SaveChangesAsync(cancellationToken);

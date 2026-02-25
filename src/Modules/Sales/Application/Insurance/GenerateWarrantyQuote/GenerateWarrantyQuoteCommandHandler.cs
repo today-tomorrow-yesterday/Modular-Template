@@ -153,23 +153,9 @@ internal sealed class GenerateWarrantyQuoteCommandHandler(
             var taxLine = primaryPackage.Lines.OfType<TaxLine>().SingleOrDefault();
             taxLine?.ClearCalculations();
 
-            RemoveUseTaxProjectCost(primaryPackage);
+            primaryPackage.RemoveProjectCost(9, 21);
 
             primaryPackage.FlagForTaxRecalculation();
-        }
-    }
-
-    private static void RemoveUseTaxProjectCost(Package package)
-    {
-        var useTaxPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == 9
-                && l.Details?.ItemId == 21);
-
-        if (useTaxPc is not null)
-        {
-            package.RemoveLine(useTaxPc);
         }
     }
 

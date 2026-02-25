@@ -212,7 +212,7 @@ internal sealed class CalculateTaxesCommandHandler(
             details: errorTaxDetails));
 
         // Remove Use Tax ProjectCost on error
-        RemoveUseTaxProjectCost(package);
+        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
 
         await unitOfWork.SaveChangesAsync(ct);
 
@@ -249,7 +249,7 @@ internal sealed class CalculateTaxesCommandHandler(
     // Upsert or remove Use Tax ProjectCost (Cat 9, Item 21)
     private static void SyncUseTaxProjectCost(Package package, decimal useTaxAmount)
     {
-        RemoveUseTaxProjectCost(package);
+        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
 
         if (useTaxAmount > 0)
         {
@@ -267,18 +267,6 @@ internal sealed class CalculateTaxesCommandHandler(
                 shouldExcludeFromPricing: false,
                 details: details));
         }
-    }
-
-    private static void RemoveUseTaxProjectCost(Package package)
-    {
-        var useTaxPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == UseTaxCategoryNumber
-                && l.Details?.ItemId == UseTaxItemNumber);
-
-        if (useTaxPc is not null)
-            package.RemoveLine(useTaxPc);
     }
 
     // Create TaxItem with nullable amount (for state-specific nullification)

@@ -39,14 +39,7 @@ internal sealed class DeliveryAddressLocationChangedDomainEventHandler(
             taxLine?.ClearCalculations();
 
             // Remove Use Tax ProjectCost (Category 9, Item 21)
-            var useTaxLine = package.Lines
-                .OfType<ProjectCostLine>()
-                .FirstOrDefault(pc =>
-                    pc.Details?.CategoryId == UseTaxCategoryNumber &&
-                    pc.Details?.ItemId == UseTaxItemNumber);
-
-            if (useTaxLine is not null)
-                package.RemoveLine(useTaxLine);
+            package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
 
             package.FlagForTaxRecalculation();
         }

@@ -47,9 +47,7 @@ internal sealed class UpdatePackageInsuranceCommandHandler(
     private static void UpsertInsuranceLine(Package package, UpdatePackageInsuranceCommand request)
     {
         // Remove existing insurance line (1:1 section, not 1:many)
-        var existing = package.Lines.OfType<InsuranceLine>().SingleOrDefault();
-        if (existing is not null)
-            package.RemoveLine(existing);
+        package.RemoveInsuranceLine();
 
         var insuranceType = Enum.Parse<InsuranceType>(request.InsuranceType);
 

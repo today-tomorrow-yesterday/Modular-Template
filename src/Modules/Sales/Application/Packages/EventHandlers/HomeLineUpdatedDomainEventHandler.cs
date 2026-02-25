@@ -1,8 +1,6 @@
 using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
 using Modules.Sales.Domain.Packages.Events;
-using Modules.Sales.Domain.Packages.Lines;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 
@@ -34,23 +32,8 @@ internal sealed class HomeLineUpdatedDomainEventHandler(
         if (deliveryAddress is not null &&
             DeliveryAddress.IsOccupancyInsuranceIneligible(deliveryAddress.OccupancyType))
         {
-            var homeFirstLine = package.Lines
-                .OfType<InsuranceLine>()
-                .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
-
-            if (homeFirstLine is not null)
-            {
-                package.RemoveLine(homeFirstLine);
-            }
-
-            var warrantyLine = package.Lines
-                .OfType<WarrantyLine>()
-                .SingleOrDefault();
-
-            if (warrantyLine is not null)
-            {
-                package.RemoveLine(warrantyLine);
-            }
+            package.RemoveHomeFirstInsuranceLine();
+            package.RemoveWarrantyLine();
         }
 
         // Step 2: Remove stale HomeFirst insurance quote — home dimensions changed,
@@ -58,14 +41,7 @@ internal sealed class HomeLineUpdatedDomainEventHandler(
         // to get a fresh premium with updated home details.
         // (Cannot re-quote here because original user-input parameters like mailing
         // address, birth dates, and coverage amount are not stored on the InsuranceLine.)
-        var existingInsurance = package.Lines
-            .OfType<InsuranceLine>()
-            .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
-
-        if (existingInsurance is not null)
-        {
-            package.RemoveLine(existingInsurance);
-        }
+        package.RemoveHomeFirstInsuranceLine();
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }

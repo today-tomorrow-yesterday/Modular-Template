@@ -41,14 +41,7 @@ internal sealed class UpdatePackageConcessionsCommandHandler(
         var oldNonExcludedCount = package.Lines.Count(l => !l.ShouldExcludeFromPricing);
 
         // Step 3: Upsert concession line (PUT semantics — delete old, insert new)
-        var existing = package.Lines
-            .OfType<CreditLine>()
-            .SingleOrDefault(l => l.IsConcession);
-
-        if (existing is not null)
-        {
-            package.RemoveLine(existing);
-        }
+        package.RemoveConcessionLine();
 
         if (request.Amount > 0)
         {
@@ -66,7 +59,7 @@ internal sealed class UpdatePackageConcessionsCommandHandler(
             var taxLine = package.Lines.OfType<TaxLine>().SingleOrDefault();
             taxLine?.ClearCalculations();
 
-            RemoveUseTaxProjectCost(package);
+            package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
 
             package.FlagForTaxRecalculation();
         }
@@ -83,16 +76,7 @@ internal sealed class UpdatePackageConcessionsCommandHandler(
 
     private static void SyncSellerPaidClosingCost(Package package, decimal concessionAmount)
     {
-        var existingPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == SellerPaidClosingCostCategoryNumber
-                && l.Details?.ItemId == SellerPaidClosingCostItemNumber);
-
-        if (existingPc is not null)
-        {
-            package.RemoveLine(existingPc);
-        }
+        package.RemoveProjectCost(SellerPaidClosingCostCategoryNumber, SellerPaidClosingCostItemNumber);
 
         if (concessionAmount > 0)
         {
@@ -112,17 +96,4 @@ internal sealed class UpdatePackageConcessionsCommandHandler(
         }
     }
 
-    private static void RemoveUseTaxProjectCost(Package package)
-    {
-        var useTaxPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == UseTaxCategoryNumber
-                && l.Details?.ItemId == UseTaxItemNumber);
-
-        if (useTaxPc is not null)
-        {
-            package.RemoveLine(useTaxPc);
-        }
-    }
 }

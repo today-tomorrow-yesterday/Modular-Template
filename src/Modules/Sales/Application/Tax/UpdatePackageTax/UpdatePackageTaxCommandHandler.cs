@@ -70,7 +70,7 @@ internal sealed class UpdatePackageTaxCommandHandler(
         package.AddLine(newTaxLine);
 
         // Step 4: Remove Use Tax ProjectCost (Cat 9, Item 21) if present
-        RemoveUseTaxProjectCost(package);
+        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
 
         // Step 5: Tax config changed — set MustRecalculateTaxes = true
         package.FlagForTaxRecalculation();
@@ -84,15 +84,4 @@ internal sealed class UpdatePackageTaxCommandHandler(
             package.MustRecalculateTaxes);
     }
 
-    private static void RemoveUseTaxProjectCost(Package package)
-    {
-        var useTaxPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == UseTaxCategoryNumber
-                && l.Details?.ItemId == UseTaxItemNumber);
-
-        if (useTaxPc is not null)
-            package.RemoveLine(useTaxPc);
-    }
 }

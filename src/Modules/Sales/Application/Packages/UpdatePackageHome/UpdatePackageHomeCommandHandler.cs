@@ -137,40 +137,40 @@ internal sealed class UpdatePackageHomeCommandHandler(
         Package package, HomeType newHomeType, CancellationToken ct)
     {
         // Remove existing W&A project costs — they will be recalculated
-        RemoveProjectCostByKey(package, WaRentalCategoryNumber, WaRentalItemNumber);
-        RemoveProjectCostByKey(package, WaPurchaseCategoryNumber, WaPurchaseItemNumber);
+        package.RemoveProjectCost( WaRentalCategoryNumber, WaRentalItemNumber);
+        package.RemoveProjectCost( WaPurchaseCategoryNumber, WaPurchaseItemNumber);
 
         // Remove home-type-specific project costs that are invalid for the new type
         switch (newHomeType)
         {
             case HomeType.New:
                 // Cat 11 items 1-4 (all refurb items including drapes)
-                RemoveProjectCostByKey(package, RefurbCategoryNumber, CleaningItemNumber);
-                RemoveProjectCostByKey(package, RefurbCategoryNumber, RepairRefurbItemNumber);
-                RemoveProjectCostByKey(package, RefurbCategoryNumber, RefurbPartsItemNumber);
-                RemoveProjectCostByKey(package, RefurbCategoryNumber, DrapesItemNumber);
+                package.RemoveProjectCost( RefurbCategoryNumber, CleaningItemNumber);
+                package.RemoveProjectCost( RefurbCategoryNumber, RepairRefurbItemNumber);
+                package.RemoveProjectCost( RefurbCategoryNumber, RefurbPartsItemNumber);
+                package.RemoveProjectCost( RefurbCategoryNumber, DrapesItemNumber);
                 // Cat 12 (all repo costs)
-                RemoveProjectCostsByCategory(package, RepoCostsCategoryNumber);
+                package.RemoveProjectCostsByCategory(RepoCostsCategoryNumber);
                 // Cat 13/98 (Tax Undercollection)
-                RemoveProjectCostByKey(package, MiscTaxCategoryNumber, MiscTaxItemNumber);
+                package.RemoveProjectCost( MiscTaxCategoryNumber, MiscTaxItemNumber);
                 break;
             case HomeType.Used:
                 // Cat 12 (all repo costs)
-                RemoveProjectCostsByCategory(package, RepoCostsCategoryNumber);
+                package.RemoveProjectCostsByCategory(RepoCostsCategoryNumber);
                 // Cat 15/4 (Drapes)
-                RemoveProjectCostByKey(package, DecoratingCategoryNumber, DrapesItemNumber);
+                package.RemoveProjectCost( DecoratingCategoryNumber, DrapesItemNumber);
                 // Cat 13/98 (Tax Undercollection)
-                RemoveProjectCostByKey(package, MiscTaxCategoryNumber, MiscTaxItemNumber);
+                package.RemoveProjectCost( MiscTaxCategoryNumber, MiscTaxItemNumber);
                 break;
             case HomeType.Repo:
                 // Cat 11 items 1-3 (refurb — NOT item 4/Drapes for Repo)
-                RemoveProjectCostByKey(package, RefurbCategoryNumber, CleaningItemNumber);
-                RemoveProjectCostByKey(package, RefurbCategoryNumber, RepairRefurbItemNumber);
-                RemoveProjectCostByKey(package, RefurbCategoryNumber, RefurbPartsItemNumber);
+                package.RemoveProjectCost( RefurbCategoryNumber, CleaningItemNumber);
+                package.RemoveProjectCost( RefurbCategoryNumber, RepairRefurbItemNumber);
+                package.RemoveProjectCost( RefurbCategoryNumber, RefurbPartsItemNumber);
                 // Cat 15/4 (Drapes)
-                RemoveProjectCostByKey(package, DecoratingCategoryNumber, DrapesItemNumber);
+                package.RemoveProjectCost( DecoratingCategoryNumber, DrapesItemNumber);
                 // Cat 13/98 (Tax Undercollection)
-                RemoveProjectCostByKey(package, MiscTaxCategoryNumber, MiscTaxItemNumber);
+                package.RemoveProjectCost( MiscTaxCategoryNumber, MiscTaxItemNumber);
                 break;
         }
 
@@ -181,8 +181,8 @@ internal sealed class UpdatePackageHomeCommandHandler(
         Package package, UpdatePackageHomeRequest home, CancellationToken ct)
     {
         // Remove existing W&A project costs
-        RemoveProjectCostByKey(package, WaRentalCategoryNumber, WaRentalItemNumber);
-        RemoveProjectCostByKey(package, WaPurchaseCategoryNumber, WaPurchaseItemNumber);
+        package.RemoveProjectCost( WaRentalCategoryNumber, WaRentalItemNumber);
+        package.RemoveProjectCost( WaPurchaseCategoryNumber, WaPurchaseItemNumber);
 
         if (home.WheelAndAxlesOption is null)
         {
@@ -247,33 +247,6 @@ internal sealed class UpdatePackageHomeCommandHandler(
             details: details));
     }
 
-    private static void RemoveProjectCostsByCategory(Package package, int categoryId)
-    {
-        var lines = package.Lines
-            .OfType<ProjectCostLine>()
-            .Where(l => l.Details?.CategoryId == categoryId)
-            .ToList();
-
-        foreach (var line in lines)
-        {
-            package.RemoveLine(line);
-        }
-    }
-
-    private static void RemoveProjectCostByKey(Package package, int categoryId, int itemId)
-    {
-        var line = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == categoryId
-                && l.Details?.ItemId == itemId);
-
-        if (line is not null)
-        {
-            package.RemoveLine(line);
-        }
-    }
-
     // --- Step 6: Clear tax errors ---
 
     private static void ClearTaxErrors(Package package)
@@ -332,7 +305,7 @@ internal sealed class UpdatePackageHomeCommandHandler(
         taxLine?.ClearCalculations();
 
         // Remove Use Tax project cost (Cat 9, Item 21)
-        RemoveUseTaxProjectCost(package);
+        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
 
         // Signal that taxes must be recalculated
         package.FlagForTaxRecalculation();
@@ -341,20 +314,6 @@ internal sealed class UpdatePackageHomeCommandHandler(
     // Use Tax — auto-generated project cost (Cat 9, Item 21)
     private const int UseTaxCategoryNumber = 9;
     private const int UseTaxItemNumber = 21;
-
-    private static void RemoveUseTaxProjectCost(Package package)
-    {
-        var useTaxPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == UseTaxCategoryNumber
-                && l.Details?.ItemId == UseTaxItemNumber);
-
-        if (useTaxPc is not null)
-        {
-            package.RemoveLine(useTaxPc);
-        }
-    }
 
     // --- Mapping ---
 

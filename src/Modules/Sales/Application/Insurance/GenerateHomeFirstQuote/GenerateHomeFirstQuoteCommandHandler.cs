@@ -56,12 +56,7 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
         if (DeliveryAddress.IsOccupancyInsuranceIneligible(deliveryAddress?.OccupancyType))
         {
             // Remove HomeFirst Insurance line only — legacy did NOT strip warranty on occupancy ineligibility
-            var insuranceLine = primaryPackage.Lines.OfType<InsuranceLine>()
-                .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
-            if (insuranceLine is not null)
-            {
-                primaryPackage.RemoveLine(insuranceLine);
-            }
+            primaryPackage.RemoveHomeFirstInsuranceLine();
 
             await unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -140,12 +135,7 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
         }
 
         // Step 4: Upsert Insurance line (PUT semantics — delete old, insert new)
-        var existingInsurance = primaryPackage.Lines.OfType<InsuranceLine>()
-            .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
-        if (existingInsurance is not null)
-        {
-            primaryPackage.RemoveLine(existingInsurance);
-        }
+        primaryPackage.RemoveHomeFirstInsuranceLine();
 
         var details = InsuranceDetails.Create(
             insuranceType: InsuranceType.HomeFirst,

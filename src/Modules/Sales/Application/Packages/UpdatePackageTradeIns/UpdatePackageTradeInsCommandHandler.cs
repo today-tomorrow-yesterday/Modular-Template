@@ -101,17 +101,7 @@ internal sealed class UpdatePackageTradeInsCommandHandler(
         Package package, UpdatePackageTradeInItemRequest[] items)
     {
         // Remove ALL existing Trade Over Allowance project costs — starting fresh
-        var existingTradeOverCosts = package.Lines
-            .OfType<ProjectCostLine>()
-            .Where(l =>
-                l.Details?.CategoryId == TradeOverAllowanceCategoryNumber
-                && l.Details?.ItemId == TradeOverAllowanceItemNumber)
-            .ToList();
-
-        foreach (var pc in existingTradeOverCosts)
-        {
-            package.RemoveLine(pc);
-        }
+        package.RemoveAllProjectCosts(TradeOverAllowanceCategoryNumber, TradeOverAllowanceItemNumber);
 
         // For each trade-in where TradeAllowance > BookInAmount, create a Trade Over Allowance PC
         foreach (var item in items)
@@ -164,23 +154,10 @@ internal sealed class UpdatePackageTradeInsCommandHandler(
         taxLine?.ClearCalculations();
 
         // Remove Use Tax project cost (Cat 9, Item 21)
-        RemoveUseTaxProjectCost(package);
+        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
 
         // Signal that taxes must be recalculated
         package.FlagForTaxRecalculation();
     }
 
-    private static void RemoveUseTaxProjectCost(Package package)
-    {
-        var useTaxPc = package.Lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == UseTaxCategoryNumber
-                && l.Details?.ItemId == UseTaxItemNumber);
-
-        if (useTaxPc is not null)
-        {
-            package.RemoveLine(useTaxPc);
-        }
-    }
 }
