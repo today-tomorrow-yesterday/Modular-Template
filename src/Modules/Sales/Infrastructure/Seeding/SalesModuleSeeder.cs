@@ -27,6 +27,9 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
             return;
         }
 
+        // Deterministic seed — all Bogus output (names, addresses, dollar amounts, PickRandom
+        // choices) will be identical across database recreations and developer machines.
+        Bogus.Randomizer.Seed = new Random(SeedConstants.RandomSeed);
         var faker = new Bogus.Faker();
         var activeHomeCenterNumbers = RetailLocationFaker.GetHomeCenterNumbers();
 
@@ -85,6 +88,8 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
 
             // Sales (needs PartyId + RetailLocationId)
             var sales = SaleFaker.Generate(15, partyIds, retailLocationIds, faker);
+            for (var i = 0; i < sales.Count; i++)
+                SeedConstants.OverridePublicId(sales[i], SeedConstants.DeterministicGuid("sale", i));
             db.Sales.AddRange(sales);
             await db.SaveChangesAsync(ct);
             logger.LogInformation("Seeded {Count} sales.", sales.Count);
@@ -93,6 +98,8 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
 
             // Packages (needs SaleId)
             var packages = PackageFaker.Generate(saleIds, faker);
+            for (var i = 0; i < packages.Count; i++)
+                SeedConstants.OverridePublicId(packages[i], SeedConstants.DeterministicGuid("package", i));
             db.Packages.AddRange(packages);
             await db.SaveChangesAsync(ct);
             logger.LogInformation("Seeded {Count} packages.", packages.Count);
@@ -100,6 +107,8 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
             // Delivery addresses (needs SaleId, 1:1) — created before package lines
             // so line fakers can snapshot real delivery context into details JSON.
             var deliveryAddresses = DeliveryAddressFaker.Generate(saleIds, faker, count: 10);
+            for (var i = 0; i < deliveryAddresses.Count; i++)
+                SeedConstants.OverridePublicId(deliveryAddresses[i], SeedConstants.DeterministicGuid("delivery-address", i));
 
             // Build lookups so package line fakers receive actual entities (not just IDs).
             // This makes seed data joinable: home lines reference real OnLotHomeCache dimensions,
