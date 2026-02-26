@@ -1,21 +1,25 @@
 using Bogus;
 using Modules.Sales.Domain.PartiesCache;
+using Modules.Sales.Infrastructure.Seeding;
 
 namespace Modules.Sales.Infrastructure.Seeding.Fakers;
 
 internal sealed class PartyCacheFaker : Faker<PartyCache>
 {
     private int _refPartyId;
+    private int _hcIndex;
 
     public PartyCacheFaker(int[] homeCenterNumbers)
     {
         _refPartyId = 0;
+        _hcIndex = 0;
 
         RuleFor(p => p.RefPartyId, _ => ++_refPartyId);
-        RuleFor(p => p.RefPublicId, _ => Guid.CreateVersion7());
+        RuleFor(p => p.RefPublicId, _ => SeedConstants.DeterministicGuid("party", _refPartyId));
         RuleFor(p => p.PartyType, PartyType.Person);
         RuleFor(p => p.LifecycleStage, f => f.PickRandom<LifecycleStage>());
-        RuleFor(p => p.HomeCenterNumber, f => f.PickRandom(homeCenterNumbers));
+        // Round-robin home center assignment — deterministic regardless of Bogus seed.
+        RuleFor(p => p.HomeCenterNumber, _ => homeCenterNumbers[_hcIndex++ % homeCenterNumbers.Length]);
         RuleFor(p => p.DisplayName, f => f.Name.FullName());
         RuleFor(p => p.SalesforceAccountId, f => "001" + f.Random.AlphaNumeric(15).ToUpperInvariant());
         RuleFor(p => p.LastSyncedAtUtc, f => f.Date.Recent(30).ToUniversalTime());

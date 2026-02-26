@@ -202,6 +202,8 @@ public static class OpenApiExtensions
                 ? methodInfo.Name
                 : null));
 
+        // IOperationFilter docs: https://github.com/domaindrivendev/Swashbuckle.AspNetCore?tab=readme-ov-file#operation-filters
         options.OperationFilter<RequestBodyExampleOperationFilter>();
+        options.OperationFilter<SeedParameterExampleFilter>();
     }
 }

@@ -57,8 +57,8 @@ internal sealed class UpdatePackageProjectCostsEndpoint : IEndpoint
         public const string Request = """
         [
             {
-                "categoryId": 1,
-                "itemId": 101,
+                "categoryId": 11,
+                "itemId": 1,
                 "salePrice": 3500.00,
                 "estimatedCost": 2800.00,
                 "retailSalePrice": 4000.00,

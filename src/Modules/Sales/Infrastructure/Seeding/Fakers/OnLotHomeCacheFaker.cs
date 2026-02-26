@@ -12,14 +12,18 @@ internal sealed class OnLotHomeCacheFaker : Faker<OnLotHomeCache>
 
     private int _refOnLotHomeId;
     private int _stockSequence;
+    private int _hcIndex;
 
     public OnLotHomeCacheFaker(int[] homeCenterNumbers)
     {
         _refOnLotHomeId = 0;
         _stockSequence = 0;
+        _hcIndex = 0;
 
         RuleFor(h => h.RefOnLotHomeId, _ => ++_refOnLotHomeId);
-        RuleFor(h => h.RefHomeCenterNumber, f => f.PickRandom(homeCenterNumbers));
+        // Round-robin home center assignment — deterministic regardless of Bogus seed.
+        // Home 1 → HC 100, Home 2 → HC 200, Home 3 → HC 300, Home 4 → HC 400, Home 5 → HC 100, ...
+        RuleFor(h => h.RefHomeCenterNumber, _ => homeCenterNumbers[_hcIndex++ % homeCenterNumbers.Length]);
         RuleFor(h => h.RefStockNumber, _ => $"STK{++_stockSequence:D4}");
         RuleFor(h => h.StockType, "HOME");
         RuleFor(h => h.Condition, f => f.PickRandom<HomeCondition>());

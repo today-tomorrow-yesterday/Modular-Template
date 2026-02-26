@@ -23,7 +23,7 @@ internal static class PackageDetailMapper
         var home = package.Lines.OfType<HomeLine>().SingleOrDefault();
         var land = package.Lines.OfType<LandLine>().SingleOrDefault();
         var tax = package.Lines.OfType<TaxLine>().SingleOrDefault();
-        var insurance = package.Lines.OfType<InsuranceLine>().SingleOrDefault();
+        var insurance = package.Lines.OfType<InsuranceLine>().FirstOrDefault();
         var warranty = package.Lines.OfType<WarrantyLine>().SingleOrDefault();
         var salesTeam = package.Lines.OfType<SalesTeamLine>().SingleOrDefault();
 
@@ -169,10 +169,10 @@ internal static class PackageDetailMapper
             ShouldExcludeFromPricing: line.ShouldExcludeFromPricing,
             PreviouslyTitled: d?.PreviouslyTitled,
             TaxExemptionId: d?.TaxExemptionId,
-            StateTaxQuestionAnswers: d?.StateTaxQuestionAnswers
+            StateTaxQuestionAnswers: d?.StateTaxQuestionAnswers?
                 .Select(qa => new TaxQuestionAnswerResponse(qa.QuestionNumber, qa.QuestionText, ParseBoolAnswer(qa.Answer)))
                 .ToArray() ?? [],
-            TaxItems: d?.Taxes
+            TaxItems: d?.Taxes?
                 .Select(t => new PackageTaxItemResponse(t.Name, t.IsOverridden, t.CalculatedAmount, t.ChargedAmount))
                 .ToArray() ?? [],
             Errors: d?.Errors?.ToArray(),
