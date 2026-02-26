@@ -55,6 +55,19 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
     }
 
     [Fact]
+    public async Task Returns_failure_when_no_delivery_address()
+    {
+        var sale = CreateSaleWithContext(includeDeliveryAddress: false);
+        _saleRepository.GetByPublicIdWithFullContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
+            .Returns(sale);
+
+        var result = await _sut.Handle(CreateCommand(sale.PublicId), CancellationToken.None);
+
+        Assert.True(result.IsFailure);
+        Assert.Equal("Insurance.NoDeliveryAddress", result.Error.Code);
+    }
+
+    [Fact]
     public async Task Returns_failure_when_no_primary_package()
     {
         var sale = CreateSaleWithContext(includePrimaryPackage: false);
@@ -149,6 +162,7 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
     // --- Test helpers ---
 
     private static Sale CreateSaleWithContext(
+        bool includeDeliveryAddress = true,
         bool includePrimaryPackage = true,
         bool includeHomeLine = true,
         string occupancyType = "Primary")
@@ -164,16 +178,19 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
             homeCenterNumber: 42, name: "Test HC", stateCode: "OH", zip: "43004", isActive: true);
         SetProperty(sale, nameof(Sale.RetailLocation), retailLocation);
 
-        var address = DomainDeliveryAddress.Create(
-            saleId: sale.Id,
-            occupancyType: occupancyType,
-            isWithinCityLimits: true,
-            addressStyle: null, addressType: null,
-            addressLine1: "123 Main St", addressLine2: null, addressLine3: null,
-            city: "Columbus", county: "Franklin",
-            state: "OH", country: "US", postalCode: "43004");
-        address.ClearDomainEvents();
-        SetProperty(sale, nameof(Sale.DeliveryAddress), address);
+        if (includeDeliveryAddress)
+        {
+            var address = DomainDeliveryAddress.Create(
+                saleId: sale.Id,
+                occupancyType: occupancyType,
+                isWithinCityLimits: true,
+                addressStyle: null, addressType: null,
+                addressLine1: "123 Main St", addressLine2: null, addressLine3: null,
+                city: "Columbus", county: "Franklin",
+                state: "OH", country: "US", postalCode: "43004");
+            address.ClearDomainEvents();
+            SetProperty(sale, nameof(Sale.DeliveryAddress), address);
+        }
 
         var party = new PartyCache
         {

@@ -10,7 +10,6 @@ public sealed record UpdatePackageInsuranceCommand(
     bool InParkOrSubdivision,
     bool IsLandOwnedByCustomer,
     bool IsPremiumFinanced,
-    string QuoteId,
     string CompanyName,
     decimal MaxCoverage,
     decimal TotalPremium) : ICommand<UpdatePackageInsuranceResult>;

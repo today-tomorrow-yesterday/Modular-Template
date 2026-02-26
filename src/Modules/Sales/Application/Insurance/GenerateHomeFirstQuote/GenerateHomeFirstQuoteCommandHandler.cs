@@ -35,7 +35,7 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
         var ctx = contextResult.Value;
 
         // Step 2: Occupancy eligibility check — strip line and fail if ineligible
-        if (DeliveryAddress.IsOccupancyInsuranceIneligible(ctx.DeliveryAddress?.OccupancyType))
+        if (DeliveryAddress.IsOccupancyInsuranceIneligible(ctx.DeliveryAddress.OccupancyType))
         {
             return await RejectOccupancyIneligibleAsync(ctx, cancellationToken);
         }
@@ -77,6 +77,12 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             return Result.Failure<ValidatedSaleContext>(SaleErrors.NotFoundByPublicId(salePublicId));
         }
 
+        if (sale.DeliveryAddress is null)
+        {
+            return Result.Failure<ValidatedSaleContext>(Error.Validation(
+                "Insurance.NoDeliveryAddress", "Cannot generate HomeFirst quote without a delivery address."));
+        }
+
         var primaryPackage = sale.Packages.FirstOrDefault(p => p.IsPrimaryPackage);
         if (primaryPackage is null)
         {
@@ -105,7 +111,7 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
 
         return Result.Failure<HomeFirstQuoteResult>(Error.Validation(
             "Insurance.IneligibleOccupancy",
-            $"Occupancy type '{ctx.DeliveryAddress!.OccupancyType}' is not eligible for HomeFirst insurance."));
+            $"Occupancy type '{ctx.DeliveryAddress.OccupancyType}' is not eligible for HomeFirst insurance."));
     }
 
     private async Task<ISeriesInsurance.HomeFirstQuoteResult> CalculateHomeFirstQuoteAsync(
@@ -123,7 +129,7 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             ModelNumber = homeDetails.Model ?? string.Empty,
             CoverageAmount = request.CoverageAmount,
             ModelYear = homeDetails.ModelYear ?? DateTime.UtcNow.Year,
-            DeliveryZipCode = deliveryAddress?.PostalCode ?? string.Empty,
+            DeliveryZipCode = deliveryAddress.PostalCode ?? string.Empty,
             HomeCondition = MapHomeCondition(homeDetails.HomeType),
             SerialNumber = homeDetails.SerialNumbers?.FirstOrDefault() ?? string.Empty,
             LengthInFeet = (int)(homeDetails.LengthInFeet ?? 0),
@@ -138,10 +144,10 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             MailingCity = request.MailingCity,
             MailingState = request.MailingState,
             MailingZip = request.MailingZip,
-            LocationAddress = deliveryAddress?.AddressLine1 ?? string.Empty,
-            LocationCity = deliveryAddress?.City ?? string.Empty,
-            LocationState = deliveryAddress?.State ?? string.Empty,
-            IsWithinCityLimits = deliveryAddress?.IsWithinCityLimits ?? false,
+            LocationAddress = deliveryAddress.AddressLine1 ?? string.Empty,
+            LocationCity = deliveryAddress.City ?? string.Empty,
+            LocationState = deliveryAddress.State ?? string.Empty,
+            IsWithinCityLimits = deliveryAddress.IsWithinCityLimits,
             BuyerBirthDate = DateOnly.FromDateTime(request.CustomerBirthDate),
             CoBuyerBirthDate = request.CoApplicantBirthDate.HasValue
                 ? DateOnly.FromDateTime(request.CoApplicantBirthDate.Value)
@@ -177,10 +183,10 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             homeLengthInFeet: homeDetails.LengthInFeet,
             homeWidthInFeet: homeDetails.WidthInFeet,
             homeCondition: homeDetails.HomeType.ToString(),
-            deliveryState: deliveryAddress?.State,
-            deliveryPostalCode: deliveryAddress?.PostalCode,
-            deliveryCity: deliveryAddress?.City,
-            deliveryIsWithinCityLimits: deliveryAddress?.IsWithinCityLimits,
+            deliveryState: deliveryAddress.State,
+            deliveryPostalCode: deliveryAddress.PostalCode,
+            deliveryCity: deliveryAddress.City,
+            deliveryIsWithinCityLimits: deliveryAddress.IsWithinCityLimits,
             occupancyType: occupancyType.ToString());
 
         ctx.PrimaryPackage.AddLine(InsuranceLine.Create(
@@ -210,5 +216,5 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
     };
 
     private sealed record ValidatedSaleContext(
-        Sale Sale, Package PrimaryPackage, HomeDetails HomeDetails, DeliveryAddress? DeliveryAddress);
+        Sale Sale, Package PrimaryPackage, HomeDetails HomeDetails, DeliveryAddress DeliveryAddress);
 }

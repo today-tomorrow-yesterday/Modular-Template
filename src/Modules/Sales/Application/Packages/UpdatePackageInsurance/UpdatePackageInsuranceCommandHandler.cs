@@ -65,7 +65,6 @@ internal sealed class UpdatePackageInsuranceCommandHandler(
             inParkOrSubdivision: request.InParkOrSubdivision,
             isLandOwnedByCustomer: request.IsLandOwnedByCustomer,
             isPremiumFinanced: request.IsPremiumFinanced,
-            quoteId: null, // insurance_quotes table eliminated (v3.37) — no longer referenced
             companyName: request.CompanyName,
             maxCoverage: request.MaxCoverage,
             totalPremium: request.TotalPremium,

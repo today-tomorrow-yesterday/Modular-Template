@@ -36,6 +36,7 @@ internal sealed class SaleRepository(SalesDbContext dbContext)
         return await DbSet
             .Include(s => s.RetailLocation)
             .Include(s => s.DeliveryAddress)
+            .Include(s => s.Party).ThenInclude(p => p.Person)
             .Include(s => s.Packages).ThenInclude(p => p.Lines)
             .FirstOrDefaultAsync(s => s.PublicId == publicId, cancellationToken);
     }

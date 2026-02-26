@@ -175,7 +175,13 @@ internal static class PackageDetailMapper
             TaxItems: d?.Taxes
                 .Select(t => new PackageTaxItemResponse(t.Name, t.IsOverridden, t.CalculatedAmount, t.ChargedAmount))
                 .ToArray() ?? [],
-            Errors: d?.Errors?.ToArray());
+            Errors: d?.Errors?.ToArray(),
+            TaxExemptionDescription: d?.TaxExemptionDescription,
+            StateCode: d?.StateCode,
+            DeliveryCity: d?.DeliveryCity,
+            DeliveryCounty: d?.DeliveryCounty,
+            DeliveryPostalCode: d?.DeliveryPostalCode,
+            DeliveryIsWithinCityLimits: d?.DeliveryIsWithinCityLimits);
     }
 
     private static InsuranceSectionResponse? MapInsurance(InsuranceLine? line)
@@ -201,7 +207,17 @@ internal static class PackageDetailMapper
             TotalPremium: d?.TotalPremium,
             ProviderName: d?.ProviderName,
             TempLinkId: d?.TempLinkId,
-            QuotedAt: d?.QuotedAt);
+            QuotedAt: d?.QuotedAt,
+            HomeStockNumber: d?.HomeStockNumber,
+            HomeModelYear: d?.HomeModelYear,
+            HomeLengthInFeet: d?.HomeLengthInFeet,
+            HomeWidthInFeet: d?.HomeWidthInFeet,
+            HomeCondition: d?.HomeCondition,
+            DeliveryState: d?.DeliveryState,
+            DeliveryPostalCode: d?.DeliveryPostalCode,
+            DeliveryCity: d?.DeliveryCity,
+            DeliveryIsWithinCityLimits: d?.DeliveryIsWithinCityLimits,
+            OccupancyType: d?.OccupancyType);
     }
 
     private static WarrantySectionResponse? MapWarranty(WarrantyLine? line)
@@ -218,7 +234,15 @@ internal static class PackageDetailMapper
             WarrantySelected: d?.WarrantySelected ?? false,
             WarrantyAmount: d?.WarrantyAmount,
             SalesTaxPremium: d?.SalesTaxPremium,
-            QuotedAt: d?.QuotedAt);
+            QuotedAt: d?.QuotedAt,
+            HomeModelYear: d?.HomeModelYear,
+            HomeModularType: d?.HomeModularType,
+            HomeWidthInFeet: d?.HomeWidthInFeet,
+            HomeCondition: d?.HomeCondition,
+            DeliveryState: d?.DeliveryState,
+            DeliveryPostalCode: d?.DeliveryPostalCode,
+            DeliveryIsWithinCityLimits: d?.DeliveryIsWithinCityLimits,
+            HomeCenterNumber: d?.HomeCenterNumber);
     }
 
     private static DownPaymentResponse? MapDownPayment(CreditLine? line)
@@ -277,6 +301,7 @@ internal static class PackageDetailMapper
                 Role: FormatRole(m.Role),
                 AuthorizedUserId: m.AuthorizedUserId,
                 EmployeeNumber: ResolveEmployeeNumber(m.AuthorizedUserId, employeeNumberMap),
+                EmployeeName: m.EmployeeName,
                 SortOrder: index,
                 SalePrice: line.SalePrice,
                 EstimatedCost: line.EstimatedCost,
@@ -301,7 +326,22 @@ internal static class PackageDetailMapper
             CategoryNumber: d?.CategoryId ?? 0,
             ItemId: d?.ItemId ?? 0,
             ItemDescription: d?.ItemDescription,
-            SortOrder: index);
+            SortOrder: index,
+            CategoryDescription: d?.CategoryDescription,
+            CategoryIsCreditConsideration: d?.CategoryIsCreditConsideration,
+            CategoryIsLandDot: d?.CategoryIsLandDot,
+            CategoryRestrictFha: d?.CategoryRestrictFha,
+            CategoryRestrictCss: d?.CategoryRestrictCss,
+            CategoryDisplayForCash: d?.CategoryDisplayForCash,
+            ItemStatus: d?.ItemStatus,
+            ItemIsFeeItem: d?.ItemIsFeeItem,
+            ItemIsCssRestricted: d?.ItemIsCssRestricted,
+            ItemIsFhaRestricted: d?.ItemIsFhaRestricted,
+            ItemIsDisplayForCash: d?.ItemIsDisplayForCash,
+            ItemIsRestrictOptionPrice: d?.ItemIsRestrictOptionPrice,
+            ItemIsRestrictCssCost: d?.ItemIsRestrictCssCost,
+            ItemIsHopeRefundsIncluded: d?.ItemIsHopeRefundsIncluded,
+            ItemProfitPercentage: d?.ItemProfitPercentage);
     }
 
     private static FundingResponse? MapFunding(FundingRequestCache? funding)

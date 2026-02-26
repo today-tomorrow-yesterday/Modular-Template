@@ -128,7 +128,12 @@ internal static class PackageLineFakers
             estimatedCost: 0m,
             retailSalePrice: taxAmount,
             shouldExcludeFromPricing: false,
-            details: null);
+            details: TaxDetails.Create(
+                previouslyTitled: faker.PickRandom("Y", "N"),
+                taxExemptionId: null,
+                questionAnswers: [],
+                taxes: [],
+                errors: null));
     }
 
     private static InsuranceLine CreateInsuranceLine(int packageId, Bogus.Faker faker, int sortOrder)
@@ -142,7 +147,11 @@ internal static class PackageLineFakers
             retailSalePrice: premium,
             responsibility: Responsibility.Buyer,
             shouldExcludeFromPricing: false,
-            details: null,
+            details: InsuranceDetails.Create(
+                insuranceType: InsuranceType.HomeFirst,
+                coverageAmount: premium * faker.Random.Decimal(2m, 5m),
+                companyName: "HomeFirst Insurance Co",
+                totalPremium: premium),
             sortOrder: sortOrder);
     }
 
@@ -156,7 +165,9 @@ internal static class PackageLineFakers
             estimatedCost: warrantyAmount * 0.4m,
             retailSalePrice: warrantyAmount,
             shouldExcludeFromPricing: false,
-            details: null);
+            details: WarrantyDetails.Create(
+                warrantyAmount: warrantyAmount,
+                salesTaxPremium: Math.Round(warrantyAmount * 0.08m, 2)));
     }
 
     private static TradeInLine CreateTradeInLine(int packageId, Bogus.Faker faker, int sortOrder)
@@ -169,16 +180,46 @@ internal static class PackageLineFakers
             estimatedCost: 0m,
             retailSalePrice: 0m,
             responsibility: Responsibility.Seller,
-            details: null,
+            details: TradeInDetails.Create(
+                tradeType: faker.PickRandom("Home", "Vehicle"),
+                year: faker.Random.Int(2010, 2024),
+                make: faker.PickRandom("Clayton", "Champion", "Skyline"),
+                model: faker.PickRandom("Summit", "Freedom", "Eclipse"),
+                tradeAllowance: tradeAllowance,
+                payoffAmount: Math.Round(tradeAllowance * faker.Random.Decimal(0.2m, 0.8m), 2),
+                bookInAmount: Math.Round(tradeAllowance * faker.Random.Decimal(0.5m, 0.9m), 2)),
             sortOrder: sortOrder);
     }
 
     private static SalesTeamLine CreateSalesTeamLine(int packageId, Bogus.Faker faker, int? authorizedUserId)
     {
-        // SalesTeamDetails has private setters — pass null (commission not yet calculated)
+        var members = new List<SalesTeamMember>
+        {
+            SalesTeamMember.Create(
+                authorizedUserId: authorizedUserId,
+                role: SalesTeamRole.Primary,
+                commissionSplitPercentage: 100m,
+                employeeName: faker.Name.FullName())
+        };
+
+        if (faker.Random.Bool(0.3f))
+        {
+            members.Add(SalesTeamMember.Create(
+                authorizedUserId: null,
+                role: SalesTeamRole.Secondary,
+                commissionSplitPercentage: 50m,
+                employeeName: faker.Name.FullName()));
+            // Adjust primary split when secondary exists
+            members[0] = SalesTeamMember.Create(
+                authorizedUserId: authorizedUserId,
+                role: SalesTeamRole.Primary,
+                commissionSplitPercentage: 50m,
+                employeeName: members[0].EmployeeName);
+        }
+
         return SalesTeamLine.Create(
             packageId: packageId,
-            details: null);
+            details: SalesTeamDetails.Create(members));
     }
 
     private static ProjectCostLine CreateProjectCostLine(int packageId, Bogus.Faker faker, int sortOrder)

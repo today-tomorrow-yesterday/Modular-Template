@@ -39,7 +39,6 @@ internal sealed class UpdatePackageInsuranceEndpoint : IEndpoint
             request.InParkOrSubdivision,
             request.IsLandOwnedByCustomer,
             request.IsPremiumFinanced,
-            request.QuoteId,
             request.CompanyName,
             request.MaxCoverage,
             request.TotalPremium);
@@ -64,7 +63,6 @@ internal sealed class UpdatePackageInsuranceEndpoint : IEndpoint
             "inParkOrSubdivision": false,
             "isLandOwnedByCustomer": true,
             "isPremiumFinanced": true,
-            "quoteId": "42",
             "companyName": "HomeFirst Insurance Co",
             "maxCoverage": 250000.00,
             "totalPremium": 1500.00
@@ -80,7 +78,6 @@ public sealed record UpdatePackageInsuranceRequest(
     bool InParkOrSubdivision,
     bool IsLandOwnedByCustomer,
     bool IsPremiumFinanced,
-    string QuoteId,
     string CompanyName,
     decimal MaxCoverage,
     decimal TotalPremium);

@@ -119,7 +119,13 @@ public sealed record TaxSectionResponse(
     int? TaxExemptionId,
     TaxQuestionAnswerResponse[] StateTaxQuestionAnswers,
     PackageTaxItemResponse[] TaxItems,
-    string[]? Errors);
+    string[]? Errors,
+    string? TaxExemptionDescription,
+    string? StateCode,
+    string? DeliveryCity,
+    string? DeliveryCounty,
+    string? DeliveryPostalCode,
+    bool? DeliveryIsWithinCityLimits);
 
 public sealed record TaxQuestionAnswerResponse(int QuestionNumber, string? QuestionText, bool Answer);
 
@@ -143,7 +149,17 @@ public sealed record InsuranceSectionResponse(
     decimal? TotalPremium,
     string? ProviderName,
     int? TempLinkId,
-    DateTimeOffset? QuotedAt);
+    DateTimeOffset? QuotedAt,
+    string? HomeStockNumber,
+    int? HomeModelYear,
+    decimal? HomeLengthInFeet,
+    decimal? HomeWidthInFeet,
+    string? HomeCondition,
+    string? DeliveryState,
+    string? DeliveryPostalCode,
+    string? DeliveryCity,
+    bool? DeliveryIsWithinCityLimits,
+    string? OccupancyType);
 
 public sealed record WarrantySectionResponse(
     decimal SalePrice,
@@ -154,7 +170,15 @@ public sealed record WarrantySectionResponse(
     bool WarrantySelected,
     decimal? WarrantyAmount,
     decimal? SalesTaxPremium,
-    DateTimeOffset? QuotedAt);
+    DateTimeOffset? QuotedAt,
+    int? HomeModelYear,
+    string? HomeModularType,
+    decimal? HomeWidthInFeet,
+    string? HomeCondition,
+    string? DeliveryState,
+    string? DeliveryPostalCode,
+    bool? DeliveryIsWithinCityLimits,
+    int? HomeCenterNumber);
 
 public sealed record DownPaymentResponse(
     decimal SalePrice,
@@ -191,6 +215,7 @@ public sealed record SalesTeamMemberResponse(
     string Role,
     int? AuthorizedUserId,
     int? EmployeeNumber,
+    string? EmployeeName,
     int SortOrder,
     decimal SalePrice,
     decimal EstimatedCost,
@@ -209,7 +234,22 @@ public sealed record ProjectCostResponse(
     int CategoryNumber,
     int ItemId,
     string? ItemDescription,
-    int SortOrder);
+    int SortOrder,
+    string? CategoryDescription,
+    bool? CategoryIsCreditConsideration,
+    bool? CategoryIsLandDot,
+    bool? CategoryRestrictFha,
+    bool? CategoryRestrictCss,
+    bool? CategoryDisplayForCash,
+    string? ItemStatus,
+    bool? ItemIsFeeItem,
+    bool? ItemIsCssRestricted,
+    bool? ItemIsFhaRestricted,
+    bool? ItemIsDisplayForCash,
+    bool? ItemIsRestrictOptionPrice,
+    bool? ItemIsRestrictCssCost,
+    bool? ItemIsHopeRefundsIncluded,
+    decimal? ItemProfitPercentage);
 
 public sealed record FundingResponse(
     int RefFundingRequestId,

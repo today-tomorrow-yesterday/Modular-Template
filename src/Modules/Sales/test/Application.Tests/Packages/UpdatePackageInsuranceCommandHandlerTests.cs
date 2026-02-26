@@ -51,7 +51,6 @@ public sealed class UpdatePackageInsuranceCommandHandlerTests
             InParkOrSubdivision: false,
             IsLandOwnedByCustomer: true,
             IsPremiumFinanced: true,
-            QuoteId: "Q-001",
             CompanyName: "HomeFirst",
             MaxCoverage: 200000m,
             TotalPremium: 1200m);
