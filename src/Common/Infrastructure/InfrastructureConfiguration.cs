@@ -11,9 +11,9 @@ using Rtl.Core.Infrastructure.Caching;
 using Rtl.Core.Infrastructure.Clock;
 using Rtl.Core.Infrastructure.EventBus;
 using Rtl.Core.Infrastructure.FeatureManagement;
+using Rtl.Core.Infrastructure.ISeries;
 using Rtl.Core.Infrastructure.Persistence;
 using Rtl.Core.Infrastructure.Quartz;
-using Rtl.Core.Infrastructure.ISeries;
 using Rtl.Core.Infrastructure.Resilience;
 using Rtl.Core.Infrastructure.Secrets;
 

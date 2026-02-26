@@ -34,23 +34,37 @@ internal sealed class RecordOutsideInsuranceCommandHandler(
             return Result.Failure(PackageErrors.NoPrimaryPackage());
 
         // Step 3: Upsert outside insurance line (remove-then-add -- PUT semantics)
-        UpsertOutsideInsuranceLine(package, request);
+        UpsertOutsideInsuranceLine(package, request, sale);
 
         // Step 4: Persist
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }
 
-    private static void UpsertOutsideInsuranceLine(Package package, RecordOutsideInsuranceCommand request)
+    private static void UpsertOutsideInsuranceLine(Package package, RecordOutsideInsuranceCommand request, Sale sale)
     {
         package.RemoveOutsideInsuranceLine();
+
+        var homeDetails = package.Lines.OfType<HomeLine>().SingleOrDefault()?.Details;
+        var deliveryAddress = sale.DeliveryAddress;
 
         var details = InsuranceDetails.Create(
             insuranceType: InsuranceType.Outside,
             coverageAmount: request.CoverageAmount,
             providerName: request.ProviderName,
-            totalPremium: request.PremiumAmount);
+            totalPremium: request.PremiumAmount,
+            homeStockNumber: homeDetails?.StockNumber,
+            homeModelYear: homeDetails?.ModelYear,
+            homeLengthInFeet: homeDetails?.LengthInFeet,
+            homeWidthInFeet: homeDetails?.WidthInFeet,
+            homeCondition: homeDetails?.HomeType.ToString(),
+            deliveryState: deliveryAddress?.State,
+            deliveryPostalCode: deliveryAddress?.PostalCode,
+            deliveryCity: deliveryAddress?.City,
+            deliveryIsWithinCityLimits: deliveryAddress?.IsWithinCityLimits,
+            occupancyType: deliveryAddress?.OccupancyType);
 
         var newLine = InsuranceLine.Create(
             packageId: package.Id,

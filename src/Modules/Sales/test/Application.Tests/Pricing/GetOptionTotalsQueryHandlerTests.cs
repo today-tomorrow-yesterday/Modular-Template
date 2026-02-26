@@ -1,11 +1,11 @@
-using System.Reflection;
 using Modules.Sales.Application.Pricing.GetOptionTotals;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
-using ISeriesPricing = Rtl.Core.Application.Adapters.ISeries.Pricing;
+using System.Reflection;
 using Xunit;
+using ISeriesPricing = Rtl.Core.Application.Adapters.ISeries.Pricing;
 
 namespace Modules.Sales.Application.Tests.Pricing;
 

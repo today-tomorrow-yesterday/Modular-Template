@@ -1,10 +1,10 @@
-using System.Reflection;
 using Modules.Sales.Application.Pricing.GetRetailPrice;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Pricing;
+using System.Reflection;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Pricing;

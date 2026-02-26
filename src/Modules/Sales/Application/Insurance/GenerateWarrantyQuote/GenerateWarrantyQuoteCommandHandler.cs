@@ -1,5 +1,4 @@
 using Modules.Sales.Domain;
-using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Details;
 using Modules.Sales.Domain.Packages.Lines;
@@ -41,12 +40,13 @@ internal sealed class GenerateWarrantyQuoteCommandHandler(
         var quoteResult = await CalculateWarrantyQuoteAsync(sale, homeDetails, cancellationToken);
 
         // Step 4: Replace existing warranty line with new quote (PUT semantics)
-        UpsertWarrantyLine(primaryPackage, previousState.ExistingLine, quoteResult);
+        UpsertWarrantyLine(primaryPackage, quoteResult, sale, homeDetails);
 
         // Step 5: Flag for tax recalculation if warranty amount or selection changed
         FlagTaxRecalculationIfChanged(primaryPackage, previousState, quoteResult);
 
         // Step 6: Persist changes
+        primaryPackage.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         // Step 7: Return quote result
@@ -106,13 +106,7 @@ internal sealed class GenerateWarrantyQuoteCommandHandler(
     private async Task<WarrantyQuoteResult> CalculateWarrantyQuoteAsync(
         Sale sale, HomeDetails homeDetails, CancellationToken cancellationToken)
     {
-        var request = BuildAdapterRequest(sale, homeDetails);
-        return await iSeriesAdapter.CalculateWarrantyQuote(request, cancellationToken);
-    }
-
-    private static WarrantyQuoteRequest BuildAdapterRequest(Sale sale, HomeDetails homeDetails)
-    {
-        return new WarrantyQuoteRequest
+        var request = new WarrantyQuoteRequest
         {
             HomeCenterNumber = sale.RetailLocation.RefHomeCenterNumber ?? 0,
             AppId = 0, // Legacy hardcodes 0 — warranty quote is stateless (no iSeries application link)
@@ -125,14 +119,27 @@ internal sealed class GenerateWarrantyQuoteCommandHandler(
             IsWithinCityLimits = sale.DeliveryAddress.IsWithinCityLimits,
             CalculateSalesTax = true
         };
+        return await iSeriesAdapter.CalculateWarrantyQuote(request, cancellationToken);
     }
 
     private static void UpsertWarrantyLine(
-        Package primaryPackage, WarrantyLine? existingLine, WarrantyQuoteResult quoteResult)
+        Package primaryPackage, WarrantyQuoteResult quoteResult,
+        Sale sale, HomeDetails homeDetails)
     {
-        primaryPackage.RemoveWarrantyLine();
+        primaryPackage.RemoveLine<WarrantyLine>();
 
-        var warrantyDetails = WarrantyDetails.Create(quoteResult.Premium, quoteResult.SalesTaxPremium);
+        var warrantyDetails = WarrantyDetails.Create(
+            quoteResult.Premium,
+            quoteResult.SalesTaxPremium,
+            homeModelYear: homeDetails.ModelYear,
+            homeModularType: homeDetails.ModularType?.ToString(),
+            homeWidthInFeet: homeDetails.WidthInFeet,
+            homeCondition: homeDetails.HomeType.ToString(),
+            deliveryState: sale.DeliveryAddress?.State,
+            deliveryPostalCode: sale.DeliveryAddress?.PostalCode,
+            deliveryIsWithinCityLimits: sale.DeliveryAddress?.IsWithinCityLimits,
+            homeCenterNumber: sale.RetailLocation.RefHomeCenterNumber);
+
         primaryPackage.AddLine(WarrantyLine.Create(
             primaryPackage.Id,
             salePrice: quoteResult.Premium,
@@ -150,7 +157,7 @@ internal sealed class GenerateWarrantyQuoteCommandHandler(
             var taxLine = primaryPackage.Lines.OfType<TaxLine>().SingleOrDefault();
             taxLine?.ClearCalculations();
 
-            primaryPackage.RemoveProjectCost(9, 21);
+            primaryPackage.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
 
             primaryPackage.FlagForTaxRecalculation();
         }
@@ -174,5 +181,6 @@ internal sealed class GenerateWarrantyQuoteCommandHandler(
     };
 
     private sealed record ValidatedSaleContext(Sale Sale, Package PrimaryPackage, HomeDetails HomeDetails);
+
     private sealed record PreviousWarrantyState(WarrantyLine? ExistingLine, decimal? Amount, bool WasSelected);
 }

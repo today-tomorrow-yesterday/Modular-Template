@@ -1,9 +1,9 @@
-using System.Reflection;
 using Modules.Sales.Application.Packages.UpdatePackageName;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
 using NSubstitute;
 using Rtl.Core.Application.Persistence;
+using System.Reflection;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Packages;

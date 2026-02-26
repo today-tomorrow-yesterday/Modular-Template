@@ -29,6 +29,20 @@ public sealed class InsuranceDetails : IVersionedDetails
     public int? TempLinkId { get; private set; } // HomeFirst: TempLinkId (1-10000) for PDF retrieval
     public DateTimeOffset? QuotedAt { get; private set; } // When the quote was generated
 
+    // Home context at quote time
+    public string? HomeStockNumber { get; private set; }
+    public int? HomeModelYear { get; private set; }
+    public decimal? HomeLengthInFeet { get; private set; }
+    public decimal? HomeWidthInFeet { get; private set; }
+    public string? HomeCondition { get; private set; } // New/Used/Repo
+
+    // Location context at quote time
+    public string? DeliveryState { get; private set; }
+    public string? DeliveryPostalCode { get; private set; }
+    public string? DeliveryCity { get; private set; }
+    public bool? DeliveryIsWithinCityLimits { get; private set; }
+    public string? OccupancyType { get; private set; } // Primary/Secondary/Rental — eligibility critical
+
     private InsuranceDetails() { }
 
     public static InsuranceDetails Create(
@@ -44,7 +58,17 @@ public sealed class InsuranceDetails : IVersionedDetails
         decimal? totalPremium = null,
         string? providerName = null,
         int? tempLinkId = null,
-        DateTimeOffset? quotedAt = null)
+        DateTimeOffset? quotedAt = null,
+        string? homeStockNumber = null,
+        int? homeModelYear = null,
+        decimal? homeLengthInFeet = null,
+        decimal? homeWidthInFeet = null,
+        string? homeCondition = null,
+        string? deliveryState = null,
+        string? deliveryPostalCode = null,
+        string? deliveryCity = null,
+        bool? deliveryIsWithinCityLimits = null,
+        string? occupancyType = null)
     {
         return new InsuranceDetails
         {
@@ -60,7 +84,17 @@ public sealed class InsuranceDetails : IVersionedDetails
             TotalPremium = totalPremium,
             ProviderName = providerName,
             TempLinkId = tempLinkId,
-            QuotedAt = quotedAt ?? DateTimeOffset.UtcNow
+            QuotedAt = quotedAt ?? DateTimeOffset.UtcNow,
+            HomeStockNumber = homeStockNumber,
+            HomeModelYear = homeModelYear,
+            HomeLengthInFeet = homeLengthInFeet,
+            HomeWidthInFeet = homeWidthInFeet,
+            HomeCondition = homeCondition,
+            DeliveryState = deliveryState,
+            DeliveryPostalCode = deliveryPostalCode,
+            DeliveryCity = deliveryCity,
+            DeliveryIsWithinCityLimits = deliveryIsWithinCityLimits,
+            OccupancyType = occupancyType
         };
     }
 }

@@ -1,6 +1,6 @@
+using Amazon.Runtime;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
-using Amazon.Runtime;
 
 namespace Rtl.Core.Infrastructure.Tests.Secrets;
 

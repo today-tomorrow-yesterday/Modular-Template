@@ -1,9 +1,9 @@
-using System.Reflection;
 using Modules.Sales.Application.Sales.GetSaleById;
 using Modules.Sales.Domain.PartiesCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
+using System.Reflection;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Sales;

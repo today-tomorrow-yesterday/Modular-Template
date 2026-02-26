@@ -17,12 +17,6 @@ internal sealed class UpdatePackageConcessionsCommandHandler(
     IUnitOfWork<ISalesModule> unitOfWork)
     : ICommandHandler<UpdatePackageConcessionsCommand, UpdatePackageConcessionsResult>
 {
-    // Auto-generated project cost natural keys (iSeries CATID/ITEMID via cdc.project_cost_item)
-    private const int SellerPaidClosingCostCategoryNumber = 14;
-    private const int SellerPaidClosingCostItemNumber = 1;
-    private const int UseTaxCategoryNumber = 9;
-    private const int UseTaxItemNumber = 21;
-
     public async Task<Result<UpdatePackageConcessionsResult>> Handle(
         UpdatePackageConcessionsCommand request,
         CancellationToken cancellationToken)
@@ -59,13 +53,13 @@ internal sealed class UpdatePackageConcessionsCommandHandler(
             var taxLine = package.Lines.OfType<TaxLine>().SingleOrDefault();
             taxLine?.ClearCalculations();
 
-            package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
+            package.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
 
             package.FlagForTaxRecalculation();
         }
 
-        // Step 6: GrossProfit recalculated automatically by Package.AddLine/RemoveLine
-        // Step 7: Save
+        // Step 6: Recalculate GP after all mutations complete
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UpdatePackageConcessionsResult(
@@ -76,13 +70,13 @@ internal sealed class UpdatePackageConcessionsCommandHandler(
 
     private static void SyncSellerPaidClosingCost(Package package, decimal concessionAmount)
     {
-        package.RemoveProjectCost(SellerPaidClosingCostCategoryNumber, SellerPaidClosingCostItemNumber);
+        package.RemoveProjectCost(ProjectCostCategories.SellerPaidClosingCost, ProjectCostItems.SellerPaidClosingCost);
 
         if (concessionAmount > 0)
         {
             var details = ProjectCostDetails.Create(
-                categoryId: SellerPaidClosingCostCategoryNumber,
-                itemId: SellerPaidClosingCostItemNumber,
+                categoryId: ProjectCostCategories.SellerPaidClosingCost,
+                itemId: ProjectCostItems.SellerPaidClosingCost,
                 itemDescription: "Seller Paid Closing Cost");
 
             package.AddLine(ProjectCostLine.Create(

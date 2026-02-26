@@ -47,6 +47,7 @@ internal sealed class UpdatePackageDownPaymentCommandHandler(
             package.RemoveDownPaymentLine();
         }
 
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UpdatePackageDownPaymentResult(

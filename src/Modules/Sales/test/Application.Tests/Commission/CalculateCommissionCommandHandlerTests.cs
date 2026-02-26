@@ -1,9 +1,6 @@
-using System.Reflection;
-using System.Text.Json;
 using Modules.Sales.Application.Commission.CalculateCommission;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.AuthorizedUsersCache;
-using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Details;
@@ -14,6 +11,8 @@ using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Tax;
 using Rtl.Core.Application.Persistence;
+using System.Reflection;
+using System.Text.Json;
 using Xunit;
 using ISeriesCommission = Rtl.Core.Application.Adapters.ISeries.Commission;
 

@@ -14,7 +14,7 @@ public enum PackageStatus
 
 // Entity — packages.packages. A home package containing all pricing lines for a sale.
 // Packages are ranked; the primary package (Ranking == 1) is the active one.
-// PublicId (UUID v7) used in API routes. Version provides optimistic concurrency.
+// PublicId (UUID v7) used in API routes.
 public sealed class Package : AuditableEntity
 {
     private readonly List<PackageLine> _lines = [];
@@ -22,8 +22,8 @@ public sealed class Package : AuditableEntity
     private Package() { }
 
     public Guid PublicId { get; private set; }
-    public int SaleId { get; private set; }
     public int? Version { get; private set; } // Optimistic concurrency
+    public int SaleId { get; private set; }
     public int Ranking { get; private set; } // 1 = primary, 2+ = alternates
     public PackageStatus Status { get; private set; }
     public string Name { get; private set; } = string.Empty; // Unique within a sale (case-insensitive)
@@ -75,7 +75,6 @@ public sealed class Package : AuditableEntity
     public void AddLine(PackageLine line)
     {
         _lines.Add(line);
-        RecalculateGrossProfit();
 
         if (line is HomeLine)
         {
@@ -118,18 +117,17 @@ public sealed class Package : AuditableEntity
     public void RemoveLine(PackageLine line)
     {
         _lines.Remove(line);
-        RecalculateGrossProfit();
     }
 
     public void RemoveLinesByType(params string[] lineTypes)
     {
         _lines.RemoveAll(line => lineTypes.Contains(line.LineType));
-        RecalculateGrossProfit();
     }
 
     // --- Typed line removal methods ---
 
-    private T? RemoveSingleLine<T>() where T : PackageLine
+    // Removes the single line of the given type (1:1 cardinality lines: Home, Land, Tax, Warranty, SalesTeam).
+    public T? RemoveLine<T>() where T : PackageLine
     {
         var line = _lines
             .OfType<T>()
@@ -138,18 +136,21 @@ public sealed class Package : AuditableEntity
         if (line is not null)
         {
             _lines.Remove(line);
-            RecalculateGrossProfit();
+
+            if (line is HomeLine)
+            {
+                Raise(new HomeLineUpdatedDomainEvent { PackageId = Id, SaleId = SaleId });
+            }
+            else if (line is LandLine)
+            {
+                Raise(new LandLineUpdatedDomainEvent { PackageId = Id, SaleId = SaleId });
+            }
         }
 
         return line;
     }
 
-    public HomeLine? RemoveHomeLine() => RemoveSingleLine<HomeLine>();
-    public LandLine? RemoveLandLine() => RemoveSingleLine<LandLine>();
-    public TaxLine? RemoveTaxLine() => RemoveSingleLine<TaxLine>();
-    public WarrantyLine? RemoveWarrantyLine() => RemoveSingleLine<WarrantyLine>();
-    public SalesTeamLine? RemoveSalesTeamLine() => RemoveSingleLine<SalesTeamLine>();
-
+    // Filtered removal — Insurance lines are 1:many by type, so they need a predicate.
     public InsuranceLine? RemoveOutsideInsuranceLine()
     {
         var line = _lines
@@ -159,7 +160,6 @@ public sealed class Package : AuditableEntity
         if (line is not null)
         {
             _lines.Remove(line);
-            RecalculateGrossProfit();
         }
 
         return line;
@@ -174,7 +174,6 @@ public sealed class Package : AuditableEntity
         if (line is not null)
         {
             _lines.Remove(line);
-            RecalculateGrossProfit();
         }
 
         return line;
@@ -189,7 +188,6 @@ public sealed class Package : AuditableEntity
         if (line is not null)
         {
             _lines.Remove(line);
-            RecalculateGrossProfit();
         }
 
         return line;
@@ -204,7 +202,6 @@ public sealed class Package : AuditableEntity
         if (line is not null)
         {
             _lines.Remove(line);
-            RecalculateGrossProfit();
         }
 
         return line;
@@ -221,7 +218,6 @@ public sealed class Package : AuditableEntity
         if (line is not null)
         {
             _lines.Remove(line);
-            RecalculateGrossProfit();
         }
 
         return line;
@@ -231,9 +227,6 @@ public sealed class Package : AuditableEntity
     {
         var removed = _lines
             .RemoveAll(l => l is ProjectCostLine pc && pc.Details?.CategoryId == categoryId);
-
-        if (removed > 0)
-            RecalculateGrossProfit();
 
         return removed;
     }
@@ -246,14 +239,12 @@ public sealed class Package : AuditableEntity
                 && pc.Details?.CategoryId == categoryId
                 && pc.Details?.ItemId == itemId);
 
-        if (removed > 0)
-            RecalculateGrossProfit();
-
         return removed;
     }
 
-    // Public to allow callers to trigger recalculation after mutating line pricing
-    // directly via PackageLine.UpdatePricing() (e.g., land pricing recalculation).
+    // Caller is responsible for calling this once after all line mutations are complete,
+    // right before SaveChangesAsync. Matches legacy pattern where GP was a computed property
+    // evaluated at persistence time, not after every individual mutation.
     public void RecalculateGrossProfit()
     {
         GrossProfit = _lines

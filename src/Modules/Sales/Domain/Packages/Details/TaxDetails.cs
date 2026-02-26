@@ -14,6 +14,16 @@ public sealed class TaxDetails : IVersionedDetails
     public List<TaxItem> Taxes { get; private set; } = [];
     public List<string>? Errors { get; private set; }
 
+    // Tax exemption snapshot (from cdc.tax_exemption at selection time)
+    public string? TaxExemptionDescription { get; private set; }
+
+    // Location context at calculation time
+    public string? StateCode { get; private set; }
+    public string? DeliveryCity { get; private set; }
+    public string? DeliveryCounty { get; private set; }
+    public string? DeliveryPostalCode { get; private set; }
+    public bool? DeliveryIsWithinCityLimits { get; private set; }
+
     // Selective clearing — preserves config fields (PreviouslyTitled, TaxExemptionId)
     public TaxDetails WithClearedQuestionAnswers()
     {
@@ -21,6 +31,12 @@ public sealed class TaxDetails : IVersionedDetails
         {
             PreviouslyTitled = PreviouslyTitled,
             TaxExemptionId = TaxExemptionId,
+            TaxExemptionDescription = TaxExemptionDescription,
+            StateCode = StateCode,
+            DeliveryCity = DeliveryCity,
+            DeliveryCounty = DeliveryCounty,
+            DeliveryPostalCode = DeliveryPostalCode,
+            DeliveryIsWithinCityLimits = DeliveryIsWithinCityLimits,
             StateTaxQuestionAnswers = [],
             Taxes = [.. Taxes],
             Errors = Errors
@@ -34,6 +50,12 @@ public sealed class TaxDetails : IVersionedDetails
         {
             PreviouslyTitled = PreviouslyTitled,
             TaxExemptionId = TaxExemptionId,
+            TaxExemptionDescription = TaxExemptionDescription,
+            StateCode = StateCode,
+            DeliveryCity = DeliveryCity,
+            DeliveryCounty = DeliveryCounty,
+            DeliveryPostalCode = DeliveryPostalCode,
+            DeliveryIsWithinCityLimits = DeliveryIsWithinCityLimits,
             StateTaxQuestionAnswers = [.. StateTaxQuestionAnswers],
             Taxes = [],
             Errors = null
@@ -47,6 +69,12 @@ public sealed class TaxDetails : IVersionedDetails
         {
             PreviouslyTitled = PreviouslyTitled,
             TaxExemptionId = TaxExemptionId,
+            TaxExemptionDescription = TaxExemptionDescription,
+            StateCode = StateCode,
+            DeliveryCity = DeliveryCity,
+            DeliveryCounty = DeliveryCounty,
+            DeliveryPostalCode = DeliveryPostalCode,
+            DeliveryIsWithinCityLimits = DeliveryIsWithinCityLimits,
             StateTaxQuestionAnswers = [.. StateTaxQuestionAnswers],
             Taxes = [.. Taxes],
             Errors = null
@@ -60,6 +88,12 @@ public sealed class TaxDetails : IVersionedDetails
         {
             PreviouslyTitled = null,
             TaxExemptionId = TaxExemptionId,
+            TaxExemptionDescription = TaxExemptionDescription,
+            StateCode = StateCode,
+            DeliveryCity = DeliveryCity,
+            DeliveryCounty = DeliveryCounty,
+            DeliveryPostalCode = DeliveryPostalCode,
+            DeliveryIsWithinCityLimits = DeliveryIsWithinCityLimits,
             StateTaxQuestionAnswers = [.. StateTaxQuestionAnswers],
             Taxes = [.. Taxes],
             Errors = Errors
@@ -73,7 +107,13 @@ public sealed class TaxDetails : IVersionedDetails
         int? taxExemptionId,
         List<TaxQuestionAnswer> questionAnswers,
         List<TaxItem> taxes,
-        List<string>? errors)
+        List<string>? errors,
+        string? taxExemptionDescription = null,
+        string? stateCode = null,
+        string? deliveryCity = null,
+        string? deliveryCounty = null,
+        string? deliveryPostalCode = null,
+        bool? deliveryIsWithinCityLimits = null)
     {
         return new TaxDetails
         {
@@ -81,7 +121,13 @@ public sealed class TaxDetails : IVersionedDetails
             TaxExemptionId = taxExemptionId,
             StateTaxQuestionAnswers = [.. questionAnswers],
             Taxes = [.. taxes],
-            Errors = errors?.ToList()
+            Errors = errors?.ToList(),
+            TaxExemptionDescription = taxExemptionDescription,
+            StateCode = stateCode,
+            DeliveryCity = deliveryCity,
+            DeliveryCounty = deliveryCounty,
+            DeliveryPostalCode = deliveryPostalCode,
+            DeliveryIsWithinCityLimits = deliveryIsWithinCityLimits
         };
     }
 }

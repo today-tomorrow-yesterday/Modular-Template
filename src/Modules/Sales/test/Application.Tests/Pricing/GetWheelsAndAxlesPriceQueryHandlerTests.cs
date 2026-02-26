@@ -40,7 +40,7 @@ public sealed class GetWheelsAndAxlesPriceQueryHandlerTests
             .Returns(sale);
 
         _iSeriesAdapter.CalculateWheelAndAxlePriceByCount(Arg.Any<WheelAndAxlePriceByCountRequest>(), Arg.Any<CancellationToken>())
-            .Returns(2500m);
+            .Returns(new WheelAndAxlePriceResult(2500m, 2000m));
 
         var result = await _sut.Handle(
             new GetWheelsAndAxlesPriceQuery(sale.PublicId, 4, 2), CancellationToken.None);

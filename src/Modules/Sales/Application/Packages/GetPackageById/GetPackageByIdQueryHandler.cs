@@ -1,7 +1,6 @@
 using Modules.Sales.Domain.AuthorizedUsersCache;
 using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
 using Modules.Sales.Domain.Packages.Lines;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Domain.Results;

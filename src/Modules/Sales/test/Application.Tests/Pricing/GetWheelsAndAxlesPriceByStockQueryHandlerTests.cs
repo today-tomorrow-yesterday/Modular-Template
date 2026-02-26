@@ -1,10 +1,10 @@
-using System.Reflection;
 using Modules.Sales.Application.Pricing.GetWheelsAndAxlesPriceByStock;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Pricing;
+using System.Reflection;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Pricing;
@@ -40,7 +40,7 @@ public sealed class GetWheelsAndAxlesPriceByStockQueryHandlerTests
             .Returns(sale);
 
         _iSeriesAdapter.GetWheelAndAxlePriceByStock(Arg.Any<WheelAndAxlePriceByStockRequest>(), Arg.Any<CancellationToken>())
-            .Returns(3200m);
+            .Returns(new WheelAndAxlePriceResult(3200m, 3200m));
 
         var result = await _sut.Handle(
             new GetWheelsAndAxlesPriceByStockQuery(sale.PublicId, "STK001"), CancellationToken.None);

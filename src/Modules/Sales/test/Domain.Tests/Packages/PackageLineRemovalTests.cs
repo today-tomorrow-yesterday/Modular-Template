@@ -1,5 +1,6 @@
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Details;
+using Modules.Sales.Domain.Packages.Events;
 using Modules.Sales.Domain.Packages.Lines;
 using Xunit;
 
@@ -15,7 +16,7 @@ public sealed class PackageLineRemovalTests
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         package.AddLine(HomeLine.Create(package.Id, 100_000m, 80_000m, 100_000m, Responsibility.Seller, details: null));
 
-        var removed = package.RemoveHomeLine();
+        var removed = package.RemoveLine<HomeLine>();
 
         Assert.NotNull(removed);
         Assert.Empty(package.Lines.OfType<HomeLine>());
@@ -26,7 +27,7 @@ public sealed class PackageLineRemovalTests
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
 
-        var removed = package.RemoveHomeLine();
+        var removed = package.RemoveLine<HomeLine>();
 
         Assert.Null(removed);
     }
@@ -37,7 +38,7 @@ public sealed class PackageLineRemovalTests
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         package.AddLine(LandLine.Create(package.Id, 50_000m, 40_000m, 50_000m, Responsibility.Seller, details: null));
 
-        var removed = package.RemoveLandLine();
+        var removed = package.RemoveLine<LandLine>();
 
         Assert.NotNull(removed);
         Assert.Empty(package.Lines.OfType<LandLine>());
@@ -48,7 +49,7 @@ public sealed class PackageLineRemovalTests
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
 
-        Assert.Null(package.RemoveLandLine());
+        Assert.Null(package.RemoveLine<LandLine>());
     }
 
     [Fact]
@@ -57,7 +58,7 @@ public sealed class PackageLineRemovalTests
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         package.AddLine(TaxLine.Create(package.Id, 500m, 0m, 0m, shouldExcludeFromPricing: false, details: null));
 
-        var removed = package.RemoveTaxLine();
+        var removed = package.RemoveLine<TaxLine>();
 
         Assert.NotNull(removed);
         Assert.Empty(package.Lines.OfType<TaxLine>());
@@ -68,7 +69,7 @@ public sealed class PackageLineRemovalTests
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
 
-        Assert.Null(package.RemoveTaxLine());
+        Assert.Null(package.RemoveLine<TaxLine>());
     }
 
     [Fact]
@@ -78,7 +79,7 @@ public sealed class PackageLineRemovalTests
         var details = WarrantyDetails.Create(875m, 72.19m);
         package.AddLine(WarrantyLine.Create(package.Id, 875m, 0m, 0m, shouldExcludeFromPricing: false, details: details));
 
-        var removed = package.RemoveWarrantyLine();
+        var removed = package.RemoveLine<WarrantyLine>();
 
         Assert.NotNull(removed);
         Assert.Empty(package.Lines.OfType<WarrantyLine>());
@@ -89,7 +90,7 @@ public sealed class PackageLineRemovalTests
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
 
-        Assert.Null(package.RemoveWarrantyLine());
+        Assert.Null(package.RemoveLine<WarrantyLine>());
     }
 
     [Fact]
@@ -98,7 +99,7 @@ public sealed class PackageLineRemovalTests
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         package.AddLine(SalesTeamLine.Create(package.Id, details: null));
 
-        var removed = package.RemoveSalesTeamLine();
+        var removed = package.RemoveLine<SalesTeamLine>();
 
         Assert.NotNull(removed);
         Assert.Empty(package.Lines.OfType<SalesTeamLine>());
@@ -109,20 +110,22 @@ public sealed class PackageLineRemovalTests
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
 
-        Assert.Null(package.RemoveSalesTeamLine());
+        Assert.Null(package.RemoveLine<SalesTeamLine>());
     }
 
     // --- 1:1 removal recalculates gross profit ---
 
     [Fact]
-    public void RemoveWarrantyLine_recalculates_gross_profit()
+    public void RemoveWarrantyLine_recalculates_gross_profit_when_caller_recalculates()
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         var details = WarrantyDetails.Create(875m, 0m);
         package.AddLine(WarrantyLine.Create(package.Id, 875m, 0m, 0m, shouldExcludeFromPricing: false, details: details));
+        package.RecalculateGrossProfit();
         var gpWithWarranty = package.GrossProfit;
 
-        package.RemoveWarrantyLine();
+        package.RemoveLine<WarrantyLine>();
+        package.RecalculateGrossProfit();
 
         Assert.NotEqual(gpWithWarranty, package.GrossProfit);
     }
@@ -278,14 +281,16 @@ public sealed class PackageLineRemovalTests
     }
 
     [Fact]
-    public void RemoveProjectCost_recalculates_gross_profit()
+    public void RemoveProjectCost_recalculates_gross_profit_when_caller_recalculates()
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         var details = ProjectCostDetails.Create(9, 21, "Use Tax");
         package.AddLine(ProjectCostLine.Create(package.Id, 100m, 50m, 100m, Responsibility.Seller, shouldExcludeFromPricing: false, details: details));
+        package.RecalculateGrossProfit();
         var gpBefore = package.GrossProfit;
 
         package.RemoveProjectCost(9, 21);
+        package.RecalculateGrossProfit();
 
         Assert.NotEqual(gpBefore, package.GrossProfit);
     }
@@ -339,4 +344,53 @@ public sealed class PackageLineRemovalTests
 
         Assert.Equal(0, removed);
     }
+
+    // --- W-12: Domain events on line removal ---
+
+    [Fact]
+    public void RemoveHomeLine_raises_HomeLineUpdatedDomainEvent()
+    {
+        var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
+        package.AddLine(HomeLine.Create(package.Id, 100_000m, 80_000m, 100_000m, Responsibility.Seller, details: null));
+        package.ClearDomainEvents();
+
+        package.RemoveLine<HomeLine>();
+
+        Assert.Contains(package.DomainEvents, e => e is HomeLineUpdatedDomainEvent);
+    }
+
+    [Fact]
+    public void RemoveHomeLine_does_not_raise_event_when_absent()
+    {
+        var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
+        package.ClearDomainEvents();
+
+        package.RemoveLine<HomeLine>();
+
+        Assert.DoesNotContain(package.DomainEvents, e => e is HomeLineUpdatedDomainEvent);
+    }
+
+    [Fact]
+    public void RemoveLandLine_raises_LandLineUpdatedDomainEvent()
+    {
+        var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
+        package.AddLine(LandLine.Create(package.Id, 50_000m, 40_000m, 50_000m, Responsibility.Seller, details: null));
+        package.ClearDomainEvents();
+
+        package.RemoveLine<LandLine>();
+
+        Assert.Contains(package.DomainEvents, e => e is LandLineUpdatedDomainEvent);
+    }
+
+    [Fact]
+    public void RemoveLandLine_does_not_raise_event_when_absent()
+    {
+        var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
+        package.ClearDomainEvents();
+
+        package.RemoveLine<LandLine>();
+
+        Assert.DoesNotContain(package.DomainEvents, e => e is LandLineUpdatedDomainEvent);
+    }
+
 }

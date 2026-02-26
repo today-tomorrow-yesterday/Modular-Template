@@ -1,11 +1,11 @@
-using System.Net;
-using System.Text;
 using Microsoft.Extensions.Logging.Abstractions;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Commission;
 using Rtl.Core.Application.Adapters.ISeries.Pricing;
 using Rtl.Core.Application.Adapters.ISeries.Tax;
 using Rtl.Core.Infrastructure.ISeries;
+using System.Net;
+using System.Text;
 using Xunit;
 
 namespace Rtl.Core.Infrastructure.Tests.ISeries;
@@ -36,7 +36,7 @@ public class iSeriesAdapterTests
     // --- Wheel & Axle by Count (iSeries GET) ---
 
     [Fact]
-    public async Task CalculateWheelAndAxlePriceByCount_Returns_Correct_Total()
+    public async Task CalculateWheelAndAxlePriceByCount_Returns_SalePrice_And_Cost()
     {
         SetJsonResponse("""{"salePrice": 875.00, "cost": 650.00}""");
         var sut = CreateSut();
@@ -44,7 +44,8 @@ public class iSeriesAdapterTests
 
         var result = await sut.CalculateWheelAndAxlePriceByCount(request, CancellationToken.None);
 
-        Assert.Equal(875m, result);
+        Assert.Equal(875m, result.SalePrice);
+        Assert.Equal(650m, result.Cost);
         Assert.Equal(HttpMethod.Get, _handler.LastRequest!.Method);
         Assert.Contains("numberOfWheels=4", _handler.LastRequest.RequestUri!.ToString());
         Assert.Contains("numberOfAxles=2", _handler.LastRequest.RequestUri.ToString());
@@ -60,7 +61,8 @@ public class iSeriesAdapterTests
 
         var result = await sut.CalculateWheelAndAxlePriceByCount(request, CancellationToken.None);
 
-        Assert.Equal(0m, result);
+        Assert.Equal(0m, result.SalePrice);
+        Assert.Equal(0m, result.Cost);
         Assert.Equal(HttpMethod.Get, _handler.LastRequest!.Method);
         Assert.Contains("numberOfWheels=0", _handler.LastRequest.RequestUri!.ToString());
         Assert.Contains("numberOfAxles=0", _handler.LastRequest.RequestUri.ToString());
@@ -77,7 +79,8 @@ public class iSeriesAdapterTests
 
         var result = await sut.GetWheelAndAxlePriceByStock(request, CancellationToken.None);
 
-        Assert.Equal(575m, result);
+        Assert.Equal(575m, result.SalePrice);
+        Assert.Equal(575m, result.Cost);
         Assert.Equal(HttpMethod.Get, _handler.LastRequest!.Method);
         Assert.Contains("homeCenterNumber=42", _handler.LastRequest.RequestUri!.ToString());
         Assert.Contains("stockNumbers=ABC123", _handler.LastRequest.RequestUri.ToString());
@@ -92,7 +95,8 @@ public class iSeriesAdapterTests
 
         var result = await sut.GetWheelAndAxlePriceByStock(request, CancellationToken.None);
 
-        Assert.Equal(0m, result);
+        Assert.Equal(0m, result.SalePrice);
+        Assert.Equal(0m, result.Cost);
     }
 
     // --- Retail Price (POST) ---

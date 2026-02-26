@@ -5,10 +5,10 @@ using Modules.Sales.Domain.Packages.Details;
 using Modules.Sales.Domain.Packages.Lines;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Application.Adapters.ISeries;
-using Rtl.Core.Application.Adapters.ISeries.Insurance;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Domain.Results;
+using ISeriesInsurance = Rtl.Core.Application.Adapters.ISeries.Insurance;
 
 namespace Modules.Sales.Application.Insurance.GenerateHomeFirstQuote;
 
@@ -21,72 +21,104 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
     IUnitOfWork<ISalesModule> unitOfWork)
     : ICommandHandler<GenerateHomeFirstQuoteCommand, HomeFirstQuoteResult>
 {
-
     public async Task<Result<HomeFirstQuoteResult>> Handle(
         GenerateHomeFirstQuoteCommand request,
         CancellationToken cancellationToken)
     {
-        // Step 1: Load sale with full context (packages, delivery address, retail location, party)
-        var sale = await saleRepository.GetByPublicIdWithFullContextAsync(
-            request.SalePublicId, cancellationToken);
+        // Step 1: Load sale with full context and validate prerequisites
+        var contextResult = await LoadAndValidateSaleContextAsync(request.SalePublicId, cancellationToken);
+        if (contextResult.IsFailure)
+        {
+            return Result.Failure<HomeFirstQuoteResult>(contextResult.Error);
+        }
+
+        var ctx = contextResult.Value;
+
+        // Step 2: Occupancy eligibility check — strip line and fail if ineligible
+        if (DeliveryAddress.IsOccupancyInsuranceIneligible(ctx.DeliveryAddress?.OccupancyType))
+        {
+            return await RejectOccupancyIneligibleAsync(ctx, cancellationToken);
+        }
+
+        // Step 3: Call iSeries adapter to calculate HomeFirst quote
+        var occupancyType = MapOccupancyType(request.OccupancyType);
+        var quoteResult = await CalculateHomeFirstQuoteAsync(request, ctx, occupancyType, cancellationToken);
+
+        // Step 4: Return partial result if iSeries rejected the quote
+        if (!string.IsNullOrEmpty(quoteResult.ErrorMessage))
+        {
+            return new HomeFirstQuoteResult(
+                quoteResult.TempLinkId, quoteResult.InsuranceCompanyName,
+                quoteResult.TotalPremium, request.CoverageAmount,
+                quoteResult.MaximumCoverage, false, quoteResult.ErrorMessage);
+        }
+
+        // Step 5: Upsert Insurance line with new quote (PUT semantics)
+        UpsertInsuranceLine(ctx, request, quoteResult, occupancyType);
+
+        // Step 6: Persist changes
+        ctx.PrimaryPackage.RecalculateGrossProfit();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Step 7: Return quote result
+        return new HomeFirstQuoteResult(
+            quoteResult.TempLinkId, quoteResult.InsuranceCompanyName,
+            quoteResult.TotalPremium, request.CoverageAmount,
+            quoteResult.MaximumCoverage, true, null);
+    }
+
+    private async Task<Result<ValidatedSaleContext>> LoadAndValidateSaleContextAsync(
+        Guid salePublicId, CancellationToken cancellationToken)
+    {
+        var sale = await saleRepository.GetByPublicIdWithFullContextAsync(salePublicId, cancellationToken);
 
         if (sale is null)
         {
-            return Result.Failure<HomeFirstQuoteResult>(
-                SaleErrors.NotFoundByPublicId(request.SalePublicId));
+            return Result.Failure<ValidatedSaleContext>(SaleErrors.NotFoundByPublicId(salePublicId));
         }
 
-        // Find primary package and home line
         var primaryPackage = sale.Packages.FirstOrDefault(p => p.IsPrimaryPackage);
         if (primaryPackage is null)
         {
-            return Result.Failure<HomeFirstQuoteResult>(Error.Validation(
+            return Result.Failure<ValidatedSaleContext>(Error.Validation(
                 "Insurance.NoPrimaryPackage", "Cannot generate HomeFirst quote without a primary package."));
         }
 
         var homeLine = primaryPackage.Lines.OfType<HomeLine>().SingleOrDefault();
         if (homeLine?.Details is null)
         {
-            return Result.Failure<HomeFirstQuoteResult>(Error.Validation(
+            return Result.Failure<ValidatedSaleContext>(Error.Validation(
                 "Insurance.NoHomeLine", "Cannot generate HomeFirst quote without a home line on the primary package."));
         }
 
-        // Step 2: Occupancy eligibility check (from delivery address, not request)
-        var deliveryAddress = sale.DeliveryAddress;
-        if (DeliveryAddress.IsOccupancyInsuranceIneligible(deliveryAddress?.OccupancyType))
+        return new ValidatedSaleContext(sale, primaryPackage, homeLine.Details, sale.DeliveryAddress);
+    }
+
+    private async Task<Result<HomeFirstQuoteResult>> RejectOccupancyIneligibleAsync(
+        ValidatedSaleContext ctx, CancellationToken cancellationToken)
+    {
+        // Remove HomeFirst Insurance line only — legacy did NOT strip warranty on occupancy ineligibility
+        ctx.PrimaryPackage.RemoveHomeFirstInsuranceLine();
+
+        ctx.PrimaryPackage.RecalculateGrossProfit();
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return Result.Failure<HomeFirstQuoteResult>(Error.Validation(
+            "Insurance.IneligibleOccupancy",
+            $"Occupancy type '{ctx.DeliveryAddress!.OccupancyType}' is not eligible for HomeFirst insurance."));
+    }
+
+    private async Task<ISeriesInsurance.HomeFirstQuoteResult> CalculateHomeFirstQuoteAsync(
+        GenerateHomeFirstQuoteCommand request, ValidatedSaleContext ctx,
+        OccupancyType occupancyType, CancellationToken cancellationToken)
+    {
+        var homeDetails = ctx.HomeDetails;
+        var deliveryAddress = ctx.DeliveryAddress;
+        var party = ctx.Sale.Party;
+
+        var quoteRequest = new ISeriesInsurance.HomeFirstQuoteRequest
         {
-            // Remove HomeFirst Insurance line only — legacy did NOT strip warranty on occupancy ineligibility
-            primaryPackage.RemoveHomeFirstInsuranceLine();
-
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return Result.Failure<HomeFirstQuoteResult>(Error.Validation(
-                "Insurance.IneligibleOccupancy",
-                $"Occupancy type '{deliveryAddress!.OccupancyType}' is not eligible for HomeFirst insurance."));
-        }
-
-        var homeDetails = homeLine.Details;
-        var homeCenterNumber = sale.RetailLocation.RefHomeCenterNumber ?? 0;
-
-        // Step 3: Map occupancy type from request char for iSeries call
-        var occupancyType = request.OccupancyType switch
-        {
-            'P' or 'p' => OccupancyType.Primary,
-            'S' or 's' => OccupancyType.Secondary,
-            'R' or 'r' => OccupancyType.Rental,
-            _ => OccupancyType.Primary
-        };
-
-        // Get customer names from party cache
-        var party = sale.Party;
-        var firstName = party.Person?.FirstName ?? string.Empty;
-        var lastName = party.Person?.LastName ?? string.Empty;
-        var phone = party.Person?.Phone;
-
-        // Build HomeFirst quote request
-        var quoteRequest = new HomeFirstQuoteRequest
-        {
-            HomeCenterNumber = homeCenterNumber,
+            HomeCenterNumber = ctx.Sale.RetailLocation.RefHomeCenterNumber ?? 0,
             StockNumber = homeDetails.StockNumber ?? string.Empty,
             ModelNumber = homeDetails.Model ?? string.Empty,
             CoverageAmount = request.CoverageAmount,
@@ -100,8 +132,8 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             InParkOrSubdivision = request.IsHomeLocatedInPark,
             HasFoundationOrMasonry = request.IsHomeOnPermanentFoundation,
             IsLandOwnedByCustomer = request.IsLandCustomerOwned,
-            FirstName = firstName,
-            LastName = lastName,
+            FirstName = party.Person?.FirstName ?? string.Empty,
+            LastName = party.Person?.LastName ?? string.Empty,
             MailingAddress = request.MailingAddress,
             MailingCity = request.MailingCity,
             MailingState = request.MailingState,
@@ -114,28 +146,20 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             CoBuyerBirthDate = request.CoApplicantBirthDate.HasValue
                 ? DateOnly.FromDateTime(request.CoApplicantBirthDate.Value)
                 : null,
-            PhoneNumber = phone
+            PhoneNumber = party.Person?.Phone
         };
 
-        // Call iSeries adapter
-        var quoteResult = await iSeriesAdapter.CalculateHomeFirstQuote(quoteRequest, cancellationToken);
+        return await iSeriesAdapter.CalculateHomeFirstQuote(quoteRequest, cancellationToken);
+    }
 
-        // Check for iSeries error
-        var isEligible = string.IsNullOrEmpty(quoteResult.ErrorMessage);
-        if (!isEligible)
-        {
-            return new HomeFirstQuoteResult(
-                quoteResult.TempLinkId,
-                quoteResult.InsuranceCompanyName,
-                quoteResult.TotalPremium,
-                request.CoverageAmount,
-                quoteResult.MaximumCoverage,
-                false,
-                quoteResult.ErrorMessage);
-        }
+    private static void UpsertInsuranceLine(
+        ValidatedSaleContext ctx, GenerateHomeFirstQuoteCommand request,
+        ISeriesInsurance.HomeFirstQuoteResult quoteResult, OccupancyType occupancyType)
+    {
+        ctx.PrimaryPackage.RemoveHomeFirstInsuranceLine();
 
-        // Step 4: Upsert Insurance line (PUT semantics — delete old, insert new)
-        primaryPackage.RemoveHomeFirstInsuranceLine();
+        var homeDetails = ctx.HomeDetails;
+        var deliveryAddress = ctx.DeliveryAddress;
 
         var details = InsuranceDetails.Create(
             insuranceType: InsuranceType.HomeFirst,
@@ -147,32 +171,35 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             companyName: quoteResult.InsuranceCompanyName,
             maxCoverage: quoteResult.MaximumCoverage,
             totalPremium: quoteResult.TotalPremium,
-            tempLinkId: quoteResult.TempLinkId);
+            tempLinkId: quoteResult.TempLinkId,
+            homeStockNumber: homeDetails.StockNumber,
+            homeModelYear: homeDetails.ModelYear,
+            homeLengthInFeet: homeDetails.LengthInFeet,
+            homeWidthInFeet: homeDetails.WidthInFeet,
+            homeCondition: homeDetails.HomeType.ToString(),
+            deliveryState: deliveryAddress?.State,
+            deliveryPostalCode: deliveryAddress?.PostalCode,
+            deliveryCity: deliveryAddress?.City,
+            deliveryIsWithinCityLimits: deliveryAddress?.IsWithinCityLimits,
+            occupancyType: occupancyType.ToString());
 
-        var newLine = InsuranceLine.Create(
-            packageId: primaryPackage.Id,
+        ctx.PrimaryPackage.AddLine(InsuranceLine.Create(
+            packageId: ctx.PrimaryPackage.Id,
             salePrice: quoteResult.TotalPremium,
             estimatedCost: 0m,
             retailSalePrice: 0m,
             responsibility: Responsibility.Buyer,
             shouldExcludeFromPricing: false,
-            details: details);
-
-        primaryPackage.AddLine(newLine);
-
-        // Step 5: GrossProfit recalculated automatically by Package.AddLine/RemoveLine
-        // Step 6: Save
-        await unitOfWork.SaveChangesAsync(cancellationToken);
-
-        return new HomeFirstQuoteResult(
-            quoteResult.TempLinkId,
-            quoteResult.InsuranceCompanyName,
-            quoteResult.TotalPremium,
-            request.CoverageAmount,
-            quoteResult.MaximumCoverage,
-            true,
-            null);
+            details: details));
     }
+
+    private static OccupancyType MapOccupancyType(char occupancyType) => occupancyType switch
+    {
+        'P' or 'p' => OccupancyType.Primary,
+        'S' or 's' => OccupancyType.Secondary,
+        'R' or 'r' => OccupancyType.Rental,
+        _ => OccupancyType.Primary
+    };
 
     private static HomeCondition MapHomeCondition(HomeType homeType) => homeType switch
     {
@@ -181,4 +208,7 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
         HomeType.Repo => HomeCondition.Repo,
         _ => HomeCondition.New
     };
+
+    private sealed record ValidatedSaleContext(
+        Sale Sale, Package PrimaryPackage, HomeDetails HomeDetails, DeliveryAddress? DeliveryAddress);
 }

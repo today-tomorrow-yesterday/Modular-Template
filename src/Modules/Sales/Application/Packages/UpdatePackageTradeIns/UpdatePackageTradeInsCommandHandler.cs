@@ -17,12 +17,6 @@ internal sealed class UpdatePackageTradeInsCommandHandler(
     IUnitOfWork<ISalesModule> unitOfWork)
     : ICommandHandler<UpdatePackageTradeInsCommand, UpdatePackageTradeInsResult>
 {
-    // Auto-generated project cost natural keys (iSeries CATID/ITEMID)
-    private const int TradeOverAllowanceCategoryNumber = 10;
-    private const int TradeOverAllowanceItemNumber = 9;
-    private const int UseTaxCategoryNumber = 9;
-    private const int UseTaxItemNumber = 21;
-
     public async Task<Result<UpdatePackageTradeInsResult>> Handle(
         UpdatePackageTradeInsCommand request,
         CancellationToken cancellationToken)
@@ -87,8 +81,8 @@ internal sealed class UpdatePackageTradeInsCommandHandler(
         DetectTaxChanges(
             package, oldTradeInPrices, oldProjectCostCount, oldProjectCostPrices);
 
-        // Step 6: GrossProfit recalculated automatically by Package.AddLine/RemoveLine
-        // Step 7: Save
+        // Step 6: Recalculate GP after all mutations complete
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UpdatePackageTradeInsResult(
@@ -101,7 +95,7 @@ internal sealed class UpdatePackageTradeInsCommandHandler(
         Package package, UpdatePackageTradeInItemRequest[] items)
     {
         // Remove ALL existing Trade Over Allowance project costs — starting fresh
-        package.RemoveAllProjectCosts(TradeOverAllowanceCategoryNumber, TradeOverAllowanceItemNumber);
+        package.RemoveAllProjectCosts(ProjectCostCategories.TradeOverAllowance, ProjectCostItems.TradeOverAllowance);
 
         // For each trade-in where TradeAllowance > BookInAmount, create a Trade Over Allowance PC
         foreach (var item in items)
@@ -110,8 +104,8 @@ internal sealed class UpdatePackageTradeInsCommandHandler(
             if (overAllowance <= 0) continue;
 
             var details = ProjectCostDetails.Create(
-                categoryId: TradeOverAllowanceCategoryNumber,
-                itemId: TradeOverAllowanceItemNumber,
+                categoryId: ProjectCostCategories.TradeOverAllowance,
+                itemId: ProjectCostItems.TradeOverAllowance,
                 itemDescription: "Trade Over Allowance");
 
             package.AddLine(ProjectCostLine.Create(
@@ -154,7 +148,7 @@ internal sealed class UpdatePackageTradeInsCommandHandler(
         taxLine?.ClearCalculations();
 
         // Remove Use Tax project cost (Cat 9, Item 21)
-        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
+        package.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
 
         // Signal that taxes must be recalculated
         package.FlagForTaxRecalculation();

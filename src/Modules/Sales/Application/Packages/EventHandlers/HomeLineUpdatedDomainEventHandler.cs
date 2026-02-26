@@ -1,6 +1,7 @@
 using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Events;
+using Modules.Sales.Domain.Packages.Lines;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 
@@ -33,7 +34,7 @@ internal sealed class HomeLineUpdatedDomainEventHandler(
             DeliveryAddress.IsOccupancyInsuranceIneligible(deliveryAddress.OccupancyType))
         {
             package.RemoveHomeFirstInsuranceLine();
-            package.RemoveWarrantyLine();
+            package.RemoveLine<WarrantyLine>();
         }
 
         // Step 2: Remove stale HomeFirst insurance quote — home dimensions changed,
@@ -43,6 +44,7 @@ internal sealed class HomeLineUpdatedDomainEventHandler(
         // address, birth dates, and coverage amount are not stored on the InsuranceLine.)
         package.RemoveHomeFirstInsuranceLine();
 
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

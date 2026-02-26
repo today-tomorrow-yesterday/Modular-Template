@@ -1,8 +1,8 @@
+using Modules.Sales.Domain.Sales;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Pricing;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Domain.Results;
-using Modules.Sales.Domain.Sales;
 
 namespace Modules.Sales.Application.Pricing.GetOptionTotals;
 

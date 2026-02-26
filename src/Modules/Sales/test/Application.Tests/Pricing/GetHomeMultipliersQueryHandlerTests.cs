@@ -1,9 +1,9 @@
-using System.Reflection;
 using Modules.Sales.Application.Pricing.GetHomeMultipliers;
 using Modules.Sales.Domain.Cdc;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
+using System.Reflection;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Pricing;

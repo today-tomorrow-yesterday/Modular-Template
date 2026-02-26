@@ -1,7 +1,5 @@
-using System.Reflection;
 using Modules.Sales.Application.Insurance.GenerateHomeFirstQuote;
 using Modules.Sales.Domain;
-using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Details;
 using Modules.Sales.Domain.Packages.Lines;
@@ -10,9 +8,10 @@ using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
-using ISeriesInsurance = Rtl.Core.Application.Adapters.ISeries.Insurance;
 using Rtl.Core.Application.Persistence;
+using System.Reflection;
 using Xunit;
+using ISeriesInsurance = Rtl.Core.Application.Adapters.ISeries.Insurance;
 
 namespace Modules.Sales.Application.Tests.Insurance;
 

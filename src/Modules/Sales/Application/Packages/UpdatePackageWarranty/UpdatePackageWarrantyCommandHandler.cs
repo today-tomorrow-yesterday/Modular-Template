@@ -46,12 +46,13 @@ internal sealed class UpdatePackageWarrantyCommandHandler(
             var taxLine = package.Lines.OfType<TaxLine>().SingleOrDefault();
             taxLine?.ClearCalculations();
 
-            package.RemoveProjectCost(9, 21);
+            package.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
 
             package.FlagForTaxRecalculation();
         }
 
         // Step 5: Persist
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UpdatePackageWarrantyResult(
@@ -62,12 +63,22 @@ internal sealed class UpdatePackageWarrantyCommandHandler(
 
     private static void UpsertWarrantyLine(Package package, UpdatePackageWarrantyCommand request)
     {
-        package.RemoveWarrantyLine();
+        package.RemoveLine<WarrantyLine>();
+
+        var homeDetails = package.Lines.OfType<HomeLine>().SingleOrDefault()?.Details;
 
         var details = WarrantyDetails.Create(
             warrantyAmount: request.WarrantyAmount,
             salesTaxPremium: 0m, // SalesTaxPremium populated by iSeries warranty quote, not this PUT
-            warrantySelected: request.WarrantySelected);
+            warrantySelected: request.WarrantySelected,
+            homeModelYear: homeDetails?.ModelYear,
+            homeModularType: homeDetails?.ModularType?.ToString(),
+            homeWidthInFeet: homeDetails?.WidthInFeet,
+            homeCondition: homeDetails?.HomeType.ToString(),
+            deliveryState: package.Sale?.DeliveryAddress?.State,
+            deliveryPostalCode: package.Sale?.DeliveryAddress?.PostalCode,
+            deliveryIsWithinCityLimits: package.Sale?.DeliveryAddress?.IsWithinCityLimits,
+            homeCenterNumber: package.Sale?.RetailLocation?.RefHomeCenterNumber);
 
         var newLine = WarrantyLine.Create(
             packageId: package.Id,

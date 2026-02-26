@@ -1,9 +1,6 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Builder;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Pricing;
+using System.Diagnostics;
 
 namespace Rtl.Core.Api.Diagnostics;
 
@@ -21,10 +18,10 @@ internal static class ISeriesDiagnosticsEndpoints
 
         group.MapGet("/ping", async (IiSeriesAdapter adapter, CancellationToken ct) =>
         {
-            var price = await adapter.CalculateWheelAndAxlePriceByCount(
+            var result = await adapter.CalculateWheelAndAxlePriceByCount(
                 new WheelAndAxlePriceByCountRequest { NumberOfWheels = 4, NumberOfAxles = 2 }, ct);
 
-            return Results.Ok(new { Test = "WheelAndAxleByCount", Price = price, Status = "OK" });
+            return Results.Ok(new { Test = "WheelAndAxleByCount", Price = result.SalePrice, Status = "OK" });
         })
         .WithName("DiagISeriesPing")
         .WithSummary("W&A by-count pricing via iSeries — verifies HTTP + auth");

@@ -21,7 +21,9 @@ internal sealed class CreateDeliveryAddressCommandHandler(
         // Step 1: Load sale and guard against duplicate delivery address
         var saleResult = await LoadSaleWithoutDeliveryAddressAsync(request.SalePublicId, cancellationToken);
         if (saleResult.IsFailure)
+        {
             return Result.Failure<CreateDeliveryAddressResult>(saleResult.Error);
+        }
 
         // Step 2: Create delivery address from request
         var deliveryAddress = CreateDeliveryAddressFromRequest(saleResult.Value.Id, request);

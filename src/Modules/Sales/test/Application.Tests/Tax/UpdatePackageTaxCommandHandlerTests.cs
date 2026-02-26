@@ -1,15 +1,12 @@
-using System.Reflection;
 using Modules.Sales.Application.Tax.UpdatePackageTax;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Cdc;
-using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Persistence;
+using System.Reflection;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Tax;

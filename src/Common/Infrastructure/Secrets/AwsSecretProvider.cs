@@ -1,10 +1,10 @@
-using System.Text.Json;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Rtl.Core.Application.Secrets;
+using System.Text.Json;
 
 namespace Rtl.Core.Infrastructure.Secrets;
 

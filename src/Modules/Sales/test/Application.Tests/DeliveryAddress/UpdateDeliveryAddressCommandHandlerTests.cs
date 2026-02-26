@@ -1,4 +1,3 @@
-using System.Reflection;
 using Modules.Sales.Application.DeliveryAddresses.UpdateDeliveryAddress;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
@@ -7,9 +6,10 @@ using Modules.Sales.Domain.Packages.Lines;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Persistence;
+using System.Reflection;
 using Xunit;
 
-namespace Modules.Sales.Application.Tests.DeliveryAddresses;
+namespace Modules.Sales.Application.Tests.DeliveryAddress;
 
 public sealed class UpdateDeliveryAddressCommandHandlerTests
 {

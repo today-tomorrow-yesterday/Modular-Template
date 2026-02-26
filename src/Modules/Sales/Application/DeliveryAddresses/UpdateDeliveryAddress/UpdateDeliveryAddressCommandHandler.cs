@@ -17,9 +17,6 @@ internal sealed class UpdateDeliveryAddressCommandHandler(
     IUnitOfWork<Domain.ISalesModule> unitOfWork)
     : ICommandHandler<UpdateDeliveryAddressCommand>
 {
-    // Use Tax is a project cost with Category 9, Item 21 in iSeries.
-    internal const int UseTaxCategoryNumber = 9;
-    internal const int UseTaxItemNumber = 21;
 
     public async Task<Result> Handle(
         UpdateDeliveryAddressCommand request,
@@ -28,7 +25,9 @@ internal sealed class UpdateDeliveryAddressCommandHandler(
         // Step 1: Load sale and validate delivery address exists
         var addressResult = await LoadExistingDeliveryAddressAsync(request.SalePublicId, cancellationToken);
         if (addressResult.IsFailure)
+        {
             return Result.Failure(addressResult.Error);
+        }
 
         var deliveryAddress = addressResult.Value;
 
@@ -48,7 +47,7 @@ internal sealed class UpdateDeliveryAddressCommandHandler(
                     // Legacy cascades to ALL packages (not just Draft) — occupancy ineligibility
                     // overrides regardless of package status.
                     package.RemoveHomeFirstInsuranceLine();
-                    package.RemoveWarrantyLine();
+                    package.RemoveLine<WarrantyLine>();
                 }
 
                 if (changes.StateChanged)
@@ -62,9 +61,11 @@ internal sealed class UpdateDeliveryAddressCommandHandler(
                 {
                     var taxLine = package.Lines.OfType<TaxLine>().FirstOrDefault();
                     taxLine?.ClearCalculations();
-                    package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
+                    package.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
                     package.FlagForTaxRecalculation();
                 }
+
+                package.RecalculateGrossProfit();
             }
         }
 

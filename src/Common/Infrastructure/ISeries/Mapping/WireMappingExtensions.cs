@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Commission;
 using Rtl.Core.Application.Adapters.ISeries.Insurance;
@@ -8,6 +7,7 @@ using Rtl.Core.Infrastructure.ISeries.WireModels.Commission;
 using Rtl.Core.Infrastructure.ISeries.WireModels.Insurance;
 using Rtl.Core.Infrastructure.ISeries.WireModels.Pricing;
 using Rtl.Core.Infrastructure.ISeries.WireModels.Tax;
+using System.Diagnostics;
 
 namespace Rtl.Core.Infrastructure.ISeries.Mapping;
 

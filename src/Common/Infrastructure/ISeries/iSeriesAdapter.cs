@@ -1,5 +1,3 @@
-using System.Net.Http.Json;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Commission;
@@ -12,6 +10,8 @@ using Rtl.Core.Infrastructure.ISeries.WireModels.Commission;
 using Rtl.Core.Infrastructure.ISeries.WireModels.Insurance;
 using Rtl.Core.Infrastructure.ISeries.WireModels.Pricing;
 using Rtl.Core.Infrastructure.ISeries.WireModels.Tax;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Rtl.Core.Infrastructure.ISeries;
 
@@ -31,7 +31,7 @@ internal sealed class iSeriesAdapter(
     //   By stock → "home-inventory-ancillary-data" (legacy iSeries name; returns OData with wheelAndAxlePrice)
     //   By count → "wheels-and-axles/price"         (returns salePrice + cost)
 
-    public async Task<decimal> GetWheelAndAxlePriceByStock(
+    public async Task<WheelAndAxlePriceResult> GetWheelAndAxlePriceByStock(
         WheelAndAxlePriceByStockRequest request, CancellationToken ct)
     {
         // The path looks unrelated to W&A, but "ancillary data" is the iSeries term for this lookup.
@@ -43,10 +43,12 @@ internal sealed class iSeriesAdapter(
         response.EnsureSuccessStatusCode();
 
         var odata = await response.Content.ReadFromJsonAsync<ODataResponse<WheelAndAxlePriceWireResponse>>(JsonOptions, ct);
-        return odata?.Values.FirstOrDefault()?.WheelAndAxlePrice ?? 0m;
+        var price = odata?.Values.FirstOrDefault()?.WheelAndAxlePrice ?? 0m;
+        // ByStock wire returns a single price — use it for both SalePrice and Cost
+        return new WheelAndAxlePriceResult(price, price);
     }
 
-    public async Task<decimal> CalculateWheelAndAxlePriceByCount(
+    public async Task<WheelAndAxlePriceResult> CalculateWheelAndAxlePriceByCount(
         WheelAndAxlePriceByCountRequest request, CancellationToken ct)
     {
         var date = DateTime.UtcNow.ToString("yyyyMMdd");
@@ -57,7 +59,7 @@ internal sealed class iSeriesAdapter(
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<WheelAndAxlePriceByCountWireResponse>(JsonOptions, ct);
-        return result?.SalePrice ?? 0m;
+        return new WheelAndAxlePriceResult(result?.SalePrice ?? 0m, result?.Cost ?? 0m);
     }
 
     public async Task<decimal> CalculateRetailPrice(

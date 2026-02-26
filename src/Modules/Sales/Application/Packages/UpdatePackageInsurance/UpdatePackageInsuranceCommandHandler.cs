@@ -36,6 +36,7 @@ internal sealed class UpdatePackageInsuranceCommandHandler(
         UpsertInsuranceLine(package, request);
 
         // Step 3: Persist
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UpdatePackageInsuranceResult(
@@ -54,6 +55,9 @@ internal sealed class UpdatePackageInsuranceCommandHandler(
         else
             package.RemoveOutsideInsuranceLine();
 
+        var homeDetails = package.Lines.OfType<HomeLine>().SingleOrDefault()?.Details;
+        var deliveryAddress = package.Sale?.DeliveryAddress;
+
         var details = InsuranceDetails.Create(
             insuranceType: insuranceType,
             coverageAmount: request.CoverageAmount,
@@ -64,7 +68,17 @@ internal sealed class UpdatePackageInsuranceCommandHandler(
             quoteId: null, // insurance_quotes table eliminated (v3.37) — no longer referenced
             companyName: request.CompanyName,
             maxCoverage: request.MaxCoverage,
-            totalPremium: request.TotalPremium);
+            totalPremium: request.TotalPremium,
+            homeStockNumber: homeDetails?.StockNumber,
+            homeModelYear: homeDetails?.ModelYear,
+            homeLengthInFeet: homeDetails?.LengthInFeet,
+            homeWidthInFeet: homeDetails?.WidthInFeet,
+            homeCondition: homeDetails?.HomeType.ToString(),
+            deliveryState: deliveryAddress?.State,
+            deliveryPostalCode: deliveryAddress?.PostalCode,
+            deliveryCity: deliveryAddress?.City,
+            deliveryIsWithinCityLimits: deliveryAddress?.IsWithinCityLimits,
+            occupancyType: deliveryAddress?.OccupancyType);
 
         var newLine = InsuranceLine.Create(
             packageId: package.Id,

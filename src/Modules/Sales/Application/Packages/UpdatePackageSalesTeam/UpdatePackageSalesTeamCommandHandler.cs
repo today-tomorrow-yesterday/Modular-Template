@@ -39,10 +39,14 @@ internal sealed class UpdatePackageSalesTeamCommandHandler(
                 PackageErrors.InvalidAuthorizedUsers());
         }
 
+        // Step 2b: Load employee details from cache for snapshot
+        var userCache = await LoadAuthorizedUserCacheAsync(request.Members, cancellationToken);
+
         // Step 3: Replace existing sales team line with new members (PUT semantics)
-        ReplaceSalesTeamLine(package, request.Members);
+        ReplaceSalesTeamLine(package, request.Members, userCache);
 
         // Step 4: Persist
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UpdatePackageSalesTeamResult(
@@ -62,12 +66,38 @@ internal sealed class UpdatePackageSalesTeamCommandHandler(
         return await authorizedUserCacheRepository.AllExistAsync(authorizedUserIds, cancellationToken);
     }
 
-    private static void ReplaceSalesTeamLine(Package package, UpdatePackageSalesTeamMemberRequest[] memberRequests)
+    private async Task<Dictionary<int, AuthorizedUserCache>> LoadAuthorizedUserCacheAsync(
+        UpdatePackageSalesTeamMemberRequest[] members,
+        CancellationToken cancellationToken)
     {
-        package.RemoveSalesTeamLine();
+        var cache = new Dictionary<int, AuthorizedUserCache>();
+        foreach (var member in members)
+        {
+            var user = await authorizedUserCacheRepository.GetByIdAsync(member.AuthorizedUserId, cancellationToken);
+            if (user is not null)
+                cache[member.AuthorizedUserId] = user;
+        }
+        return cache;
+    }
+
+    private static void ReplaceSalesTeamLine(
+        Package package,
+        UpdatePackageSalesTeamMemberRequest[] memberRequests,
+        Dictionary<int, AuthorizedUserCache> userCache)
+    {
+        package.RemoveLine<SalesTeamLine>();
 
         var members = memberRequests
-            .Select(m => SalesTeamMember.Create(m.AuthorizedUserId, m.Role, m.CommissionSplitPercentage))
+            .Select(m =>
+            {
+                userCache.TryGetValue(m.AuthorizedUserId, out var cachedUser);
+                return SalesTeamMember.Create(
+                    m.AuthorizedUserId,
+                    m.Role,
+                    m.CommissionSplitPercentage,
+                    employeeName: cachedUser?.DisplayName,
+                    employeeNumber: cachedUser?.EmployeeNumber);
+            })
             .ToList();
 
         var details = SalesTeamDetails.Create(members);

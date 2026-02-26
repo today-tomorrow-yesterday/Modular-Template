@@ -27,18 +27,24 @@ public sealed class SalesTeamMember
     public SalesTeamRole Role { get; private set; }
     public decimal? CommissionSplitPercentage { get; private set; }
     public decimal CommissionAmount { get; private set; } // Populated by commission calculation journey
+    public string? EmployeeName { get; private set; } // DisplayName from AuthorizedUserCache
+    public int? EmployeeNumber { get; private set; } // iSeries employee ID
 
     public static SalesTeamMember Create(
         int? authorizedUserId,
         SalesTeamRole role,
-        decimal? commissionSplitPercentage)
+        decimal? commissionSplitPercentage,
+        string? employeeName = null,
+        int? employeeNumber = null)
     {
         return new SalesTeamMember
         {
             AuthorizedUserId = authorizedUserId,
             Role = role,
             CommissionSplitPercentage = commissionSplitPercentage,
-            CommissionAmount = 0m
+            CommissionAmount = 0m,
+            EmployeeName = employeeName,
+            EmployeeNumber = employeeNumber
         };
     }
 }

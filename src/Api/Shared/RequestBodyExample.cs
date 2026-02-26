@@ -1,7 +1,7 @@
-using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
 using Rtl.Core.Presentation.Endpoints;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json.Nodes;
 
 namespace Rtl.Core.Api.Shared;
 

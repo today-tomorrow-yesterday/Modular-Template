@@ -24,8 +24,6 @@ internal sealed class CalculateTaxesCommandHandler(
     IUnitOfWork<ISalesModule> unitOfWork)
     : ICommandHandler<CalculateTaxesCommand, CalculateTaxesResult>
 {
-    private const int UseTaxCategoryNumber = 9;
-    private const int UseTaxItemNumber = 21;
 
     public async Task<Result<CalculateTaxesResult>> Handle(
         CalculateTaxesCommand request,
@@ -155,14 +153,20 @@ internal sealed class CalculateTaxesCommandHandler(
             + (grossReceiptCityTax ?? 0m) + (grossReceiptCountyTax ?? 0m) + (mhit ?? 0m);
 
         // Step 11: Update Tax line with results
-        package.RemoveTaxLine();
+        package.RemoveLine<TaxLine>();
 
         var updatedTaxDetails = TaxDetails.Create(
             previouslyTitled: taxConfig.PreviouslyTitled,
             taxExemptionId: taxConfig.TaxExemptionId,
             questionAnswers: taxConfig.StateTaxQuestionAnswers,
             taxes: taxItems,
-            errors: null);
+            errors: null,
+            taxExemptionDescription: taxConfig.TaxExemptionDescription,
+            stateCode: stateCode,
+            deliveryCity: sale.DeliveryAddress!.City,
+            deliveryCounty: sale.DeliveryAddress.County,
+            deliveryPostalCode: sale.DeliveryAddress.PostalCode,
+            deliveryIsWithinCityLimits: sale.DeliveryAddress.IsWithinCityLimits);
 
         package.AddLine(TaxLine.Create(
             packageId: package.Id,
@@ -177,6 +181,7 @@ internal sealed class CalculateTaxesCommandHandler(
 
         // Step 13: Save
         sale.RaiseSaleSummaryChanged();
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new CalculateTaxesResult(
@@ -193,15 +198,22 @@ internal sealed class CalculateTaxesCommandHandler(
         Package package, TaxLine existingTaxLine, List<string> errors, CancellationToken ct)
     {
         var taxConfig = existingTaxLine.Details!;
+        var deliveryAddress = package.Sale?.DeliveryAddress;
 
-        package.RemoveTaxLine();
+        package.RemoveLine<TaxLine>();
 
         var errorTaxDetails = TaxDetails.Create(
             previouslyTitled: taxConfig.PreviouslyTitled,
             taxExemptionId: taxConfig.TaxExemptionId,
             questionAnswers: taxConfig.StateTaxQuestionAnswers,
             taxes: [],
-            errors: errors);
+            errors: errors,
+            taxExemptionDescription: taxConfig.TaxExemptionDescription,
+            stateCode: taxConfig.StateCode ?? package.Sale?.RetailLocation?.StateCode,
+            deliveryCity: deliveryAddress?.City,
+            deliveryCounty: deliveryAddress?.County,
+            deliveryPostalCode: deliveryAddress?.PostalCode,
+            deliveryIsWithinCityLimits: deliveryAddress?.IsWithinCityLimits);
 
         package.AddLine(TaxLine.Create(
             packageId: package.Id,
@@ -212,8 +224,9 @@ internal sealed class CalculateTaxesCommandHandler(
             details: errorTaxDetails));
 
         // Remove Use Tax ProjectCost on error
-        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
+        package.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
 
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(ct);
 
         return new CalculateTaxesResult(
@@ -249,13 +262,13 @@ internal sealed class CalculateTaxesCommandHandler(
     // Upsert or remove Use Tax ProjectCost (Cat 9, Item 21)
     private static void SyncUseTaxProjectCost(Package package, decimal useTaxAmount)
     {
-        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
+        package.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
 
         if (useTaxAmount > 0)
         {
             var details = ProjectCostDetails.Create(
-                categoryId: UseTaxCategoryNumber,
-                itemId: UseTaxItemNumber,
+                categoryId: ProjectCostCategories.UseTax,
+                itemId: ProjectCostItems.UseTax,
                 itemDescription: "Use Tax");
 
             package.AddLine(ProjectCostLine.Create(

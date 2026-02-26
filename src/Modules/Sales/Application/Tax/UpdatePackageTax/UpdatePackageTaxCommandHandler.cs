@@ -19,8 +19,6 @@ internal sealed class UpdatePackageTaxCommandHandler(
     IUnitOfWork<ISalesModule> unitOfWork)
     : ICommandHandler<UpdatePackageTaxCommand, UpdatePackageTaxResult>
 {
-    private const int UseTaxCategoryNumber = 9;
-    private const int UseTaxItemNumber = 21;
 
     public async Task<Result<UpdatePackageTaxResult>> Handle(
         UpdatePackageTaxCommand request,
@@ -47,15 +45,32 @@ internal sealed class UpdatePackageTaxCommandHandler(
                 questionTexts.GetValueOrDefault(q.QuestionNumber)))
             .ToList();
 
+        // Step 2b: Look up exemption description from CDC when TaxExemptionId is set
+        string? taxExemptionDescription = null;
+        if (request.TaxExemptionId is not null and not 0)
+        {
+            var exemptions = await cdcTaxQueries.GetActiveExemptionsAsync(cancellationToken);
+            taxExemptionDescription = exemptions
+                .FirstOrDefault(e => e.Id == request.TaxExemptionId)?.Description;
+        }
+
         // Step 3: Upsert Tax line (PUT semantics — delete old, insert new)
-        package.RemoveTaxLine();
+        package.RemoveLine<TaxLine>();
+
+        var deliveryAddress = package.Sale?.DeliveryAddress;
 
         var taxDetails = TaxDetails.Create(
             previouslyTitled: request.PreviouslyTitled,
             taxExemptionId: request.TaxExemptionId,
             questionAnswers: enrichedAnswers,
             taxes: [],
-            errors: null);
+            errors: null,
+            taxExemptionDescription: taxExemptionDescription,
+            stateCode: package.Sale?.RetailLocation?.StateCode,
+            deliveryCity: deliveryAddress?.City,
+            deliveryCounty: deliveryAddress?.County,
+            deliveryPostalCode: deliveryAddress?.PostalCode,
+            deliveryIsWithinCityLimits: deliveryAddress?.IsWithinCityLimits);
 
         var newTaxLine = TaxLine.Create(
             packageId: package.Id,
@@ -68,12 +83,13 @@ internal sealed class UpdatePackageTaxCommandHandler(
         package.AddLine(newTaxLine);
 
         // Step 4: Remove Use Tax ProjectCost (Cat 9, Item 21) if present
-        package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
+        package.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
 
         // Step 5: Tax config changed — set MustRecalculateTaxes = true
         package.FlagForTaxRecalculation();
 
         // Step 6: Persist
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UpdatePackageTaxResult(

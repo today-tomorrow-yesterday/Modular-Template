@@ -200,7 +200,7 @@ internal sealed class CalculateCommissionCommandHandler(
                     .Where(pc => !pc.ShouldExcludeFromPricing)
                     .Sum(pc => pc.EstimatedCost),
                 LandPayoff = projectCosts
-                    .Where(pc => !pc.ShouldExcludeFromPricing && pc.Details?.CategoryId == 3)
+                    .Where(pc => !pc.ShouldExcludeFromPricing && pc.Details?.CategoryId == ProjectCostCategories.Land)
                     .Sum(pc => pc.EstimatedCost),
                 LandImprovements = 0m,
                 AdjustedCost = 0m,

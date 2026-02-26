@@ -2,7 +2,7 @@ using FluentValidation.TestHelper;
 using Modules.Sales.Application.DeliveryAddresses.CreateDeliveryAddress;
 using Xunit;
 
-namespace Modules.Sales.Application.Tests.DeliveryAddresses;
+namespace Modules.Sales.Application.Tests.DeliveryAddress;
 
 public sealed class CreateDeliveryAddressCommandValidatorTests
 {

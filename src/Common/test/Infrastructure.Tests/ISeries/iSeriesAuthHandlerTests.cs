@@ -1,6 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Options;
 using Rtl.Core.Infrastructure.ISeries;
+using System.IdentityModel.Tokens.Jwt;
 using Xunit;
 
 namespace Rtl.Core.Infrastructure.Tests.ISeries;

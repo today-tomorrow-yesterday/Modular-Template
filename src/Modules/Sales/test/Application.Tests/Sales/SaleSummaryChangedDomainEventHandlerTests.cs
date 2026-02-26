@@ -1,4 +1,3 @@
-using System.Reflection;
 using Modules.Sales.Application.Sales.EventHandlers;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Details;
@@ -10,6 +9,7 @@ using Modules.Sales.Domain.Sales.Events;
 using Modules.Sales.IntegrationEvents;
 using NSubstitute;
 using Rtl.Core.Application.EventBus;
+using System.Reflection;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Sales;

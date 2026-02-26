@@ -1,4 +1,3 @@
-using System.Reflection;
 using Modules.Sales.Application.Packages.UpdatePackageHome;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.InventoryCache;
@@ -9,6 +8,7 @@ using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Persistence;
+using System.Reflection;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Packages;

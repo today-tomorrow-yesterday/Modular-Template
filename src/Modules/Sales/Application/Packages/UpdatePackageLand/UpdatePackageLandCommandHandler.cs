@@ -9,20 +9,25 @@ using Rtl.Core.Domain.Results;
 namespace Modules.Sales.Application.Packages.UpdatePackageLand;
 
 // Flow: PUT /api/v1/packages/{packageId}/land → UpdatePackageLandCommand →
-//   capture pre-update snapshot → upsert LandLine (PUT semantics) →
-//   land pricing recalculation (4-branch matrix) → Land Payoff PC sync (Cat 2/Item 1) →
-//   tax change detection → recalculates GrossProfit.
+//   upsert LandLine + cascade (pricing recalc, Land Payoff sync, tax detection, gross profit) →
+//   raises LandLineUpdatedDomainEvent + SaleSummaryChangedDomainEvent
+//
+// Land pricing is not taken directly from the request — it's derived from the land
+// detail fields via a 4-branch matrix (Step 4). The request's SalePrice/EstimatedCost
+// are just starting values that get overwritten. The 7-step flow below runs these
+// cascades in the correct order:
+//   1. Load          — hydrate the full package aggregate
+//   2. Snapshot      — capture land sale price for tax change detection
+//   3. Upsert        — delete-then-insert the land line (PUT semantics)
+//   4. Reprice       — overwrite SalePrice/EstimatedCost from land type matrix
+//   5. Payoff sync   — keep the Land Payoff project cost in sync with land pricing
+//   6. Tax flag      — compare before/after and flag if taxes need recalculation
+//   7. Finalize      — raise events, recalculate GP, persist
 internal sealed class UpdatePackageLandCommandHandler(
     IPackageRepository packageRepository,
     IUnitOfWork<ISalesModule> unitOfWork)
     : ICommandHandler<UpdatePackageLandCommand, UpdatePackageLandResult>
 {
-    private const int LandPayoffCategoryNumber = 2;
-    private const int LandPayoffItemNumber = 1;
-    private const int UseTaxCategoryNumber = 9;
-    private const int UseTaxItemNumber = 21;
-
-
     public async Task<Result<UpdatePackageLandResult>> Handle(
         UpdatePackageLandCommand request,
         CancellationToken cancellationToken)
@@ -37,36 +42,27 @@ internal sealed class UpdatePackageLandCommandHandler(
                 PackageErrors.NotFoundByPublicId(request.PackagePublicId));
         }
 
-        // Step 2: Capture pre-update snapshot for tax change detection
+        // Step 2: Snapshot existing land sale price for tax change detection
         var existingLandLine = package.Lines.OfType<LandLine>().SingleOrDefault();
         var oldLandSalePrice = existingLandLine?.SalePrice ?? 0m;
 
-        // Step 3: Upsert Land line (PUT semantics — delete old, insert new)
+        // Step 3: Upsert Land line (delete-then-insert — PUT semantics)
         UpsertLandLine(package, request);
 
-        // Step 4: Land pricing recalculation — overwrite SalePrice/EstimatedCost from detail fields
+        // Step 4: Recalculate land pricing from detail fields
         var landLine = package.Lines.OfType<LandLine>().Single();
         RecalculateLandPricing(landLine);
-        package.RecalculateGrossProfit(); // UpdatePricing changed prices after AddLine
 
-        // Step 5: Land Payoff project cost sync — Cat 2 / Item 1
+        // Step 5: Sync Land Payoff project cost (Cat 2 / Item 1)
         SyncLandPayoffProjectCost(package, landLine);
 
-        // Step 6: Tax change detection — compare old vs current Land SalePrice
-        var newLandSalePrice = landLine.SalePrice;
-        if (oldLandSalePrice != newLandSalePrice)
-        {
-            var taxLine = package.Lines.OfType<TaxLine>().SingleOrDefault();
-            taxLine?.ClearCalculations();
+        // Step 6: Flag tax recalculation if land sale price changed
+        FlagTaxRecalculationIfNeeded(package, oldLandSalePrice, landLine.SalePrice);
 
-            package.RemoveProjectCost(UseTaxCategoryNumber, UseTaxItemNumber);
-
-            package.FlagForTaxRecalculation();
-        }
-
-        // Step 7: Raise SaleSummaryChanged + save
+        // Step 7: Finalize — raise events, recalculate GP, persist
         // (LandLineUpdatedDomainEvent already raised inside Package.AddLine)
         package.Sale.RaiseSaleSummaryChanged();
+        package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new UpdatePackageLandResult(
@@ -75,9 +71,13 @@ internal sealed class UpdatePackageLandCommandHandler(
             package.MustRecalculateTaxes);
     }
 
+    // --- Step 3: Upsert land line ---
+    // PUT semantics: delete the existing land line (if any) then insert the new one.
+    // Enum parsing is done here (not in the command) because the API layer sends strings.
+
     private static void UpsertLandLine(Package package, UpdatePackageLandCommand request)
     {
-        package.RemoveLandLine();
+        package.RemoveLine<LandLine>();
 
         var landPurchaseType = Enum.Parse<LandPurchaseType>(request.LandPurchaseType);
 
@@ -127,8 +127,15 @@ internal sealed class UpdatePackageLandCommandHandler(
         package.AddLine(newLandLine);
     }
 
-    // Step 4: Reset SalePrice/EstimatedCost to 0, then recalculate from land type.
+    // --- Step 4: Recalculate land pricing ---
+    // The request's SalePrice is just a starting value — the real price comes from the
+    // land type. The 4-branch matrix maps land type to pricing source:
+    //   CustomerLandPayoff  → PayoffAmountFinancing for both
+    //   LandPurchase        → PurchasePrice for both
+    //   HomeCenterOwnedLand → LandSalesPrice / LandCost (dealer margin)
+    //   Everything else     → 0 / 0
     // RetailSalePrice stays at the client-provided value.
+
     private static void RecalculateLandPricing(LandLine landLine)
     {
         if (landLine.Details is null)
@@ -136,41 +143,40 @@ internal sealed class UpdatePackageLandCommandHandler(
             return;
         }
 
-        decimal salePrice = 0m;
-        decimal estimatedCost = 0m;
+        var salePrice = 0m;
+        var estimatedCost = 0m;
         var details = landLine.Details;
 
-        // 1. CustomerLandPayoff: SalePrice = PayoffAmountFinancing, EstimatedCost = PayoffAmountFinancing
         if (details.LandInclusion == LandInclusion.CustomerLandPayoff)
         {
             salePrice = details.PayoffAmountFinancing ?? 0m;
             estimatedCost = details.PayoffAmountFinancing ?? 0m;
         }
-        // 2. LandPurchase: SalePrice = PurchasePrice, EstimatedCost = PurchasePrice
         else if (details.TypeOfLandWanted == TypeOfLandWanted.LandPurchase)
         {
             salePrice = details.PurchasePrice ?? 0m;
             estimatedCost = details.PurchasePrice ?? 0m;
         }
-        // 3. HomeCenterOwnedLand: SalePrice = LandSalesPrice, EstimatedCost = LandCost (dealer margin)
         else if (details.TypeOfLandWanted == TypeOfLandWanted.HomeCenterOwnedLand)
         {
+            // Dealer margin: cost and sale price differ
             salePrice = details.LandSalesPrice ?? 0m;
             estimatedCost = details.LandCost ?? 0m;
         }
-        // 4. All other types: SalePrice and EstimatedCost remain at 0
 
         landLine.UpdatePricing(salePrice, estimatedCost, landLine.RetailSalePrice);
     }
 
-    // Step 5: Create/update/remove Land Payoff project cost (Cat 2, Item 1).
-    // Only exists for priced land types. ShouldExcludeFromPricing = true.
+    // --- Step 5: Sync Land Payoff project cost ---
+    // A shadow project cost line (Cat 2, Item 1) that mirrors the land line's pricing.
+    // Excluded from GP (ShouldExcludeFromPricing = true) but used by commission/funding.
+    // Only exists for priced land types with a positive sale price.
+
     private static void SyncLandPayoffProjectCost(Package package, LandLine landLine)
     {
-        // Remove existing Land Payoff if present
-        package.RemoveProjectCost(LandPayoffCategoryNumber, LandPayoffItemNumber);
+        // Remove existing, then re-add if applicable (same remove-then-add pattern as W&A)
+        package.RemoveProjectCost(ProjectCostCategories.LandPayoff, ProjectCostItems.LandPayoff);
 
-        // Only create for priced land types
         if (landLine.Details is null)
         {
             return;
@@ -187,18 +193,38 @@ internal sealed class UpdatePackageLandCommandHandler(
         }
 
         var details = ProjectCostDetails.Create(
-            categoryId: LandPayoffCategoryNumber,
-            itemId: LandPayoffItemNumber,
+            categoryId: ProjectCostCategories.LandPayoff,
+            itemId: ProjectCostItems.LandPayoff,
             itemDescription: "Land Payoff");
 
         package.AddLine(ProjectCostLine.Create(
             packageId: package.Id,
             salePrice: landLine.SalePrice,
             estimatedCost: landLine.EstimatedCost,
-            retailSalePrice: landLine.SalePrice, // Legacy: RetailSalePrice = SalePrice (passes validation)
+            retailSalePrice: landLine.SalePrice,
             responsibility: Responsibility.Seller,
             shouldExcludeFromPricing: true,
             details: details));
     }
 
+    // --- Step 6: Flag tax recalculation if needed ---
+    // Only the land sale price affects taxes. If it didn't change, skip — this prevents
+    // unnecessary MustRecalculateTaxes flags on no-op saves. When it does change, clear
+    // cached tax calculations and remove the stale Use Tax project cost.
+
+    private static void FlagTaxRecalculationIfNeeded(
+        Package package, decimal oldSalePrice, decimal newSalePrice)
+    {
+        if (oldSalePrice == newSalePrice)
+        {
+            return;
+        }
+
+        var taxLine = package.Lines.OfType<TaxLine>().SingleOrDefault();
+        taxLine?.ClearCalculations();
+
+        // Remove stale Use Tax project cost — will be recomputed on next tax calculation
+        package.RemoveProjectCost(ProjectCostCategories.UseTax, ProjectCostItems.UseTax);
+        package.FlagForTaxRecalculation();
+    }
 }
