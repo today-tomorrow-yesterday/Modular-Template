@@ -1,7 +1,6 @@
 using Modules.Sales.Application.Insurance.GenerateHomeFirstQuote;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
-using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.Insurance;
 using Modules.Sales.Domain.PartiesCache;
@@ -12,6 +11,7 @@ using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Persistence;
 using System.Reflection;
 using Xunit;
+using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 using ISeriesInsurance = Rtl.Core.Application.Adapters.ISeries.Insurance;
 
 namespace Modules.Sales.Application.Tests.Insurance;

@@ -115,7 +115,7 @@ public sealed record TaxSectionResponse(
     decimal RetailSalePrice,
     string? Responsibility,
     bool ShouldExcludeFromPricing,
-    bool PreviouslyTitled,
+    string? PreviouslyTitled,
     int? TaxExemptionId,
     TaxQuestionAnswerResponse[] StateTaxQuestionAnswers,
     PackageTaxItemResponse[] TaxItems,

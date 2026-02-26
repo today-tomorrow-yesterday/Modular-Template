@@ -1,13 +1,7 @@
 using Modules.Sales.Domain.Packages.Credits;
 using Modules.Sales.Domain.Packages.Events;
-using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.Insurance;
-using Modules.Sales.Domain.Packages.Land;
 using Modules.Sales.Domain.Packages.ProjectCosts;
-using Modules.Sales.Domain.Packages.SalesTeam;
-using Modules.Sales.Domain.Packages.Tax;
-using Modules.Sales.Domain.Packages.TradeIns;
-using Modules.Sales.Domain.Packages.Warranty;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Domain.Auditing;
 using Rtl.Core.Domain.Entities;
@@ -19,10 +13,10 @@ public enum PackageStatus
     Draft
 }
 
-// Entity — packages.packages. A home package containing all pricing lines for a sale.
+// Aggregate root — packages.packages. A home package containing all pricing lines for a sale.
 // Packages are ranked; the primary package (Ranking == 1) is the active one.
 // PublicId (UUID v7) used in API routes.
-public sealed class Package : AuditableEntity
+public sealed class Package : AuditableEntity, IAggregateRoot
 {
     private readonly List<PackageLine> _lines = [];
 
@@ -34,8 +28,8 @@ public sealed class Package : AuditableEntity
     public int Ranking { get; private set; } // 1 = primary, 2+ = alternates
     public PackageStatus Status { get; private set; }
     public string Name { get; private set; } = string.Empty; // Unique within a sale (case-insensitive)
-    [SensitiveData] public decimal GrossProfit { get; private set; } // HomeSalePrice - (HomeEstimatedCost + ProjectCostEstimatedCosts)
-    [SensitiveData] public decimal CommissionableGrossProfit { get; private set; } // GrossProfit minus excluded items
+    [SensitiveData] public decimal GrossProfit { get; private set; }
+    [SensitiveData] public decimal CommissionableGrossProfit { get; private set; }
     public bool MustRecalculateTaxes { get; private set; }
 
     public bool IsPrimaryPackage => Ranking == 1;
@@ -67,195 +61,100 @@ public sealed class Package : AuditableEntity
         return package;
     }
 
+    // --- Package metadata ---
+
     public void SetName(string name) => Name = name;
 
     public void SetPrimary() => Ranking = 1;
 
     public void SetNonPrimary(int ranking) => Ranking = ranking;
 
+    public void SetCommissionableGrossProfit(decimal value) => CommissionableGrossProfit = value;
+
+    // Tax recalculation is driven by handler-level change detection (snapshot → mutate → compare).
+    // The aggregate owns the flag; handlers decide when to set it based on domain-specific rules.
     public void FlagForTaxRecalculation() => MustRecalculateTaxes = true;
 
     public void ClearTaxRecalculationFlag() => MustRecalculateTaxes = false;
 
-    public void SetCommissionableGrossProfit(decimal value) => CommissionableGrossProfit = value;
+    // --- Line mutations ---
+    // All mutations auto-recalculate gross profit to keep the aggregate consistent.
 
     public void AddLine(PackageLine line)
     {
         _lines.Add(line);
-
-        if (line is HomeLine)
-        {
-            Raise(new HomeLineUpdatedDomainEvent { PackageId = Id, SaleId = SaleId });
-        }
-        else if (line is LandLine)
-        {
-            Raise(new LandLineUpdatedDomainEvent { PackageId = Id, SaleId = SaleId });
-        }
-        else if (line is CreditLine)
-        {
-            // GP unaffected (ShouldExcludeFromPricing = true), no domain event
-        }
-        else if (line is InsuranceLine)
-        {
-            // GP affected when !ShouldExcludeFromPricing, no domain event yet
-        }
-        else if (line is WarrantyLine)
-        {
-            // GP affected when !ShouldExcludeFromPricing, no domain event yet
-        }
-        else if (line is ProjectCostLine)
-        {
-            // GP affected when !ShouldExcludeFromPricing, no domain event yet
-        }
-        else if (line is TradeInLine)
-        {
-            // GP unaffected (ShouldExcludeFromPricing = true), no domain event
-        }
-        else if (line is TaxLine)
-        {
-            // GP affected when !ShouldExcludeFromPricing, no domain event
-        }
-        else if (line is SalesTeamLine)
-        {
-            // GP unaffected (metadata only), no domain event
-        }
+        RecalculateGrossProfit();
     }
 
     public void RemoveLine(PackageLine line)
     {
         _lines.Remove(line);
+        RecalculateGrossProfit();
     }
 
-    public void RemoveLinesByType(params string[] lineTypes)
+    public T? RemoveLine<T>(Func<T, bool>? predicate = null) where T : PackageLine
     {
-        _lines.RemoveAll(line => lineTypes.Contains(line.LineType));
-    }
+        var line = predicate is null
+            ? _lines.OfType<T>().SingleOrDefault()
+            : _lines.OfType<T>().SingleOrDefault(predicate);
+        if (line is null) return null;
 
-    // --- Typed line removal methods ---
-
-    // Removes the single line of the given type (1:1 cardinality lines: Home, Land, Tax, Warranty, SalesTeam).
-    public T? RemoveLine<T>() where T : PackageLine
-    {
-        var line = _lines
-            .OfType<T>()
-            .SingleOrDefault();
-
-        if (line is not null)
-        {
-            _lines.Remove(line);
-
-            if (line is HomeLine)
-            {
-                Raise(new HomeLineUpdatedDomainEvent { PackageId = Id, SaleId = SaleId });
-            }
-            else if (line is LandLine)
-            {
-                Raise(new LandLineUpdatedDomainEvent { PackageId = Id, SaleId = SaleId });
-            }
-        }
-
+        _lines.Remove(line);
+        RecalculateGrossProfit();
         return line;
     }
 
-    // Filtered removal — Insurance lines are 1:many by type, so they need a predicate.
-    public InsuranceLine? RemoveOutsideInsuranceLine()
+    // Removes all lines of the given type. Returns the count removed.
+    public int RemoveAllLines<T>() where T : PackageLine
     {
-        var line = _lines
-            .OfType<InsuranceLine>()
-            .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.Outside);
-
-        if (line is not null)
-        {
-            _lines.Remove(line);
-        }
-
-        return line;
+        var count = _lines.RemoveAll(l => l is T);
+        if (count > 0) RecalculateGrossProfit();
+        return count;
     }
 
-    public InsuranceLine? RemoveHomeFirstInsuranceLine()
-    {
-        var line = _lines
-            .OfType<InsuranceLine>()
-            .SingleOrDefault(l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
+    // --- Domain-specific line removal ---
 
-        if (line is not null)
-        {
-            _lines.Remove(line);
-        }
+    public InsuranceLine? RemoveHomeFirstInsuranceLine() =>
+        RemoveLine<InsuranceLine>(l => l.Details?.InsuranceType == InsuranceType.HomeFirst);
 
-        return line;
-    }
+    public InsuranceLine? RemoveOutsideInsuranceLine() =>
+        RemoveLine<InsuranceLine>(l => l.Details?.InsuranceType == InsuranceType.Outside);
 
-    public CreditLine? RemoveDownPaymentLine()
-    {
-        var line = _lines
-            .OfType<CreditLine>()
-            .SingleOrDefault(l => l.IsDownPayment);
+    public CreditLine? RemoveDownPaymentLine() =>
+        RemoveLine<CreditLine>(l => l.IsDownPayment);
 
-        if (line is not null)
-        {
-            _lines.Remove(line);
-        }
+    public CreditLine? RemoveConcessionLine() =>
+        RemoveLine<CreditLine>(l => l.IsConcession);
 
-        return line;
-    }
-
-    public CreditLine? RemoveConcessionLine()
-    {
-        var line = _lines
-            .OfType<CreditLine>()
-            .SingleOrDefault(l => l.IsConcession);
-
-        if (line is not null)
-        {
-            _lines.Remove(line);
-        }
-
-        return line;
-    }
-
-    public ProjectCostLine? RemoveProjectCost(int categoryId, int itemId)
-    {
-        var line = _lines
-            .OfType<ProjectCostLine>()
-            .SingleOrDefault(l =>
-                l.Details?.CategoryId == categoryId
-                && l.Details?.ItemId == itemId);
-
-        if (line is not null)
-        {
-            _lines.Remove(line);
-        }
-
-        return line;
-    }
+    public ProjectCostLine? RemoveProjectCost(int categoryId, int itemId) =>
+        RemoveLine<ProjectCostLine>(l => l.Details?.CategoryId == categoryId && l.Details?.ItemId == itemId);
 
     public int RemoveProjectCostsByCategory(int categoryId)
     {
-        var removed = _lines
-            .RemoveAll(l => l is ProjectCostLine pc && pc.Details?.CategoryId == categoryId);
-
-        return removed;
+        var count = _lines.RemoveAll(l => l is ProjectCostLine pc && pc.Details?.CategoryId == categoryId);
+        if (count > 0) RecalculateGrossProfit();
+        return count;
     }
 
     public int RemoveAllProjectCosts(int categoryId, int itemId)
     {
-        var removed = _lines
-            .RemoveAll(l =>
-                l is ProjectCostLine pc
-                && pc.Details?.CategoryId == categoryId
-                && pc.Details?.ItemId == itemId);
-
-        return removed;
+        var count = _lines.RemoveAll(l =>
+            l is ProjectCostLine pc
+            && pc.Details?.CategoryId == categoryId
+            && pc.Details?.ItemId == itemId);
+        if (count > 0) RecalculateGrossProfit();
+        return count;
     }
 
-    // Caller is responsible for calling this once after all line mutations are complete,
-    // right before SaveChangesAsync. Matches legacy pattern where GP was a computed property
-    // evaluated at persistence time, not after every individual mutation.
+    // --- Gross profit ---
+    // Auto-called by all line mutations. Kept public for backward compat — idempotent, harmless to call again.
+
     public void RecalculateGrossProfit()
     {
         GrossProfit = _lines
             .Where(l => !l.ShouldExcludeFromPricing)
             .Sum(l => l.SalePrice - l.EstimatedCost);
     }
+
+
 }

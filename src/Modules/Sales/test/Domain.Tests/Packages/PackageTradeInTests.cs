@@ -57,25 +57,25 @@ public sealed class PackageTradeInTests
     }
 
     [Fact]
-    public void RemoveLinesByType_removes_all_trade_in_lines()
+    public void RemoveAllLines_removes_all_trade_in_lines()
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         package.AddLine(CreateTradeInLine(package.Id, salePrice: 10000m, sortOrder: 0));
         package.AddLine(CreateTradeInLine(package.Id, salePrice: 8000m, sortOrder: 1));
 
-        package.RemoveLinesByType(PackageLineTypeConstants.TradeIn);
+        package.RemoveAllLines<TradeInLine>();
 
         Assert.Empty(package.Lines.OfType<TradeInLine>());
     }
 
     [Fact]
-    public void RemoveLinesByType_does_not_affect_other_line_types()
+    public void RemoveAllLines_does_not_affect_other_line_types()
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         package.AddLine(CreditLine.CreateDownPayment(package.Id, 5000m));
         package.AddLine(CreateTradeInLine(package.Id, salePrice: 10000m));
 
-        package.RemoveLinesByType(PackageLineTypeConstants.TradeIn);
+        package.RemoveAllLines<TradeInLine>();
 
         Assert.Empty(package.Lines.OfType<TradeInLine>());
         Assert.Single(package.Lines.OfType<CreditLine>());

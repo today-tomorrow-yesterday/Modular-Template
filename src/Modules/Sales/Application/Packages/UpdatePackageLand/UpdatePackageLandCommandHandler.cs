@@ -12,7 +12,7 @@ namespace Modules.Sales.Application.Packages.UpdatePackageLand;
 
 // Flow: PUT /api/v1/packages/{packageId}/land → UpdatePackageLandCommand →
 //   upsert LandLine + cascade (pricing recalc, Land Payoff sync, tax detection, gross profit) →
-//   raises LandLineUpdatedDomainEvent + SaleSummaryChangedDomainEvent
+//   raises SaleSummaryChangedDomainEvent
 //
 // Land pricing is not taken directly from the request — it's derived from the land
 // detail fields via a 4-branch matrix (Step 4). The request's SalePrice/EstimatedCost
@@ -24,7 +24,7 @@ namespace Modules.Sales.Application.Packages.UpdatePackageLand;
 //   4. Reprice       — overwrite SalePrice/EstimatedCost from land type matrix
 //   5. Payoff sync   — keep the Land Payoff project cost in sync with land pricing
 //   6. Tax flag      — compare before/after and flag if taxes need recalculation
-//   7. Finalize      — raise events, recalculate GP, persist
+//   7. Finalize      — recalculate GP, persist
 internal sealed class UpdatePackageLandCommandHandler(
     IPackageRepository packageRepository,
     IInventoryCacheQueries inventoryCacheQueries,
@@ -66,8 +66,7 @@ internal sealed class UpdatePackageLandCommandHandler(
         // Step 6: Flag tax recalculation if land sale price changed
         FlagTaxRecalculationIfNeeded(package, oldLandSalePrice, landLine.SalePrice);
 
-        // Step 7: Finalize — raise events, recalculate GP, persist
-        // (LandLineUpdatedDomainEvent already raised inside Package.AddLine)
+        // Step 7: Finalize — recalculate GP, persist
         package.Sale.RaiseSaleSummaryChanged();
         package.RecalculateGrossProfit();
         await unitOfWork.SaveChangesAsync(cancellationToken);
@@ -95,12 +94,13 @@ internal sealed class UpdatePackageLandCommandHandler(
             ? Enum.Parse<TypeOfLandWanted>(request.TypeOfLandWanted)
             : (TypeOfLandWanted?)null;
 
-        if (typeOfLandWanted is TypeOfLandWanted.HomeCenterOwnedLand
-            && !string.IsNullOrEmpty(request.LandStockNumber))
+        var requiresLandParcelLookup = typeOfLandWanted is TypeOfLandWanted.HomeCenterOwnedLand && !string.IsNullOrEmpty(request.LandStockNumber);
+
+        if (requiresLandParcelLookup)
         {
             var homeCenterNumber = package.Sale.RetailLocation.RefHomeCenterNumber!.Value;
             var cached = await inventoryCacheQueries.FindLandParcelByHomeCenterAndStockAsync(
-                homeCenterNumber, request.LandStockNumber, ct);
+                homeCenterNumber, request.LandStockNumber!, ct);
 
             if (cached is null)
             {

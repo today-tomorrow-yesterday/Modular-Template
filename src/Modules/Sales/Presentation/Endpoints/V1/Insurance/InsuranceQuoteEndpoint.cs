@@ -66,7 +66,9 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
     {
         var request = await httpContext.Request.ReadFromJsonAsync<GenerateHomeFirstQuoteRequest>(ct);
         if (request is null)
-            return Results.BadRequest("Request body is required for HomeFirst insurance quote.");
+            return Results.Problem(
+                detail: "Request body is required for HomeFirst insurance quote.",
+                statusCode: StatusCodes.Status400BadRequest);
 
         var command = new GenerateHomeFirstQuoteCommand(
             publicSaleId,
@@ -122,7 +124,9 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
     {
         var request = await httpContext.Request.ReadFromJsonAsync<RecordOutsideInsuranceRequest>(ct);
         if (request is null)
-            return Results.BadRequest("Request body is required for outside insurance.");
+            return Results.Problem(
+                detail: "Request body is required for outside insurance.",
+                statusCode: StatusCodes.Status400BadRequest);
 
         var command = new RecordOutsideInsuranceCommand(
             publicSaleId,

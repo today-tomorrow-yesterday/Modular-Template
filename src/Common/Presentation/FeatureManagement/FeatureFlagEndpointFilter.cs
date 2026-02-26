@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Rtl.Core.Application.FeatureManagement;
@@ -38,7 +38,11 @@ internal sealed class FeatureFlagEndpointFilter(string featureName) : IEndpointF
 
         if (!isEnabled)
         {
-            return Microsoft.AspNetCore.Http.Results.NotFound();
+            return Microsoft.AspNetCore.Http.Results.Problem(
+                title: "Not Found",
+                detail: "The requested resource was not found.",
+                type: "https://tools.ietf.org/html/rfc7231#section-6.5.4",
+                statusCode: StatusCodes.Status404NotFound);
         }
 
         return await next(context);

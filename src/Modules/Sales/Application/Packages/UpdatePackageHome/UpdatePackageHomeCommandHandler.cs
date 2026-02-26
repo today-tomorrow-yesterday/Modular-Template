@@ -210,7 +210,8 @@ internal sealed class UpdatePackageHomeCommandHandler(
     private static void RemoveInvalidProjectCosts(
         Package package, HomeType? previousHomeType, HomeType newHomeType)
     {
-        if (previousHomeType is null || previousHomeType == newHomeType)
+        var homeTypeDidNotChange = previousHomeType is null || previousHomeType == newHomeType;
+        if (homeTypeDidNotChange)
         {
             return;
         }
@@ -257,6 +258,11 @@ internal sealed class UpdatePackageHomeCommandHandler(
     // or wheel/axle counts). Since the home just changed, we always remove-then-recalculate.
     // Two iSeries pricing paths: stock-number lookup (OnLot/VmfHomes) or count-based calc.
     // If the user chose no W&A option (null), we just remove and exit.
+    //
+    // Legacy constraint (PackageDtoExtensions.cs): Multi-section homes (NumberOfFloorSections > 1)
+    // are transported on their own chassis and never have W&A project costs. Legacy removed W&A
+    // lines unconditionally for multi-section homes regardless of WheelAndAxlesOption. Single-section
+    // homes (NumberOfFloorSections <= 1) have W&A lines added/kept conditionally based on the option.
 
     private async Task RecalculateWheelAndAxlePricing(
         Package package, UpdatePackageHomeRequest home, CancellationToken cancellationToken)
@@ -264,6 +270,16 @@ internal sealed class UpdatePackageHomeCommandHandler(
         // Remove existing W&A project costs — they'll be re-added below if applicable
         package.RemoveProjectCost(ProjectCostCategories.WheelsAndAxles, ProjectCostItems.WaRental);
         package.RemoveProjectCost(ProjectCostCategories.WheelsAndAxles, ProjectCostItems.WaPurchase);
+
+        // Multi-section homes (double/triple-wide) don't use wheels & axles — they ship on
+        // their own chassis. Legacy always stripped W&A lines for these homes regardless of
+        // WheelAndAxlesOption. NumberOfFloorSections > 1 = multi-section (matches DomicileCode
+        // "D" logic in WireMappingExtensions.cs).
+        var isMultiSection = home.NumberOfFloorSections.HasValue && home.NumberOfFloorSections.Value > 1;
+        if (isMultiSection)
+        {
+            return;
+        }
 
         if (home.WheelAndAxlesOption is null)
         {
@@ -278,25 +294,26 @@ internal sealed class UpdatePackageHomeCommandHandler(
         };
 
         // Calculate W&A price via iSeries — stock number path or wheel/axle count path
+        var canLookUpByStockNumber = home.HomeSourceType is HomeSourceType.OnLot or HomeSourceType.VmfHomes && !string.IsNullOrEmpty(home.StockNumber);
+        var hasWheelAndAxleCounts = home.NumberOfWheels.HasValue && home.NumberOfAxles.HasValue;
+
         WheelAndAxlePriceResult waResult;
-        if (home.HomeSourceType is HomeSourceType.OnLot or HomeSourceType.VmfHomes
-            && !string.IsNullOrEmpty(home.StockNumber))
+        if (canLookUpByStockNumber)
         {
-            var homeCenterNumber = package.Sale.RetailLocation.RefHomeCenterNumber ?? 0;
             waResult = await iSeriesAdapter.GetWheelAndAxlePriceByStock(
                 new WheelAndAxlePriceByStockRequest
                 {
-                    HomeCenterNumber = homeCenterNumber,
-                    StockNumber = home.StockNumber
+                    HomeCenterNumber = package.Sale.RetailLocation.RefHomeCenterNumber ?? 0,
+                    StockNumber = home.StockNumber!
                 }, cancellationToken);
         }
-        else if (home.NumberOfWheels.HasValue && home.NumberOfAxles.HasValue)
+        else if (hasWheelAndAxleCounts)
         {
             waResult = await iSeriesAdapter.CalculateWheelAndAxlePriceByCount(
                 new WheelAndAxlePriceByCountRequest
                 {
-                    NumberOfWheels = home.NumberOfWheels.Value,
-                    NumberOfAxles = home.NumberOfAxles.Value
+                    NumberOfWheels = home.NumberOfWheels!.Value,
+                    NumberOfAxles = home.NumberOfAxles!.Value
                 }, cancellationToken);
         }
         else

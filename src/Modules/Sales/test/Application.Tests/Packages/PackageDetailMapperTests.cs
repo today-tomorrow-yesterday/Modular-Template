@@ -221,7 +221,7 @@ public sealed class PackageDetailMapperTests
 
         Assert.NotNull(response.Tax);
         Assert.Equal(1200m, response.Tax!.SalePrice);
-        Assert.False(response.Tax.PreviouslyTitled);
+        Assert.Null(response.Tax.PreviouslyTitled);
         Assert.Null(response.Tax.TaxExemptionId);
         Assert.Empty(response.Tax.StateTaxQuestionAnswers);
         Assert.Empty(response.Tax.TaxItems);

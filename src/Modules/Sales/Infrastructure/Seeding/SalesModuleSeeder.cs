@@ -97,32 +97,42 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
             await db.SaveChangesAsync(ct);
             logger.LogInformation("Seeded {Count} packages.", packages.Count);
 
-            // Package lines (needs PackageId + optional OnLotHomeId/LandParcelId)
-            var onLotHomeIds = onLotHomes.Select(h => h.Id).ToList();
-            var landParcelIds = landParcels.Select(l => l.Id).ToList();
-            var authorizedUserIds = authorizedUsers.Select(u => u.Id).ToList();
+            // Delivery addresses (needs SaleId, 1:1) — created before package lines
+            // so line fakers can snapshot real delivery context into details JSON.
+            var deliveryAddresses = DeliveryAddressFaker.Generate(saleIds, faker, count: 10);
+
+            // Build lookups so package line fakers receive actual entities (not just IDs).
+            // This makes seed data joinable: home lines reference real OnLotHomeCache dimensions,
+            // land lines use real LandParcelCache stock numbers, etc.
+            var saleById = sales.ToDictionary(s => s.Id);
+            var retailLocationById = retailLocations.ToDictionary(r => r.Id);
+            var deliveryAddressBySaleId = deliveryAddresses.ToDictionary(da => da.SaleId);
+
+            // Package lines (needs PackageId + actual cache entities for joinable data)
             var allLines = new List<PackageLine>();
 
             foreach (var package in packages)
             {
-                var onLotHomeId = onLotHomeIds.Count > 0 ? faker.PickRandom(onLotHomeIds) : (int?)null;
-                var landParcelId = landParcelIds.Count > 0 && faker.Random.Bool(0.7f)
-                    ? faker.PickRandom(landParcelIds)
-                    : (int?)null;
-                var authorizedUserId = authorizedUserIds.Count > 0
-                    ? faker.PickRandom(authorizedUserIds)
-                    : (int?)null;
+                var sale = saleById[package.SaleId];
+                var retailLocation = retailLocationById[sale.RetailLocationId];
+                deliveryAddressBySaleId.TryGetValue(package.SaleId, out var deliveryAddress);
+
+                var onLotHome = onLotHomes.Count > 0 ? faker.PickRandom(onLotHomes) : null;
+                var landParcel = landParcels.Count > 0 && faker.Random.Bool(0.7f)
+                    ? faker.PickRandom(landParcels)
+                    : null;
+                var authorizedUser = authorizedUsers.Count > 0
+                    ? faker.PickRandom(authorizedUsers)
+                    : null;
 
                 var lines = PackageLineFakers.GenerateForPackage(
-                    package.Id, faker, onLotHomeId, landParcelId, authorizedUserId);
+                    package.Id, faker, onLotHome, landParcel, authorizedUser,
+                    deliveryAddress, retailLocation);
 
                 allLines.AddRange(lines);
             }
 
             db.PackageLines.AddRange(allLines);
-
-            // Delivery addresses (needs SaleId, 1:1)
-            var deliveryAddresses = DeliveryAddressFaker.Generate(saleIds, faker, count: 10);
             db.DeliveryAddresses.AddRange(deliveryAddresses);
 
             await db.SaveChangesAsync(ct);

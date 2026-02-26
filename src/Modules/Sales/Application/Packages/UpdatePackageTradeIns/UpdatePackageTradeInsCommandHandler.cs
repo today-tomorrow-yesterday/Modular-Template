@@ -46,7 +46,7 @@ internal sealed class UpdatePackageTradeInsCommandHandler(
             .ToList();
 
         // Step 3: Replace all TradeIn lines (PUT semantics — delete all old, insert new set)
-        package.RemoveLinesByType(PackageLineTypeConstants.TradeIn);
+        package.RemoveAllLines<TradeInLine>();
 
         for (var i = 0; i < request.Items.Length; i++)
         {

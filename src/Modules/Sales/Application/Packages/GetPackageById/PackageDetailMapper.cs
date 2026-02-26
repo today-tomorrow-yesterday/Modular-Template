@@ -167,7 +167,7 @@ internal static class PackageDetailMapper
             RetailSalePrice: line.RetailSalePrice,
             Responsibility: line.Responsibility?.ToString(),
             ShouldExcludeFromPricing: line.ShouldExcludeFromPricing,
-            PreviouslyTitled: d?.PreviouslyTitled == "Y",
+            PreviouslyTitled: d?.PreviouslyTitled,
             TaxExemptionId: d?.TaxExemptionId,
             StateTaxQuestionAnswers: d?.StateTaxQuestionAnswers
                 .Select(qa => new TaxQuestionAnswerResponse(qa.QuestionNumber, qa.QuestionText, ParseBoolAnswer(qa.Answer)))

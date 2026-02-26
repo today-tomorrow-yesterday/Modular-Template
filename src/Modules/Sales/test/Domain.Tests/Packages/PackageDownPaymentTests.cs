@@ -58,13 +58,13 @@ public sealed class PackageDownPaymentTests
     }
 
     [Fact]
-    public void RemoveLinesByType_removes_all_credit_lines()
+    public void RemoveAllLines_removes_all_credit_lines()
     {
         var package = Package.Create(saleId: 1, name: "Pkg", isPrimary: true);
         package.AddLine(CreditLine.CreateDownPayment(package.Id, 5000m));
         package.AddLine(CreditLine.CreateConcession(package.Id, 2000m));
 
-        package.RemoveLinesByType(PackageLineTypeConstants.Credit);
+        package.RemoveAllLines<CreditLine>();
 
         Assert.Empty(package.Lines.OfType<CreditLine>());
     }

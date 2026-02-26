@@ -3,10 +3,12 @@ using Modules.Sales.Domain;
 using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.ProjectCosts;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
+using Rtl.Core.Application.Adapters.ISeries.Pricing;
 using Rtl.Core.Application.Persistence;
 using System.Reflection;
 using Xunit;
@@ -74,12 +76,123 @@ public sealed class UpdatePackageHomeCommandHandlerTests
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
+    [Fact]
+    public async Task Multi_section_home_does_not_add_wa_project_cost()
+    {
+        // Multi-section (NumberOfFloorSections > 1) homes ship on their own chassis;
+        // legacy always stripped W&A lines regardless of WheelAndAxlesOption.
+        var package = CreatePackageWithSaleContext();
+        _packageRepository.GetByPublicIdWithSaleContextAsync(package.PublicId, Arg.Any<CancellationToken>())
+            .Returns(package);
+
+        _iSeriesAdapter.CalculateWheelAndAxlePriceByCount(Arg.Any<WheelAndAxlePriceByCountRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new WheelAndAxlePriceResult(SalePrice: 500m, Cost: 400m));
+
+        var home = CreateHomeRequest(
+            numberOfFloorSections: 2,
+            wheelAndAxlesOption: WheelAndAxlesOption.Rent,
+            numberOfWheels: 6,
+            numberOfAxles: 3);
+
+        var result = await _sut.Handle(
+            new UpdatePackageHomeCommand(package.PublicId, home), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+
+        // No W&A project cost lines should exist for multi-section homes
+        var waLines = package.Lines.OfType<ProjectCostLine>()
+            .Where(l => l.Details?.CategoryId == ProjectCostCategories.WheelsAndAxles);
+        Assert.Empty(waLines);
+    }
+
+    [Fact]
+    public async Task Single_section_home_adds_wa_project_cost_when_option_set()
+    {
+        // Single-section (NumberOfFloorSections <= 1) homes need W&A transport.
+        // When WheelAndAxlesOption is set, a W&A project cost line should be added.
+        var package = CreatePackageWithSaleContext();
+        _packageRepository.GetByPublicIdWithSaleContextAsync(package.PublicId, Arg.Any<CancellationToken>())
+            .Returns(package);
+
+        _iSeriesAdapter.CalculateWheelAndAxlePriceByCount(Arg.Any<WheelAndAxlePriceByCountRequest>(), Arg.Any<CancellationToken>())
+            .Returns(new WheelAndAxlePriceResult(SalePrice: 500m, Cost: 400m));
+
+        var home = CreateHomeRequest(
+            numberOfFloorSections: 1,
+            wheelAndAxlesOption: WheelAndAxlesOption.Rent,
+            numberOfWheels: 6,
+            numberOfAxles: 3);
+
+        var result = await _sut.Handle(
+            new UpdatePackageHomeCommand(package.PublicId, home), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+
+        // Single-section with Rent option → W&A Rental line should exist
+        var waLines = package.Lines.OfType<ProjectCostLine>()
+            .Where(l => l.Details?.CategoryId == ProjectCostCategories.WheelsAndAxles)
+            .ToList();
+        Assert.Single(waLines);
+        Assert.Equal(ProjectCostItems.WaRental, waLines[0].Details!.ItemId);
+        Assert.Equal(500m, waLines[0].SalePrice);
+    }
+
+    [Fact]
+    public async Task Single_section_home_no_wa_when_option_null()
+    {
+        // Single-section home with no WheelAndAxlesOption → no W&A lines.
+        var package = CreatePackageWithSaleContext();
+        _packageRepository.GetByPublicIdWithSaleContextAsync(package.PublicId, Arg.Any<CancellationToken>())
+            .Returns(package);
+
+        var home = CreateHomeRequest(
+            numberOfFloorSections: 1,
+            wheelAndAxlesOption: null);
+
+        var result = await _sut.Handle(
+            new UpdatePackageHomeCommand(package.PublicId, home), CancellationToken.None);
+
+        Assert.True(result.IsSuccess);
+
+        var waLines = package.Lines.OfType<ProjectCostLine>()
+            .Where(l => l.Details?.CategoryId == ProjectCostCategories.WheelsAndAxles);
+        Assert.Empty(waLines);
+    }
+
+    [Fact]
+    public async Task Multi_section_home_does_not_call_iseries_for_wa_pricing()
+    {
+        // Multi-section homes should short-circuit before calling iSeries for W&A pricing.
+        var package = CreatePackageWithSaleContext();
+        _packageRepository.GetByPublicIdWithSaleContextAsync(package.PublicId, Arg.Any<CancellationToken>())
+            .Returns(package);
+
+        var home = CreateHomeRequest(
+            numberOfFloorSections: 3,
+            wheelAndAxlesOption: WheelAndAxlesOption.Purchase,
+            numberOfWheels: 6,
+            numberOfAxles: 3);
+
+        await _sut.Handle(
+            new UpdatePackageHomeCommand(package.PublicId, home), CancellationToken.None);
+
+        // iSeries should NOT be called for W&A pricing on multi-section homes
+        await _iSeriesAdapter.DidNotReceive()
+            .CalculateWheelAndAxlePriceByCount(Arg.Any<WheelAndAxlePriceByCountRequest>(), Arg.Any<CancellationToken>());
+        await _iSeriesAdapter.DidNotReceive()
+            .GetWheelAndAxlePriceByStock(Arg.Any<WheelAndAxlePriceByStockRequest>(), Arg.Any<CancellationToken>());
+    }
+
     // --- Helpers ---
 
     private static UpdatePackageHomeRequest CreateHomeRequest(
         HomeSourceType homeSourceType = HomeSourceType.Quoted,
         HomeType homeType = HomeType.New,
-        string? stockNumber = null) =>
+        string? stockNumber = null,
+        int? numberOfFloorSections = 2,
+        WheelAndAxlesOption? wheelAndAxlesOption = null,
+        int? numberOfWheels = null,
+        int? numberOfAxles = null) =>
         new(
             SalePrice: 85000m,
             EstimatedCost: 60000m,
@@ -93,8 +206,10 @@ public sealed class UpdatePackageHomeCommandHandlerTests
             SquareFootage: null, SerialNumbers: null,
             BaseCost: null, OptionsCost: null, FreightCost: null, InvoiceCost: null,
             NetInvoice: null, GrossCost: null, TaxIncludedOnInvoice: null,
-            NumberOfWheels: null, NumberOfAxles: null, WheelAndAxlesOption: null,
-            NumberOfFloorSections: 2, CarrierFrameDeposit: null, RebateOnMfgInvoice: null,
+            NumberOfWheels: numberOfWheels, NumberOfAxles: numberOfAxles,
+            WheelAndAxlesOption: wheelAndAxlesOption,
+            NumberOfFloorSections: numberOfFloorSections, CarrierFrameDeposit: null,
+            RebateOnMfgInvoice: null,
             ClaytonBuilt: null, BuildType: null, InventoryReferenceId: null,
             StateAssociationAndMhiDues: null, PartnerAssistance: null, DistanceMiles: null,
             PropertyType: null, PurchaseOption: null, ListingPrice: null,

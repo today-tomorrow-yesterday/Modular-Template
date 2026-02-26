@@ -1,7 +1,6 @@
 using Modules.Sales.Application.Commission.CalculateCommission;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.AuthorizedUsersCache;
-using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Home;
@@ -17,6 +16,7 @@ using Rtl.Core.Application.Persistence;
 using System.Reflection;
 using System.Text.Json;
 using Xunit;
+using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 using ISeriesCommission = Rtl.Core.Application.Adapters.ISeries.Commission;
 
 namespace Modules.Sales.Application.Tests.Commission;

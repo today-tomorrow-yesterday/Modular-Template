@@ -1,7 +1,6 @@
 using Modules.Sales.Application.Insurance.GenerateWarrantyQuote;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
-using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.Warranty;
 using Modules.Sales.Domain.RetailLocations;
@@ -12,6 +11,7 @@ using Rtl.Core.Application.Adapters.ISeries.Insurance;
 using Rtl.Core.Application.Persistence;
 using System.Reflection;
 using Xunit;
+using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 
 namespace Modules.Sales.Application.Tests.Warranty;
 

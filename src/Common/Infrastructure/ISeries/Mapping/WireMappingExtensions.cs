@@ -13,6 +13,8 @@ namespace Rtl.Core.Infrastructure.ISeries.Mapping;
 
 internal static class WireMappingExtensions
 {
+    internal const int MasterDealerNumber = 29;
+
     internal static char ToChar(this HomeCondition c) => c switch
     {
         HomeCondition.New => 'N',
@@ -66,6 +68,7 @@ internal static class WireMappingExtensions
 
     internal static TaxCalcWireRequest ToWire(this TaxCalculationRequest r) => new()
     {
+        MasterDealerNumber = MasterDealerNumber, // C-5: must be sent on every tax calc call
         LotNumber = r.HomeCenterNumber,
         AppId = r.AppId,
         StockNumber = r.StockNumber,
@@ -89,6 +92,7 @@ internal static class WireMappingExtensions
 
     internal static AllowanceWireRequest ToWire(this AllowanceUpdateRequest r) => new()
     {
+        MasterDealerNumber = MasterDealerNumber,
         AppId = r.AppId,
         CorrelationId = r.CorrelationId,
         LotNumber = r.HomeCenterNumber,
@@ -173,6 +177,7 @@ internal static class WireMappingExtensions
 
     internal static WarrantyWireRequest ToWire(this WarrantyQuoteRequest r) => new()
     {
+        MasterDealerNumber = MasterDealerNumber,
         HomeCenterNumber = r.HomeCenterNumber,
         AppId = r.AppId,
         PhysicalState = r.PhysicalState,

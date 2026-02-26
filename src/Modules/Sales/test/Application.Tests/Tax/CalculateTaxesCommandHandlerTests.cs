@@ -1,7 +1,6 @@
 using Modules.Sales.Application.Tax.CalculateTaxes;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.FundingCache;
-using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.Tax;
@@ -14,6 +13,7 @@ using Rtl.Core.Application.Persistence;
 using System.Reflection;
 using System.Text.Json;
 using Xunit;
+using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 
 namespace Modules.Sales.Application.Tests.Tax;
 
