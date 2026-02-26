@@ -1,8 +1,9 @@
 using Modules.Sales.Application.Packages.UpdatePackageTradeIns;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Credits;
+using Modules.Sales.Domain.Packages.ProjectCosts;
+using Modules.Sales.Domain.Packages.TradeIns;
 using NSubstitute;
 using Rtl.Core.Application.Persistence;
 using Xunit;

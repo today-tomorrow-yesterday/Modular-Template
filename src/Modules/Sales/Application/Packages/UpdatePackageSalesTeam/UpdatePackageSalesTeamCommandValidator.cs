@@ -1,5 +1,5 @@
 using FluentValidation;
-using Modules.Sales.Domain.Packages.Details;
+using Modules.Sales.Domain.Packages.SalesTeam;
 
 namespace Modules.Sales.Application.Packages.UpdatePackageSalesTeam;
 

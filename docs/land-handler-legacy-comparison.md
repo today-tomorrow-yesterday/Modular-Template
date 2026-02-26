@@ -283,20 +283,16 @@ All 24 land detail fields are present in both systems:
 
 ---
 
-## Open Items
+## Resolved Items
 
-### 1. GP includes land margin for HomeCenterOwnedLand (potential bug)
+### 1. GP included land margin for HomeCenterOwnedLand — FIXED
 
-The new `RecalculateGrossProfit()` sums all non-excluded lines including `LandLine` (`ShouldExcludeFromPricing = false`). For `HomeCenterOwnedLand` where `LandSalesPrice != LandCost`, this adds the land dealer margin to GP. The legacy system excluded land from GP entirely. **Needs business confirmation.**
+`LandLine.ShouldExcludeFromPricing` was `false`, causing `RecalculateGrossProfit()` to include land in GP. The legacy system never included land in GP. **Fixed:** changed to `true`. Land's financial impact flows through the shadow Land Payoff project cost (Cat 2, Item 1) which is also excluded from GP — this is bookkeeping-only data for commission/funding.
 
-### 2. `LandLine.ShouldExcludeFromPricing` should possibly be `true`
+### 2. `LandParcelId` inventory link not resolved — FIXED
 
-If the business does NOT want land in GP (matching legacy), `LandLine.ShouldExcludeFromPricing` should return `true` instead of `false`. This would align with the fact that land pricing is already captured by the shadow Land Payoff project cost. But this would also affect other aggregations that use the flag.
+The handler was not resolving `LandParcelId` for `HomeCenterOwnedLand` scenarios, leaving the FK always null and making the appraisal-change and inventory-removal downstream handlers inert. **Fixed:** added `FindLandParcelByHomeCenterAndStockAsync` to `IInventoryCacheQueries` and wired it into `UpsertLandLine` — same pattern as the home handler's `onLotHomeId` resolution. Returns `Error.NotFound` if the land parcel isn't in the cache.
 
-### 3. `LandParcelId` inventory link
+### 3. Legacy `IsLandDOT` flag — NO ACTION NEEDED
 
-The new `LandLine` has a `LandParcelId` FK to `LandParcelCache` (inventory module). The legacy system stored `LandStockNumber` as a plain string with no FK relationship. The new handler does NOT resolve this FK during upsert (unlike the home handler which resolves `onLotHomeId`). This may need to be added for `HomeCenterOwnedLand` scenarios.
-
-### 4. Legacy `IsLandDOT` flag
-
-The legacy `ProjectCostItemDto` includes an `IsLandDOT` flag from the iSeries add-on catalog. This is stored as metadata and passed through to the UI. The new system does not appear to surface this flag — verify if the BFF/UI needs it.
+Already fully implemented in the new system as `CdcProjectCostCategory.IsLandDot` (category-level, which is more correct than the legacy item-level flag). Present in: CDC entity, EF config, DB migration, query handler, endpoint response, and snapshotted into `ProjectCostDetails.CategoryIsLandDot`.

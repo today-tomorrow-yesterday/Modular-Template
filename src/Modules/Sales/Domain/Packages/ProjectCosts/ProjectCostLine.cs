@@ -1,27 +1,25 @@
-using Modules.Sales.Domain.Packages.Details;
+namespace Modules.Sales.Domain.Packages.ProjectCosts;
 
-namespace Modules.Sales.Domain.Packages.Lines;
-
-// Insurance line — HomeFirst or other insurance products. 1:many per package.
-// ShouldExcludeFromPricing is configurable per insurance product.
-public sealed class InsuranceLine : PackageLine<InsuranceDetails>
+// Project cost line — additional costs (W&A, land payoff, trade-over-allowance, etc.). 1:many per package.
+// ShouldExcludeFromPricing is configurable — land payoff (Cat 2, Item 1) is excluded, others are not.
+public sealed class ProjectCostLine : PackageLine<ProjectCostDetails>
 {
-    private InsuranceLine() { }
+    private ProjectCostLine() { }
 
-    public static InsuranceLine Create(
+    public static ProjectCostLine Create(
         int packageId,
         decimal salePrice,
         decimal estimatedCost,
         decimal retailSalePrice,
         Responsibility? responsibility,
         bool shouldExcludeFromPricing,
-        InsuranceDetails? details,
+        ProjectCostDetails? details,
         int sortOrder = 0)
     {
-        return new InsuranceLine
+        return new ProjectCostLine
         {
             PackageId = packageId,
-            LineType = PackageLineTypeConstants.Insurance,
+            LineType = PackageLineTypeConstants.ProjectCost,
             SalePrice = Math.Round(salePrice, 2),
             EstimatedCost = Math.Round(estimatedCost, 2),
             RetailSalePrice = Math.Round(retailSalePrice, 2),

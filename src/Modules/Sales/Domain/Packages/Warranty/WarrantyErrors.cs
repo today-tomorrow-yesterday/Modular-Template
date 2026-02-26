@@ -1,6 +1,6 @@
 using Rtl.Core.Domain.Results;
 
-namespace Modules.Sales.Domain.Packages;
+namespace Modules.Sales.Domain.Packages.Warranty;
 
 public static class WarrantyErrors
 {

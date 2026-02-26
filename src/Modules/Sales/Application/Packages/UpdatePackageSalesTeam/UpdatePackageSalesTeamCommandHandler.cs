@@ -1,8 +1,7 @@
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.AuthorizedUsersCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.SalesTeam;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Domain.Results;

@@ -1,8 +1,8 @@
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Cdc;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.ProjectCosts;
+using Modules.Sales.Domain.Packages.Tax;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Domain.Results;

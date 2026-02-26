@@ -1,4 +1,4 @@
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Sales;
 using Modules.Sales.Domain.Sales.Events;
 using Modules.Sales.IntegrationEvents;

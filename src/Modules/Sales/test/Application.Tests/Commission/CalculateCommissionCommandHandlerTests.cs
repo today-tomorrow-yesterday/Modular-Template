@@ -1,10 +1,13 @@
 using Modules.Sales.Application.Commission.CalculateCommission;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.AuthorizedUsersCache;
+using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
 using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.ProjectCosts;
+using Modules.Sales.Domain.Packages.SalesTeam;
+using Modules.Sales.Domain.Packages.TradeIns;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
@@ -401,7 +404,7 @@ public sealed class CalculateCommissionCommandHandlerTests
 
         if (includeDeliveryAddress)
         {
-            var address = DeliveryAddress.Create(
+            var address = DomainDeliveryAddress.Create(
                 saleId: sale.Id,
                 occupancyType: "Primary",
                 isWithinCityLimits: true,

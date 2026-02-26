@@ -1,6 +1,6 @@
 using FluentValidation.TestHelper;
 using Modules.Sales.Application.Packages.UpdatePackageSalesTeam;
-using Modules.Sales.Domain.Packages.Details;
+using Modules.Sales.Domain.Packages.SalesTeam;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.SalesTeam;

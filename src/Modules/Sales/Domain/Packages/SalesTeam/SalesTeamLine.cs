@@ -1,6 +1,4 @@
-using Modules.Sales.Domain.Packages.Details;
-
-namespace Modules.Sales.Domain.Packages.Lines;
+namespace Modules.Sales.Domain.Packages.SalesTeam;
 
 // Sales team line — commission assignments. 1:1 per package.
 // ShouldExcludeFromPricing is explicitly true — metadata-only line with all-zero prices.

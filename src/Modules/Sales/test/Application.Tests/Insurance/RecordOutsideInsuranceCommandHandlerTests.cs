@@ -1,8 +1,7 @@
 using Modules.Sales.Application.Insurance.RecordOutsideInsurance;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Insurance;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;

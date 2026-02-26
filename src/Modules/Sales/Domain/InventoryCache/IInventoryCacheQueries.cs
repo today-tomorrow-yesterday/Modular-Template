@@ -8,6 +8,12 @@ public interface IInventoryCacheQueries
         string stockNumber,
         CancellationToken cancellationToken = default);
 
+    // Resolve LandParcel cache entry by home center + stock number (for LandLine FK resolution)
+    Task<LandParcelCache?> FindLandParcelByHomeCenterAndStockAsync(
+        int homeCenterNumber,
+        string stockNumber,
+        CancellationToken cancellationToken = default);
+
     // Follow FK backwards: find all HomeLine package lines referencing this cache entry
     Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForHomeAsync(
         int onLotHomeCacheId,

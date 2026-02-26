@@ -1,7 +1,7 @@
 using Rtl.Core.Domain.Entities;
 using System.Text.Json;
 
-namespace Modules.Sales.Domain.Packages.Details;
+namespace Modules.Sales.Domain.Packages.Warranty;
 
 public sealed class WarrantyDetails : IVersionedDetails
 {

@@ -1,8 +1,11 @@
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.ProjectCosts;
+using Modules.Sales.Domain.Packages.Tax;
+using Modules.Sales.Domain.Packages.TradeIns;
+using Modules.Sales.Domain.Packages.Warranty;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Tax;
@@ -338,7 +341,7 @@ internal sealed class CalculateTaxesCommandHandler(
     }
 
     private async Task InsertQuestionAnswersAsync(
-        int appId, int customerNumber, List<Domain.Packages.Details.TaxQuestionAnswer> answers, CancellationToken ct)
+        int appId, int customerNumber, List<Domain.Packages.Tax.TaxQuestionAnswer> answers, CancellationToken ct)
     {
         if (answers.Count == 0) return;
 

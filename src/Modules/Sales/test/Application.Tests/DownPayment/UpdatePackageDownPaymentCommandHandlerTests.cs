@@ -1,7 +1,7 @@
 using Modules.Sales.Application.Packages.UpdatePackageDownPayment;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Credits;
 using NSubstitute;
 using Rtl.Core.Application.Persistence;
 using Xunit;

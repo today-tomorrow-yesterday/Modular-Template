@@ -1,7 +1,14 @@
 using Modules.Sales.Application.Packages.GetPackageById;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Credits;
+using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.Insurance;
+using Modules.Sales.Domain.Packages.Land;
+using Modules.Sales.Domain.Packages.ProjectCosts;
+using Modules.Sales.Domain.Packages.SalesTeam;
+using Modules.Sales.Domain.Packages.Tax;
+using Modules.Sales.Domain.Packages.TradeIns;
+using Modules.Sales.Domain.Packages.Warranty;
 using Xunit;
 
 namespace Modules.Sales.Application.Tests.Packages;

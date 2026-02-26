@@ -1,4 +1,4 @@
-namespace Modules.Sales.Domain.Packages;
+namespace Modules.Sales.Domain.Packages.ProjectCosts;
 
 /// <summary>
 /// Well-known project cost item numbers (iSeries ITEMID via cdc.project_cost_item).

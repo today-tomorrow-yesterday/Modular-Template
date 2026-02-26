@@ -1,7 +1,9 @@
 using Modules.Sales.Domain;
+using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Land;
+using Modules.Sales.Domain.Packages.ProjectCosts;
+using Modules.Sales.Domain.Packages.Tax;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Domain.Results;
@@ -25,6 +27,7 @@ namespace Modules.Sales.Application.Packages.UpdatePackageLand;
 //   7. Finalize      — raise events, recalculate GP, persist
 internal sealed class UpdatePackageLandCommandHandler(
     IPackageRepository packageRepository,
+    IInventoryCacheQueries inventoryCacheQueries,
     IUnitOfWork<ISalesModule> unitOfWork)
     : ICommandHandler<UpdatePackageLandCommand, UpdatePackageLandResult>
 {
@@ -47,7 +50,11 @@ internal sealed class UpdatePackageLandCommandHandler(
         var oldLandSalePrice = existingLandLine?.SalePrice ?? 0m;
 
         // Step 3: Upsert Land line (delete-then-insert — PUT semantics)
-        UpsertLandLine(package, request);
+        var error = await UpsertLandLine(package, request, cancellationToken);
+        if (error is not null)
+        {
+            return Result.Failure<UpdatePackageLandResult>(error);
+        }
 
         // Step 4: Recalculate land pricing from detail fields
         var landLine = package.Lines.OfType<LandLine>().Single();
@@ -73,11 +80,37 @@ internal sealed class UpdatePackageLandCommandHandler(
 
     // --- Step 3: Upsert land line ---
     // PUT semantics: delete the existing land line (if any) then insert the new one.
-    // Enum parsing is done here (not in the command) because the API layer sends strings.
+    // Returns null on success, or an Error if validation fails.
 
-    private static void UpsertLandLine(Package package, UpdatePackageLandCommand request)
+    private async Task<Error?> UpsertLandLine(
+        Package package, UpdatePackageLandCommand request, CancellationToken ct)
     {
         package.RemoveLine<LandLine>();
+
+        // HomeCenterOwnedLand must reference a row in the land parcel cache (synced from iSeries).
+        // We resolve the FK here so downstream handlers (appraisal change, inventory removal)
+        // can find affected packages. Same pattern as HomeLine's onLotHomeId resolution.
+        int? landParcelId = null;
+        var typeOfLandWanted = request.TypeOfLandWanted is not null
+            ? Enum.Parse<TypeOfLandWanted>(request.TypeOfLandWanted)
+            : (TypeOfLandWanted?)null;
+
+        if (typeOfLandWanted is TypeOfLandWanted.HomeCenterOwnedLand
+            && !string.IsNullOrEmpty(request.LandStockNumber))
+        {
+            var homeCenterNumber = package.Sale.RetailLocation.RefHomeCenterNumber!.Value;
+            var cached = await inventoryCacheQueries.FindLandParcelByHomeCenterAndStockAsync(
+                homeCenterNumber, request.LandStockNumber, ct);
+
+            if (cached is null)
+            {
+                return Error.NotFound(
+                    "LandParcel.NotFound",
+                    $"Land parcel with stock number '{request.LandStockNumber}' not found in inventory cache for home center {homeCenterNumber}.");
+            }
+
+            landParcelId = cached.Id;
+        }
 
         var landPurchaseType = Enum.Parse<LandPurchaseType>(request.LandPurchaseType);
 
@@ -89,9 +122,7 @@ internal sealed class UpdatePackageLandCommandHandler(
             landInclusion: request.LandInclusion is not null
                 ? Enum.Parse<LandInclusion>(request.LandInclusion)
                 : null,
-            typeOfLandWanted: request.TypeOfLandWanted is not null
-                ? Enum.Parse<TypeOfLandWanted>(request.TypeOfLandWanted)
-                : null,
+            typeOfLandWanted: typeOfLandWanted,
             estimatedValue: request.EstimatedValue,
             sizeInAcres: request.SizeInAcres,
             propertyOwner: request.PropertyOwner,
@@ -116,15 +147,16 @@ internal sealed class UpdatePackageLandCommandHandler(
             communityManagerEmail: request.CommunityManagerEmail,
             communityMonthlyCost: request.CommunityMonthlyCost);
 
-        var newLandLine = LandLine.Create(
+        package.AddLine(LandLine.Create(
             packageId: package.Id,
             salePrice: request.SalePrice,
             estimatedCost: request.EstimatedCost,
             retailSalePrice: request.RetailSalePrice,
             responsibility: Responsibility.Seller,
-            details: details);
+            details: details,
+            landParcelId: landParcelId));
 
-        package.AddLine(newLandLine);
+        return null;
     }
 
     // --- Step 4: Recalculate land pricing ---

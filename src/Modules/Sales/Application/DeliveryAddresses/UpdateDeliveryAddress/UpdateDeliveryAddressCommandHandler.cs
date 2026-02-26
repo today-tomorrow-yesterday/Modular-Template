@@ -1,6 +1,8 @@
 using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.ProjectCosts;
+using Modules.Sales.Domain.Packages.Tax;
+using Modules.Sales.Domain.Packages.Warranty;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;

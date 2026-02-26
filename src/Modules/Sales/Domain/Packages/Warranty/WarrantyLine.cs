@@ -1,6 +1,4 @@
-using Modules.Sales.Domain.Packages.Details;
-
-namespace Modules.Sales.Domain.Packages.Lines;
+namespace Modules.Sales.Domain.Packages.Warranty;
 
 // Warranty line — home buyer protection plan product. 1:1 per package.
 // ShouldExcludeFromPricing is configurable.

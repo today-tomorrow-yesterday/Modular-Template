@@ -1,6 +1,4 @@
-using Modules.Sales.Domain.Packages.Details;
-
-namespace Modules.Sales.Domain.Packages.Lines;
+namespace Modules.Sales.Domain.Packages.TradeIns;
 
 // Trade-in line — home being traded in. 1:many per package.
 // ShouldExcludeFromPricing always true — trade-in value is a credit, not a price component.

@@ -1,6 +1,5 @@
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Credits;
 using Xunit;
 
 namespace Modules.Sales.Domain.Tests.Packages;

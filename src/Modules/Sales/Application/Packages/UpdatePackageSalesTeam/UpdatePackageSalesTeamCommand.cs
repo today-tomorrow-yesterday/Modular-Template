@@ -1,4 +1,4 @@
-using Modules.Sales.Domain.Packages.Details;
+using Modules.Sales.Domain.Packages.SalesTeam;
 using Rtl.Core.Application.Messaging;
 
 namespace Modules.Sales.Application.Packages.UpdatePackageSalesTeam;

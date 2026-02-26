@@ -1,8 +1,9 @@
 using Modules.Sales.Application.Insurance.GenerateHomeFirstQuote;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
+using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.Insurance;
 using Modules.Sales.Domain.PartiesCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
@@ -163,7 +164,7 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
             homeCenterNumber: 42, name: "Test HC", stateCode: "OH", zip: "43004", isActive: true);
         SetProperty(sale, nameof(Sale.RetailLocation), retailLocation);
 
-        var address = DeliveryAddress.Create(
+        var address = DomainDeliveryAddress.Create(
             saleId: sale.Id,
             occupancyType: occupancyType,
             isWithinCityLimits: true,

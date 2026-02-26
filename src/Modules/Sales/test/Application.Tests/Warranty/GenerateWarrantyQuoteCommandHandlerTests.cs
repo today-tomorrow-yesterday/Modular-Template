@@ -1,8 +1,9 @@
 using Modules.Sales.Application.Insurance.GenerateWarrantyQuote;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using DomainDeliveryAddress = Modules.Sales.Domain.DeliveryAddresses.DeliveryAddress;
+using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.Warranty;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
@@ -251,7 +252,7 @@ public sealed class GenerateWarrantyQuoteCommandHandlerTests
 
         if (includeDeliveryAddress)
         {
-            var address = DeliveryAddress.Create(
+            var address = DomainDeliveryAddress.Create(
                 saleId: sale.Id,
                 occupancyType: occupancyType,
                 isWithinCityLimits: true,

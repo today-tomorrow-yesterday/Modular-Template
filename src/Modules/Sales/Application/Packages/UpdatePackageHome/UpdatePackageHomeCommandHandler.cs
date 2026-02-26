@@ -1,8 +1,9 @@
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.ProjectCosts;
+using Modules.Sales.Domain.Packages.Tax;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Pricing;
 using Rtl.Core.Application.Messaging;

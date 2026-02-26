@@ -2,7 +2,7 @@ using Modules.Sales.Application.Packages.UpdatePackageHome;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
+using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;

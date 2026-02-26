@@ -1,5 +1,6 @@
 using Modules.Sales.Application.Packages.UpdatePackageLand;
 using Modules.Sales.Domain;
+using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
@@ -13,11 +14,12 @@ namespace Modules.Sales.Application.Tests.Packages;
 public sealed class UpdatePackageLandCommandHandlerTests
 {
     private readonly IPackageRepository _packageRepository = Substitute.For<IPackageRepository>();
+    private readonly IInventoryCacheQueries _inventoryCacheQueries = Substitute.For<IInventoryCacheQueries>();
     private readonly IUnitOfWork<ISalesModule> _unitOfWork = Substitute.For<IUnitOfWork<ISalesModule>>();
     private readonly UpdatePackageLandCommandHandler _sut;
 
     public UpdatePackageLandCommandHandlerTests() =>
-        _sut = new UpdatePackageLandCommandHandler(_packageRepository, _unitOfWork);
+        _sut = new UpdatePackageLandCommandHandler(_packageRepository, _inventoryCacheQueries, _unitOfWork);
 
     [Fact]
     public async Task Returns_failure_when_package_not_found()

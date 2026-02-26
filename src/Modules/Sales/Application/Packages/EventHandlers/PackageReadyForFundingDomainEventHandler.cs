@@ -1,5 +1,5 @@
 using Modules.Sales.Domain.Packages.Events;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Sales;
 using Modules.Sales.IntegrationEvents;
 using Rtl.Core.Application.EventBus;

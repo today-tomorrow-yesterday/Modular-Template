@@ -1,6 +1,6 @@
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Events;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Land;
+using Modules.Sales.Domain.Packages.Tax;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 

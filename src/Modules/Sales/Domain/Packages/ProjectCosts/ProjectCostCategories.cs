@@ -1,4 +1,4 @@
-namespace Modules.Sales.Domain.Packages;
+namespace Modules.Sales.Domain.Packages.ProjectCosts;
 
 /// <summary>
 /// Well-known project cost category numbers (iSeries CATID via cdc.project_cost_category).

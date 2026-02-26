@@ -3,10 +3,11 @@ using Modules.Sales.Domain.InventoryCache;
 namespace Modules.Sales.Domain.Packages.Land;
 
 // Land line — land/lot associated with the home sale. 1:1 per package.
-// ShouldExcludeFromPricing always false — land always participates in pricing.
+// Excluded from GP — legacy never included land in the gross profit formula.
+// Land's financial impact flows through the shadow Land Payoff project cost (Cat 2, Item 1).
 public sealed class LandLine : PackageLine<LandDetails>
 {
-    public override bool ShouldExcludeFromPricing => false;
+    public override bool ShouldExcludeFromPricing => true;
 
     // NULL for customer-owned/private/community land
     public int? LandParcelId { get; private set; }

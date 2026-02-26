@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Modules.Sales.Domain.InventoryCache;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.Land;
 
 namespace Modules.Sales.Infrastructure.Persistence.Repositories;
 
@@ -12,6 +13,17 @@ internal sealed class InventoryCacheQueries(SalesDbContext dbContext) : IInvento
         CancellationToken cancellationToken = default)
     {
         return await dbContext.OnLotHomesCache
+            .FirstOrDefaultAsync(
+                c => c.RefHomeCenterNumber == homeCenterNumber && c.RefStockNumber == stockNumber,
+                cancellationToken);
+    }
+
+    public async Task<LandParcelCache?> FindLandParcelByHomeCenterAndStockAsync(
+        int homeCenterNumber,
+        string stockNumber,
+        CancellationToken cancellationToken = default)
+    {
+        return await dbContext.Set<LandParcelCache>()
             .FirstOrDefaultAsync(
                 c => c.RefHomeCenterNumber == homeCenterNumber && c.RefStockNumber == stockNumber,
                 cancellationToken);

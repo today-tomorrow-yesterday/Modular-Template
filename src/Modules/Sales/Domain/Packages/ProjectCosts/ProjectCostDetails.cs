@@ -1,7 +1,7 @@
 using Rtl.Core.Domain.Entities;
 using System.Text.Json;
 
-namespace Modules.Sales.Domain.Packages.Details;
+namespace Modules.Sales.Domain.Packages.ProjectCosts;
 
 // ItemId references cdc.project_cost_items via natural key JOIN to cdc.project_cost_categories.
 // Category/Item snapshot properties freeze CDC reference data at creation time (flat, like Home/Land).

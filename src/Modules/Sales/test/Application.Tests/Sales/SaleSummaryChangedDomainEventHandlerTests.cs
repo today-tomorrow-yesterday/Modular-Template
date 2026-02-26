@@ -1,7 +1,6 @@
 using Modules.Sales.Application.Sales.EventHandlers;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.Packages.Details;
-using Modules.Sales.Domain.Packages.Lines;
+using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.PartiesCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
