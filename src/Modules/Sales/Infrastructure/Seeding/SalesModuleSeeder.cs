@@ -117,6 +117,15 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
             var retailLocationById = retailLocations.ToDictionary(r => r.Id);
             var deliveryAddressBySaleId = deliveryAddresses.ToDictionary(da => da.SaleId);
 
+            // Group cache entities by home center so each package references inventory
+            // from its own home center — matching production lookup behavior.
+            var onLotHomesByHC = onLotHomes
+                .GroupBy(h => h.RefHomeCenterNumber)
+                .ToDictionary(g => g.Key, g => g.ToList());
+            var landParcelsByHC = landParcels
+                .GroupBy(l => l.RefHomeCenterNumber)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
             // Package lines (needs PackageId + actual cache entities for joinable data)
             var allLines = new List<PackageLine>();
 
@@ -124,15 +133,24 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
             {
                 var sale = saleById[package.SaleId];
                 var retailLocation = retailLocationById[sale.RetailLocationId];
+                var hcNumber = retailLocation.RefHomeCenterNumber ?? 0;
                 deliveryAddressBySaleId.TryGetValue(package.SaleId, out var deliveryAddress);
 
-                var onLotHome = onLotHomes.Count > 0 ? faker.PickRandom(onLotHomes) : null;
-                var landParcel = landParcels.Count > 0 && faker.Random.Bool(0.7f)
-                    ? faker.PickRandom(landParcels)
+                // Pick cache entities from the SAME home center as the sale's retail location.
+                // In production, handlers look up inventory by home center — this ensures the
+                // FK + details data is consistent with what a real lookup would return.
+                var homesForHC = onLotHomesByHC.GetValueOrDefault(hcNumber);
+                var onLotHome = homesForHC is { Count: > 0 } ? faker.PickRandom(homesForHC) : null;
+
+                var parcelsForHC = landParcelsByHC.GetValueOrDefault(hcNumber);
+                var landParcel = parcelsForHC is { Count: > 0 } && faker.Random.Bool(0.7f)
+                    ? faker.PickRandom(parcelsForHC)
                     : null;
-                var authorizedUser = authorizedUsers.Count > 0
-                    ? faker.PickRandom(authorizedUsers)
-                    : null;
+
+                var usersForHC = authorizedUsers
+                    .Where(u => u.AuthorizedHomeCenters?.Contains(hcNumber) == true)
+                    .ToList();
+                var authorizedUser = usersForHC.Count > 0 ? faker.PickRandom(usersForHC) : null;
 
                 var lines = PackageLineFakers.GenerateForPackage(
                     package.Id, faker, onLotHome, landParcel, authorizedUser,
