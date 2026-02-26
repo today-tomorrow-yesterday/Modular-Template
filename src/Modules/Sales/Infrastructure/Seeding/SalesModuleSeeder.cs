@@ -83,7 +83,8 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
             // Phase 2: Sequential FK chain
             // ────────────────────────────────────────
 
-            var retailLocationIds = retailLocations.Select(r => r.Id).ToArray();
+            // Only assign sales to active retail locations — HC 500 is inactive.
+            var retailLocationIds = retailLocations.Where(r => r.IsActive).Select(r => r.Id).ToArray();
             var partyIds = parties.Select(p => p.Id).ToArray();
 
             // Sales (needs PartyId + RetailLocationId)

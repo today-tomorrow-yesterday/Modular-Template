@@ -92,7 +92,7 @@ internal sealed class UpdatePackageLandEndpoint : IEndpoint
             "sizeInAcres": 2.5,
             "payoffAmountFinancing": 20000.00,
             "landEquity": 35000.00,
-            "originalPurchaseDate": "2018-06-15",
+            "originalPurchaseDate": "2018-06-15T00:00:00Z",
             "originalPurchasePrice": 30000.00,
             "realtor": null,
             "purchasePrice": null,

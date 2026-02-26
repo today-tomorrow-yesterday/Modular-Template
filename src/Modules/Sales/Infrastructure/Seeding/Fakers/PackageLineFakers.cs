@@ -125,9 +125,9 @@ internal static class PackageLineFakers
 
         var retailPrice = onLotHome?.CurrentRetailPrice
             ?? onLotHome?.OriginalRetailPrice
-            ?? faker.Finance.Amount(45_000m, 180_000m);
+            ?? faker.Finance.Amount(150_000m, 350_000m);
         var invoiceCost = onLotHome?.TotalInvoiceAmount
-            ?? retailPrice * faker.Random.Decimal(0.60m, 0.80m);
+            ?? Math.Round(retailPrice * faker.Random.Decimal(0.75m, 0.85m), 2);
 
         var baseCost = invoiceCost * 0.85m;
         var optionsCost = invoiceCost * 0.10m;
@@ -139,7 +139,7 @@ internal static class PackageLineFakers
 
         return HomeLine.Create(
             packageId: packageId,
-            salePrice: retailPrice - faker.Finance.Amount(0m, 5_000m),
+            salePrice: retailPrice - faker.Finance.Amount(2_000m, 15_000m),
             estimatedCost: invoiceCost,
             retailSalePrice: retailPrice,
             responsibility: Responsibility.Buyer,
@@ -252,7 +252,9 @@ internal static class PackageLineFakers
                 payoffAmountFinancing: landInclusion == LandInclusion.CustomerLandPayoff
                     ? Math.Round(landCost * faker.Random.Decimal(0.5m, 0.9m), 2)
                     : null,
-                landEquity: Math.Round(faker.Finance.Amount(5_000m, 30_000m), 2),
+                landEquity: purchaseType == LandPurchaseType.CustomerHasLand
+                    ? Math.Round(faker.Finance.Amount(5_000m, 30_000m), 2)
+                    : null,
                 originalPurchaseDate: new DateTimeOffset(
                     faker.Date.Past(10, DateTime.UtcNow.AddYears(-1)), TimeSpan.Zero),
                 originalPurchasePrice: landCost - faker.Finance.Amount(2_000m, 10_000m),
@@ -282,13 +284,15 @@ internal static class PackageLineFakers
                 communityManagerName: faker.Name.FullName(),
                 communityManagerPhoneNumber: faker.Phone.PhoneNumber("##########"),
                 communityManagerEmail: faker.Internet.Email(),
-                communityMonthlyCost: Math.Round(faker.Finance.Amount(300m, 1_200m), 2)),
+                communityMonthlyCost: customerLandType == CustomerLandType.CommunityOrNeighborhood
+                    ? Math.Round(faker.Finance.Amount(300m, 1_200m), 2)
+                    : null),
             landParcelId: hasCache ? landParcel!.Id : null);
     }
 
     private static TaxLine CreateTaxLine(int packageId, Bogus.Faker faker, SeedContext ctx)
     {
-        var taxAmount = faker.Finance.Amount(500m, 8_000m);
+        var taxAmount = faker.Finance.Amount(2_000m, 28_000m);
 
         return TaxLine.Create(
             packageId: packageId,
@@ -315,7 +319,8 @@ internal static class PackageLineFakers
         InsuranceType insuranceType, int sortOrder)
     {
         var premium = faker.Finance.Amount(300m, 2_500m);
-        var coverage = premium * faker.Random.Decimal(2m, 5m);
+        // Coverage reflects the home's replacement value, not a multiple of the premium.
+        var coverage = faker.Finance.Amount(150_000m, 400_000m);
         var home = ctx.HomeDetails;
 
         var details = insuranceType == InsuranceType.HomeFirst
@@ -519,7 +524,7 @@ internal static class PackageLineFakers
     private static CreditLine CreateCreditLine(int packageId, Bogus.Faker faker)
     {
         return faker.Random.Bool()
-            ? CreditLine.CreateDownPayment(packageId, faker.Finance.Amount(1_000m, 10_000m))
+            ? CreditLine.CreateDownPayment(packageId, faker.Finance.Amount(7_000m, 60_000m))
             : CreditLine.CreateConcession(packageId, faker.Finance.Amount(500m, 3_000m));
     }
 }

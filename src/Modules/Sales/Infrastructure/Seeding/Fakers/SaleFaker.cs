@@ -18,11 +18,17 @@ internal static class SaleFaker
                 saleType: faker.PickRandom(SaleType.B2C, SaleType.B2C, SaleType.B2C, SaleType.B2B), // 75% B2C
                 saleNumber: ++_saleNumber);
 
-            // Advance some sales beyond Inquiry
-            if (i % 3 == 0)
-                sale.UpdateStatus(SaleStatus.Discovery);
-            else if (i % 5 == 0)
-                sale.UpdateStatus(SaleStatus.Application);
+            // Advance some sales beyond Inquiry — roughly equal thirds
+            switch (i % 3)
+            {
+                case 0:
+                    sale.UpdateStatus(SaleStatus.Discovery);
+                    break;
+                case 1:
+                    sale.UpdateStatus(SaleStatus.Application);
+                    break;
+                // case 2: stays at Inquiry
+            }
 
             sale.ClearDomainEvents();
             sales.Add(sale);

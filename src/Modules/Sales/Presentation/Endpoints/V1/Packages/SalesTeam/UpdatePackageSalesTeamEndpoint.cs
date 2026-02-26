@@ -48,12 +48,12 @@ internal sealed class UpdatePackageSalesTeamEndpoint : IEndpoint
         public const string Request = """
         [
             {
-                "authorizedUserId": 1001,
+                "authorizedUserId": 1,
                 "role": 0,
                 "commissionSplitPercentage": 70.0
             },
             {
-                "authorizedUserId": 1002,
+                "authorizedUserId": 2,
                 "role": 1,
                 "commissionSplitPercentage": 30.0
             }

@@ -37,8 +37,10 @@ internal sealed class OnLotHomeCacheFaker : Faker<OnLotHomeCache>
         RuleFor(h => h.Make, f => f.PickRandom(Makes));
         RuleFor(h => h.Facility, f => f.PickRandom(Facilities));
         RuleFor(h => h.SerialNumber, f => f.Random.Replace("CLT######AB"));
-        RuleFor(h => h.TotalInvoiceAmount, f => f.Finance.Amount(30_000m, 120_000m));
-        RuleFor(h => h.OriginalRetailPrice, f => f.Finance.Amount(45_000m, 180_000m));
+        RuleFor(h => h.OriginalRetailPrice, f => f.Finance.Amount(150_000m, 350_000m));
+        // Invoice derived from retail at 75%–85% — guarantees positive dealer margin.
+        RuleFor(h => h.TotalInvoiceAmount, (f, h) =>
+            Math.Round((h.OriginalRetailPrice ?? 0m) * f.Random.Decimal(0.75m, 0.85m), 2));
         RuleFor(h => h.CurrentRetailPrice, (f, h) => h.OriginalRetailPrice);
         RuleFor(h => h.LastSyncedAtUtc, f => f.Date.Recent(30).ToUniversalTime());
     }

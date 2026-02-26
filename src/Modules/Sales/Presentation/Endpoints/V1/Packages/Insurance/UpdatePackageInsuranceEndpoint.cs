@@ -58,13 +58,13 @@ internal sealed class UpdatePackageInsuranceEndpoint : IEndpoint
         public const string Request = """
         {
             "insuranceType": "HomeFirst",
-            "coverageAmount": 100000.00,
+            "coverageAmount": 275000.00,
             "hasFoundationOrMasonry": false,
             "inParkOrSubdivision": false,
             "isLandOwnedByCustomer": true,
             "isPremiumFinanced": true,
             "companyName": "HomeFirst Insurance Co",
-            "maxCoverage": 250000.00,
+            "maxCoverage": 300000.00,
             "totalPremium": 1500.00
         }
         """;

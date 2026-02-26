@@ -62,13 +62,13 @@ internal sealed class UpdatePackageTradeInsEndpoint : IEndpoint
         public const string Request = """
         [
             {
-                "salePrice": -15000.00,
-                "estimatedCost": 10000.00,
-                "retailSalePrice": -15000.00,
+                "salePrice": 15000.00,
+                "estimatedCost": 0.00,
+                "retailSalePrice": 0.00,
                 "tradeType": "Home",
                 "year": 2015,
                 "make": "Clayton",
-                "model": "Model-B",
+                "model": "Freedom",
                 "floorWidth": 14.0,
                 "floorLength": 70.0,
                 "tradeAllowance": 15000.00,

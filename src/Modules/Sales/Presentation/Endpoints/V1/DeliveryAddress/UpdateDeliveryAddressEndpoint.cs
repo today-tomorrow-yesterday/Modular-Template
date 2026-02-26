@@ -21,7 +21,23 @@ internal sealed class UpdateDeliveryAddressEndpoint : IEndpoint
             .Produces(StatusCodes.Status204NoContent)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        {
+            "occupancyType": "Primary Residence",
+            "isWithinCityLimits": true,
+            "addressLine1": "456 Oak Avenue",
+            "city": "Springfield",
+            "county": "Clark",
+            "state": "OH",
+            "postalCode": "45502"
+        }
+        """;
     }
 
     private static async Task<IResult> HandleAsync(

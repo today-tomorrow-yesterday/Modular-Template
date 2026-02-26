@@ -47,7 +47,7 @@ internal sealed class UpdatePackageDownPaymentEndpoint : IEndpoint
     {
         public const string Request = """
         {
-            "amount": 10000.00
+            "amount": 25000.00
         }
         """;
     }

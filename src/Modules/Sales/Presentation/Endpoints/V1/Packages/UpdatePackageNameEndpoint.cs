@@ -42,7 +42,7 @@ internal sealed class UpdatePackageNameEndpoint : IEndpoint
     {
         public const string Request = """
         {
-            "name": "Alternate Package"
+            "name": "Alternate"
         }
         """;
     }

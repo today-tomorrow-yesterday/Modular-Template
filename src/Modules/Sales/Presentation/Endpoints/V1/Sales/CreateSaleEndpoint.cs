@@ -21,7 +21,18 @@ internal sealed class CreateSaleEndpoint : IEndpoint
             .Produces<CreateSaleResponse>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .WithMetadata(new RequestBodyExample(Examples.Request));
+    }
+
+    internal static class Examples
+    {
+        public const string Request = """
+        {
+            "partyId": "6c49f440-2593-bc43-8534-4f4f35c8a666",
+            "homeCenterNumber": 100
+        }
+        """;
     }
 
     private static async Task<IResult> HandleAsync(
