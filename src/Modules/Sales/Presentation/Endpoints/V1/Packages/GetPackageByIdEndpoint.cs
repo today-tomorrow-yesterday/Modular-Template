@@ -13,7 +13,7 @@ internal sealed class GetPackageByIdEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapGet("/{publicSaleId:guid}/packages/{publicPackageId:guid}", HandleAsync)
+        group.MapGet("/{publicPackageId:guid}", HandleAsync)
             .WithSummary("Get a specific package by ID")
             .WithDescription("Returns a package with all sections and funding info.")
             .WithName("GetPackageById")
@@ -24,7 +24,6 @@ internal sealed class GetPackageByIdEndpoint : IEndpoint
     }
 
     private static async Task<IResult> HandleAsync(
-        Guid publicSaleId,
         Guid publicPackageId,
         ISender sender,
         CancellationToken ct)

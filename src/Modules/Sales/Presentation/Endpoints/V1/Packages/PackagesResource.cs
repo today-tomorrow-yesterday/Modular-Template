@@ -6,6 +6,7 @@ internal sealed class PackagesResource : ResourceEndpoints
 {
     protected override IEndpoint[] Endpoints =>
     [
+        new GetPackageByIdEndpoint(),
         new Home.UpdatePackageHomeEndpoint(),
         new Land.UpdatePackageLandEndpoint(),
         new TradeIns.UpdatePackageTradeInsEndpoint(),
@@ -19,14 +20,4 @@ internal sealed class PackagesResource : ResourceEndpoints
         new SetPackageAsPrimaryEndpoint(),
         new DeletePackageEndpoint()
     ];
-
-    internal sealed class Queries : ResourceEndpoints
-    {
-        protected override IEndpoint[] Endpoints =>
-        [
-            new GetPackagesBySaleEndpoint(),
-            new GetPackageByIdEndpoint(),
-            new CreatePackageEndpoint()
-        ];
-    }
 }

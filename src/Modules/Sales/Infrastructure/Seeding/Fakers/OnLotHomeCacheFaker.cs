@@ -29,7 +29,7 @@ internal sealed class OnLotHomeCacheFaker : Faker<OnLotHomeCache>
         RuleFor(h => h.Condition, f => f.PickRandom<HomeCondition>());
         RuleFor(h => h.BuildType, f => f.PickRandom(BuildTypes));
         RuleFor(h => h.Width, f => f.PickRandom(new decimal[] { 14m, 16m, 28m, 32m }));
-        RuleFor(h => h.Length, f => f.Random.Decimal(56m, 80m).RoundTo(0));
+        RuleFor(h => h.Length, f => f.PickRandom(56m, 60m, 64m, 72m, 76m));
         RuleFor(h => h.NumberOfBedrooms, f => f.Random.Int(2, 4));
         RuleFor(h => h.NumberOfBathrooms, f => f.Random.Int(1, 3));
         RuleFor(h => h.ModelYear, f => f.Random.Int(2024, 2026));
@@ -37,10 +37,10 @@ internal sealed class OnLotHomeCacheFaker : Faker<OnLotHomeCache>
         RuleFor(h => h.Make, f => f.PickRandom(Makes));
         RuleFor(h => h.Facility, f => f.PickRandom(Facilities));
         RuleFor(h => h.SerialNumber, f => f.Random.Replace("CLT######AB"));
-        RuleFor(h => h.OriginalRetailPrice, f => f.Finance.Amount(150_000m, 350_000m));
-        // Invoice derived from retail at 75%–85% — guarantees positive dealer margin.
+        RuleFor(h => h.OriginalRetailPrice, f => f.PickRandom(250_000m, 300_000m, 350_000m, 400_000m, 450_000m));
+        // Invoice = retail minus a clean round margin ($75K / $100K / $125K).
         RuleFor(h => h.TotalInvoiceAmount, (f, h) =>
-            Math.Round((h.OriginalRetailPrice ?? 0m) * f.Random.Decimal(0.75m, 0.85m), 2));
+            (h.OriginalRetailPrice ?? 0m) - f.PickRandom(75_000m, 100_000m, 125_000m));
         RuleFor(h => h.CurrentRetailPrice, (f, h) => h.OriginalRetailPrice);
         RuleFor(h => h.LastSyncedAtUtc, f => f.Date.Recent(30).ToUniversalTime());
     }

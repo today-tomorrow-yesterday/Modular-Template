@@ -59,8 +59,8 @@ internal sealed class UpdatePackageProjectCostsEndpoint : IEndpoint
             {
                 "categoryId": 11,
                 "itemId": 1,
-                "salePrice": 3500.00,
-                "estimatedCost": 2800.00,
+                "salePrice": 4000.00,
+                "estimatedCost": 3000.00,
                 "retailSalePrice": 4000.00,
                 "shouldExcludeFromPricing": false,
                 "responsibility": null

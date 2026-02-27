@@ -19,7 +19,6 @@ public sealed class SalesModuleEndpoints : ModuleEndpoints
     protected override IEnumerable<(string ResourcePath, string Tag, IResourceEndpoints Endpoints)> GetResources()
     {
         yield return ("sales", "Sales", new SalesResource());
-        yield return ("sales", "Packages", new PackagesResource.Queries());
         yield return ("sales", "Pricing", new PricingResource());
         yield return ("sales", "Insurance", new InsuranceResource());
         yield return ("sales", "Delivery Address", new DeliveryAddressResource());

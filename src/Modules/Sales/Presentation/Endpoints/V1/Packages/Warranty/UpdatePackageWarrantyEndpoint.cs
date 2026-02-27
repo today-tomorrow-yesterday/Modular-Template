@@ -51,7 +51,7 @@ internal sealed class UpdatePackageWarrantyEndpoint : IEndpoint
         public const string Request = """
         {
             "warrantySelected": true,
-            "warrantyAmount": 1200.00
+            "warrantyAmount": 1500.00
         }
         """;
     }
