@@ -17,7 +17,7 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
             .WithSummary("Update a customer")
             .WithDescription("Updates an existing customer with the specified details.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces(StatusCodes.Status204NoContent)
+            .Produces<ApiEnvelope<object>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -37,8 +37,8 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            () => Results.NoContent(),
-            ApiResults.Problem);
+            () => ApiResponse.Success(),
+            ApiResponse.Problem);
     }
 }
 

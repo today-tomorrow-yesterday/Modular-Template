@@ -18,7 +18,7 @@ internal sealed class GetWheelsAndAxlesPriceEndpoint : IEndpoint
             .WithDescription("Calculates W&A price by wheel and axle count via iSeries adapter.")
             .WithName("GetWheelsAndAxlesPrice")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<WheelsAndAxlesPriceResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<WheelsAndAxlesPriceResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -35,8 +35,8 @@ internal sealed class GetWheelsAndAxlesPriceEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            price => Results.Ok(new WheelsAndAxlesPriceResponse(price)),
-            ApiResults.Problem);
+            price => ApiResponse.Ok(new WheelsAndAxlesPriceResponse(price)),
+            ApiResponse.Problem);
     }
 }
 

@@ -18,7 +18,7 @@ internal sealed class GetWheelsAndAxlesPriceByStockEndpoint : IEndpoint
             .WithDescription("Calculates W&A price by stock number via iSeries adapter. IsRetaining determines rent (Cat 1/Item 28) vs purchase (Cat 1/Item 29).")
             .WithName("GetWheelsAndAxlesPriceByStock")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<WheelsAndAxlesPriceByStockResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<WheelsAndAxlesPriceByStockResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -35,8 +35,8 @@ internal sealed class GetWheelsAndAxlesPriceByStockEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            price => Results.Ok(new WheelsAndAxlesPriceByStockResponse(price)),
-            ApiResults.Problem);
+            price => ApiResponse.Ok(new WheelsAndAxlesPriceByStockResponse(price)),
+            ApiResponse.Problem);
     }
 }
 

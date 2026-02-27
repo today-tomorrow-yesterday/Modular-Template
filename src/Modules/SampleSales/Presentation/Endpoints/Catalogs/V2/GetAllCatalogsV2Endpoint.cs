@@ -24,7 +24,7 @@ internal sealed class GetAllCatalogsV2Endpoint : IEndpoint
             .WithSummary("Get all catalogs (v2)")
             .WithDescription("Retrieves catalogs with pagination metadata. Enhanced response format with total count and page info.")
             .MapToApiVersion(new ApiVersion(2, 0))
-            .Produces<PagedCatalogResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<PagedCatalogResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
             .RequireFeature(SampleSalesFeatures.CatalogV2Pagination);
     }
@@ -57,9 +57,9 @@ internal sealed class GetAllCatalogsV2Endpoint : IEndpoint
                         HasNextPage: hasMore,
                         HasPreviousPage: page > 1));
 
-                return Results.Ok(response);
+                return ApiResponse.Ok(response);
             },
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

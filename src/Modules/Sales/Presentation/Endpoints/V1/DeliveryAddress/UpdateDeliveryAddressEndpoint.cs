@@ -18,7 +18,7 @@ internal sealed class UpdateDeliveryAddressEndpoint : IEndpoint
             .WithDescription("Updates the delivery address. Triggers tax/insurance cascades on state or occupancy changes.")
             .WithName("UpdateDeliveryAddress")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces(StatusCodes.Status204NoContent)
+            .Produces<ApiEnvelope<object>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -59,8 +59,8 @@ internal sealed class UpdateDeliveryAddressEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            () => Results.NoContent(),
-            ApiResults.Problem);
+            () => ApiResponse.Success(),
+            ApiResponse.Problem);
     }
 }
 

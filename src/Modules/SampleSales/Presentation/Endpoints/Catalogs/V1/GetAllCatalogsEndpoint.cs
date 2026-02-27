@@ -21,7 +21,7 @@ internal sealed class GetAllCatalogsEndpoint : IEndpoint
             .WithSummary("Get all catalogs (v1)")
             .WithDescription("Retrieves all catalogs with optional limit. Returns a simple array.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<IReadOnlyCollection<CatalogResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<IReadOnlyCollection<CatalogResponse>>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
@@ -34,6 +34,6 @@ internal sealed class GetAllCatalogsEndpoint : IEndpoint
 
         var result = await sender.Send(query, cancellationToken);
 
-        return result.Match(Results.Ok, ApiResults.Problem);
+        return result.Match(ApiResponse.Ok, ApiResponse.Problem);
     }
 }

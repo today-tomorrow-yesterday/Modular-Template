@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Rtl.Core.Application.FeatureManagement;
+using Rtl.Core.Domain.Results;
+using Rtl.Core.Presentation.Results;
 
 namespace Rtl.Core.Presentation.FeatureManagement;
 
@@ -38,11 +40,8 @@ internal sealed class FeatureFlagEndpointFilter(string featureName) : IEndpointF
 
         if (!isEnabled)
         {
-            return Microsoft.AspNetCore.Http.Results.Problem(
-                title: "Not Found",
-                detail: "The requested resource was not found.",
-                type: "https://tools.ietf.org/html/rfc7231#section-6.5.4",
-                statusCode: StatusCodes.Status404NotFound);
+            return ApiResponse.Problem(
+                Error.NotFound("Feature.Disabled", "The requested resource was not found."));
         }
 
         return await next(context);

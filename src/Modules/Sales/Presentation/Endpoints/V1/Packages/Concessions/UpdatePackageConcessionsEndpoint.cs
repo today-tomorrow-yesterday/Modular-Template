@@ -18,7 +18,7 @@ internal sealed class UpdatePackageConcessionsEndpoint : IEndpoint
             .WithDescription("Upserts the concessions amount. 0 removes existing line and associated project cost.")
             .WithName("UpdatePackageConcessions")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<PackageUpdatedResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<PackageUpdatedResponse>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -36,11 +36,11 @@ internal sealed class UpdatePackageConcessionsEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            r => Results.Ok(new PackageUpdatedResponse(
+            r => ApiResponse.Ok(new PackageUpdatedResponse(
                 r.GrossProfit,
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes)),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 
     internal static class Examples

@@ -17,7 +17,7 @@ internal sealed class GetPartyByIdEndpoint : IEndpoint
             .WithSummary("Get a party by public ID")
             .WithDescription("Retrieves a party by their unique public identifier (GUID).")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<PartyResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<PartyResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -31,6 +31,6 @@ internal sealed class GetPartyByIdEndpoint : IEndpoint
 
         var result = await sender.Send(query, cancellationToken);
 
-        return result.Match(Results.Ok, ApiResults.Problem);
+        return result.Match(ApiResponse.Ok, ApiResponse.Problem);
     }
 }

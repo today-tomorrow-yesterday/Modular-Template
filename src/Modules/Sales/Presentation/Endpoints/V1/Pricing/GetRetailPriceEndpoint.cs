@@ -18,7 +18,7 @@ internal sealed class GetRetailPriceEndpoint : IEndpoint
             .WithDescription("Proxies to iSeries POST /v1/pricing/retail via adapter.")
             .WithName("GetRetailPrice")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<RetailPriceResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<RetailPriceResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -50,8 +50,8 @@ internal sealed class GetRetailPriceEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            price => Results.Ok(new RetailPriceResponse(price)),
-            ApiResults.Problem);
+            price => ApiResponse.Ok(new RetailPriceResponse(price)),
+            ApiResponse.Problem);
     }
 }
 

@@ -18,7 +18,7 @@ internal sealed class GetPackageByIdEndpoint : IEndpoint
             .WithDescription("Returns a package with all sections and funding info.")
             .WithName("GetPackageById")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<PackageDetailResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<PackageDetailResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -34,7 +34,7 @@ internal sealed class GetPackageByIdEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            Results.Ok,
-            ApiResults.Problem);
+            ApiResponse.Ok,
+            ApiResponse.Problem);
     }
 }

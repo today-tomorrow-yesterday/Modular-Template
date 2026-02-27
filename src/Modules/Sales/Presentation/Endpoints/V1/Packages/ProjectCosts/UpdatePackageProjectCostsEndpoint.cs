@@ -18,7 +18,7 @@ internal sealed class UpdatePackageProjectCostsEndpoint : IEndpoint
             .WithDescription("Replaces the project costs collection. PUT semantics — always replaces all existing project cost lines.")
             .WithName("UpdatePackageProjectCosts")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<PackageUpdatedResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<PackageUpdatedResponse>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -45,11 +45,11 @@ internal sealed class UpdatePackageProjectCostsEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            r => Results.Ok(new PackageUpdatedResponse(
+            r => ApiResponse.Ok(new PackageUpdatedResponse(
                 r.GrossProfit,
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes)),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 
     internal static class Examples

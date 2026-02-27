@@ -17,7 +17,7 @@ internal sealed class CreateCustomerEndpoint : IEndpoint
             .WithSummary("Create a new customer")
             .WithDescription("Creates a new customer with the specified name and email.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<CreateCustomerResponse>(StatusCodes.Status201Created)
+            .Produces<ApiEnvelope<CreateCustomerResponse>>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -32,8 +32,8 @@ internal sealed class CreateCustomerEndpoint : IEndpoint
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            id => Results.Created($"/customers/{id}", new CreateCustomerResponse(id)),
-            ApiResults.Problem);
+            id => ApiResponse.Created($"/customers/{id}", new CreateCustomerResponse(id)),
+            ApiResponse.Problem);
     }
 }
 

@@ -18,7 +18,7 @@ internal sealed class GetDeliveryAddressEndpoint : IEndpoint
             .WithDescription("Returns the delivery address for a sale.")
             .WithName("GetDeliveryAddress")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<DeliveryAddressResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<DeliveryAddressResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -33,7 +33,7 @@ internal sealed class GetDeliveryAddressEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            r => Results.Ok(new DeliveryAddressResponse(
+            r => ApiResponse.Ok(new DeliveryAddressResponse(
                 r.Id,
                 r.SaleId,
                 r.OccupancyType,
@@ -43,7 +43,7 @@ internal sealed class GetDeliveryAddressEndpoint : IEndpoint
                 r.County,
                 r.State,
                 r.PostalCode)),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

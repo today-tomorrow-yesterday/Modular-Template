@@ -6,6 +6,7 @@ namespace Rtl.Core.Presentation.Results;
 /// <summary>
 /// Helper methods for converting Result to IResult.
 /// </summary>
+[Obsolete("Use ApiResponse instead. This class will be removed in a future release.")]
 public static class ApiResults
 {
     /// <summary>

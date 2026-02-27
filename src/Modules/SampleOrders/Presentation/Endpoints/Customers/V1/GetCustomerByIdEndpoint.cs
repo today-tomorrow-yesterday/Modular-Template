@@ -17,7 +17,7 @@ internal sealed class GetCustomerByIdEndpoint : IEndpoint
             .WithSummary("Get a customer by ID")
             .WithDescription("Retrieves a customer by its unique identifier.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<CustomerResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<CustomerResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -31,6 +31,6 @@ internal sealed class GetCustomerByIdEndpoint : IEndpoint
 
         var result = await sender.Send(query, cancellationToken);
 
-        return result.Match(Results.Ok, ApiResults.Problem);
+        return result.Match(ApiResponse.Ok, ApiResponse.Problem);
     }
 }

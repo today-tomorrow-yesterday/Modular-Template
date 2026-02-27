@@ -18,7 +18,7 @@ internal sealed class CreateSaleEndpoint : IEndpoint
             .WithDescription("Creates a new sale record with a party and home center assignment.")
             .WithName("CreateSale")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<CreateSaleResponse>(StatusCodes.Status201Created)
+            .Produces<ApiEnvelope<CreateSaleResponse>>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -45,8 +45,8 @@ internal sealed class CreateSaleEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            r => Results.Created($"/api/v1/sales/{r.PublicId}", new CreateSaleResponse(r.PublicId, r.SaleNumber)),
-            ApiResults.Problem);
+            r => ApiResponse.Created($"/api/v1/sales/{r.PublicId}", new CreateSaleResponse(r.PublicId, r.SaleNumber)),
+            ApiResponse.Problem);
     }
 }
 

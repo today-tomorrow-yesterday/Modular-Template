@@ -18,7 +18,7 @@ internal sealed class GetHomeMultipliersEndpoint : IEndpoint
             .WithDescription("Returns active home multipliers from CDC reference data. Handler derives stateCode from sale context.")
             .WithName("GetHomeMultipliers")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<HomeMultipliersResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<HomeMultipliersResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -34,14 +34,14 @@ internal sealed class GetHomeMultipliersEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            m => Results.Ok(new HomeMultipliersResponse(
+            m => ApiResponse.Ok(new HomeMultipliersResponse(
                 m.EffectiveDate.ToString("yyyy-MM-dd"),
                 m.BaseHomeMultiplier,
                 m.UpgradesMultiplier,
                 m.FreightMultiplier,
                 m.WheelsAxlesMultiplier,
                 m.DuesMultiplier)),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

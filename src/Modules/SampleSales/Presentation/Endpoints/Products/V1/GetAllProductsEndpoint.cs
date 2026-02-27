@@ -18,7 +18,7 @@ internal sealed class GetAllProductsEndpoint : IEndpoint
             .WithSummary("Get all products")
             .WithDescription("Retrieves all products with optional limit.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<IReadOnlyCollection<ProductResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<IReadOnlyCollection<ProductResponse>>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
@@ -31,6 +31,6 @@ internal sealed class GetAllProductsEndpoint : IEndpoint
 
         var result = await sender.Send(query, cancellationToken);
 
-        return result.Match(Results.Ok, ApiResults.Problem);
+        return result.Match(ApiResponse.Ok, ApiResponse.Problem);
     }
 }

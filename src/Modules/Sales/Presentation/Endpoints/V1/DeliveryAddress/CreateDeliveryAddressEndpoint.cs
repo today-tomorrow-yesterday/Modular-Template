@@ -18,7 +18,7 @@ internal sealed class CreateDeliveryAddressEndpoint : IEndpoint
             .WithDescription("Creates the delivery address. Only one delivery address per sale.")
             .WithName("CreateDeliveryAddress")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<CreateDeliveryAddressResponse>(StatusCodes.Status201Created)
+            .Produces<ApiEnvelope<CreateDeliveryAddressResponse>>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
@@ -60,8 +60,8 @@ internal sealed class CreateDeliveryAddressEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            r => Results.Created($"/api/v1/sales/{publicSaleId}/delivery-address", new CreateDeliveryAddressResponse(r.PublicId)),
-            ApiResults.Problem);
+            r => ApiResponse.Created($"/api/v1/sales/{publicSaleId}/delivery-address", new CreateDeliveryAddressResponse(r.PublicId)),
+            ApiResponse.Problem);
     }
 }
 

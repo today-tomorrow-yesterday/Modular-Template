@@ -18,7 +18,7 @@ internal sealed class GetSaleByIdEndpoint : IEndpoint
             .WithDescription("Retrieves sale details including party data and retail location.")
             .WithName("GetSaleById")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<GetSaleByIdResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<GetSaleByIdResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -33,7 +33,7 @@ internal sealed class GetSaleByIdEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            r => Results.Ok(new GetSaleByIdResponse(
+            r => ApiResponse.Ok(new GetSaleByIdResponse(
                 r.Id,
                 r.SaleNumber,
                 r.PartyId,
@@ -76,7 +76,7 @@ internal sealed class GetSaleByIdEndpoint : IEndpoint
                     r.Customer.SecondarySalesPersonFirstName,
                     r.Customer.SecondarySalesPersonLastName),
                 r.CreatedAtUtc)),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

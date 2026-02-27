@@ -18,7 +18,7 @@ internal sealed class DeletePackageEndpoint : IEndpoint
             .WithDescription("Deletes a package and all its line items. Cannot delete the primary package if other packages exist.")
             .WithName("DeletePackage")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces(StatusCodes.Status204NoContent)
+            .Produces<ApiEnvelope<object>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status409Conflict)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -34,7 +34,7 @@ internal sealed class DeletePackageEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            () => Results.NoContent(),
-            ApiResults.Problem);
+            () => ApiResponse.Success(),
+            ApiResponse.Problem);
     }
 }

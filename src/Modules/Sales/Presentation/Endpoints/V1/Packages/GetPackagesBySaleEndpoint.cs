@@ -18,7 +18,7 @@ internal sealed class GetPackagesBySaleEndpoint : IEndpoint
             .WithDescription("Returns all packages for a sale (summaries only).")
             .WithName("GetPackagesBySale")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<IReadOnlyCollection<PackageSummaryResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<IReadOnlyCollection<PackageSummaryResponse>>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -33,7 +33,7 @@ internal sealed class GetPackagesBySaleEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            Results.Ok,
-            ApiResults.Problem);
+            ApiResponse.Ok,
+            ApiResponse.Problem);
     }
 }

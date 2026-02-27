@@ -18,7 +18,7 @@ internal sealed class UpdatePackageNameEndpoint : IEndpoint
             .WithDescription("Updates only the display name of a package.")
             .WithName("UpdatePackageName")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces(StatusCodes.Status204NoContent)
+            .Produces<ApiEnvelope<object>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError)
@@ -35,7 +35,7 @@ internal sealed class UpdatePackageNameEndpoint : IEndpoint
 
         var result = await sender.Send(command, ct);
 
-        return result.Match(() => Results.NoContent(), ApiResults.Problem);
+        return result.Match(() => ApiResponse.Success(), ApiResponse.Problem);
     }
 
     internal static class Examples

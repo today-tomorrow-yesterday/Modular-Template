@@ -18,7 +18,7 @@ internal sealed class GetTaxQuestionsEndpoint : IEndpoint
             .WithDescription("Returns state-specific tax questions from CDC reference data.")
             .WithName("GetTaxQuestions")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<IReadOnlyCollection<TaxQuestionResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<IReadOnlyCollection<TaxQuestionResponse>>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
@@ -33,10 +33,10 @@ internal sealed class GetTaxQuestionsEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            questions => Results.Ok(questions.Select(q => new TaxQuestionResponse(
+            questions => ApiResponse.Ok(questions.Select(q => new TaxQuestionResponse(
                 q.QuestionNumber,
                 q.Text)).ToList()),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

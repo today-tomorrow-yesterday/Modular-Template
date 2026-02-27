@@ -18,7 +18,7 @@ internal sealed class CalculateTaxesEndpoint : IEndpoint
             .WithDescription("Executes iSeries 4-step calculation sequence. Tax config must be saved first via PUT.")
             .WithName("CalculateTaxes")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<TaxCalculationResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<TaxCalculationResponse>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -34,14 +34,14 @@ internal sealed class CalculateTaxesEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            r => Results.Ok(new TaxCalculationResponse(
+            r => ApiResponse.Ok(new TaxCalculationResponse(
                 r.GrossProfit,
                 r.CommissionableGrossProfit,
                 r.MustRecalculateTaxes,
                 r.TaxSalePrice,
                 r.TaxItems.Select(t => new TaxItemResponse(t.Name, t.IsOverridden, t.CalculatedAmount, t.ChargedAmount)).ToList(),
                 r.Errors)),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

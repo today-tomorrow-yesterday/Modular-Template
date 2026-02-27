@@ -18,7 +18,7 @@ internal sealed class GetProjectCostCategoriesEndpoint : IEndpoint
             .WithDescription("Returns project cost categories, items, and state matrix from CDC reference data.")
             .WithName("GetProjectCostCategories")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<ProjectCostCategoriesResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<ProjectCostCategoriesResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
@@ -31,7 +31,7 @@ internal sealed class GetProjectCostCategoriesEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            r => Results.Ok(new ProjectCostCategoriesResponse(
+            r => ApiResponse.Ok(new ProjectCostCategoriesResponse(
                 Categories: r.Categories.Select(c => new ProjectCostCategoryResponse(
                     c.CategoryNumber,
                     c.Description,
@@ -61,7 +61,7 @@ internal sealed class GetProjectCostCategoriesEndpoint : IEndpoint
                     m.TaxBasisModularOn,
                     m.TaxBasisModularOff,
                     m.IsInsurable)).ToList())),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

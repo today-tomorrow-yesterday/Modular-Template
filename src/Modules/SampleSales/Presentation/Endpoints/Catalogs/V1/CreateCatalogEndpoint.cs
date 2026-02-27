@@ -17,7 +17,7 @@ internal sealed class CreateCatalogEndpoint : IEndpoint
             .WithSummary("Create a new catalog")
             .WithDescription("Creates a new catalog with the specified name and description.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<CreateCatalogResponse>(StatusCodes.Status201Created)
+            .Produces<ApiEnvelope<CreateCatalogResponse>>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -32,8 +32,8 @@ internal sealed class CreateCatalogEndpoint : IEndpoint
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            id => Results.Created($"/catalogs/{id}", new CreateCatalogResponse(id)),
-            ApiResults.Problem);
+            id => ApiResponse.Created($"/catalogs/{id}", new CreateCatalogResponse(id)),
+            ApiResponse.Problem);
     }
 }
 

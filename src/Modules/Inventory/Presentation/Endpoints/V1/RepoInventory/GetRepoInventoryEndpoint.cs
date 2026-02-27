@@ -3,7 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Rtl.Core.Domain.Results;
 using Rtl.Core.Presentation.Endpoints;
+using Rtl.Core.Presentation.Results;
 
 namespace Modules.Inventory.Presentation.Endpoints.V1.RepoInventory;
 
@@ -15,7 +17,7 @@ internal sealed class GetRepoInventoryEndpoint : IEndpoint
             .WithSummary("Get repo inventory")
             .WithDescription("Returns repossessed homes by geographic location or account. Use latitude/longitude/maxDistance for geo search, or accountId for account-based search.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<IReadOnlyCollection<RepoInventoryResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<IReadOnlyCollection<RepoInventoryResponse>>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -32,9 +34,8 @@ internal sealed class GetRepoInventoryEndpoint : IEndpoint
         bool hasAccount = !string.IsNullOrWhiteSpace(accountId);
 
         if (!hasGeo && !hasAccount)
-            return Task.FromResult(Results.Problem(
-                "Provide either latitude/longitude/maxDistance or accountId.",
-                statusCode: StatusCodes.Status400BadRequest));
+            return Task.FromResult(ApiResponse.Problem(
+                Error.Validation("Search.Invalid", "Provide either latitude/longitude/maxDistance or accountId.")));
 
         var mock = new[]
         {
@@ -45,7 +46,7 @@ internal sealed class GetRepoInventoryEndpoint : IEndpoint
                 ModelYear: 2024,
                 SalePrice: 45000.00m)
         };
-        return Task.FromResult(Results.Ok(mock));
+        return Task.FromResult(ApiResponse.Ok<IReadOnlyCollection<RepoInventoryResponse>>(mock));
     }
 }
 

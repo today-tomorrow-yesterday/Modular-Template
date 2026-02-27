@@ -17,7 +17,7 @@ internal sealed class GetProductByIdEndpoint : IEndpoint
             .WithSummary("Get a product by ID")
             .WithDescription("Retrieves a product by its unique identifier.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<ProductResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<ProductResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -31,6 +31,6 @@ internal sealed class GetProductByIdEndpoint : IEndpoint
 
         var result = await sender.Send(query, cancellationToken);
 
-        return result.Match(Results.Ok, ApiResults.Problem);
+        return result.Match(ApiResponse.Ok, ApiResponse.Problem);
     }
 }

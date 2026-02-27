@@ -18,7 +18,7 @@ internal sealed class CalculateCommissionEndpoint : IEndpoint
             .WithDescription("Executes iSeries commission calculation. All inputs derived server-side.")
             .WithName("CalculateCommission")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<CommissionCalculationResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<CommissionCalculationResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -33,7 +33,7 @@ internal sealed class CalculateCommissionEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            r => Results.Ok(new CommissionCalculationResponse(
+            r => ApiResponse.Ok(new CommissionCalculationResponse(
                 r.CommissionableGrossProfit,
                 r.TotalCommission,
                 r.SplitDetails.Select(s => new CommissionSplitDetail(
@@ -41,7 +41,7 @@ internal sealed class CalculateCommissionEndpoint : IEndpoint
                     s.Role,
                     s.SplitPercentage,
                     s.CommissionAmount)).ToList())),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

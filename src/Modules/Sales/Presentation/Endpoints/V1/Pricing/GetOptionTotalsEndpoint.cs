@@ -18,7 +18,7 @@ internal sealed class GetOptionTotalsEndpoint : IEndpoint
             .WithDescription("Proxies to iSeries POST /v1/pricing/option-totals via adapter. For quoted homes only.")
             .WithName("GetOptionTotals")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<OptionTotalsResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<OptionTotalsResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -42,8 +42,8 @@ internal sealed class GetOptionTotalsEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            r => Results.Ok(new OptionTotalsResponse(r.HbgOptionTotal, r.RetailOptionTotal)),
-            ApiResults.Problem);
+            r => ApiResponse.Ok(new OptionTotalsResponse(r.HbgOptionTotal, r.RetailOptionTotal)),
+            ApiResponse.Problem);
     }
 }
 

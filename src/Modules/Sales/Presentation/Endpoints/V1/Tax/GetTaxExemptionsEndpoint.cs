@@ -18,7 +18,7 @@ internal sealed class GetTaxExemptionsEndpoint : IEndpoint
             .WithDescription("Returns all active tax exemption codes from CDC reference data.")
             .WithName("GetTaxExemptions")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<IReadOnlyCollection<TaxExemptionResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<IReadOnlyCollection<TaxExemptionResponse>>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
@@ -31,11 +31,11 @@ internal sealed class GetTaxExemptionsEndpoint : IEndpoint
         var result = await sender.Send(query, ct);
 
         return result.Match(
-            exemptions => Results.Ok(exemptions.Select(e => new TaxExemptionResponse(
+            exemptions => ApiResponse.Ok(exemptions.Select(e => new TaxExemptionResponse(
                 e.ExemptionCode,
                 e.Description,
                 e.RulesText)).ToList()),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 }
 

@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Rtl.Core.Presentation.Tests.Results;
 
+#pragma warning disable CS0618 // Testing the obsolete class intentionally
 public class ApiResultsTests
 {
     [Fact]

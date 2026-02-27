@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Modules.Sales.Application.Insurance.GenerateHomeFirstQuote;
 using Modules.Sales.Application.Insurance.GenerateWarrantyQuote;
 using Modules.Sales.Application.Insurance.RecordOutsideInsurance;
+using Rtl.Core.Domain.Results;
 using Rtl.Core.Presentation.Endpoints;
 using Rtl.Core.Presentation.Results;
 
@@ -25,8 +26,8 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
                 "- `?type=print` — Print HomeFirst quote sheet PDF (10-field body → iSeries adapter)")
             .WithName("InsuranceQuote")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<HomeFirstQuoteResponse>(StatusCodes.Status200OK)
-            .Produces(StatusCodes.Status201Created)
+            .Produces<ApiEnvelope<HomeFirstQuoteResponse>>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<object>>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -47,14 +48,14 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
 
             "outside" => HandleOutsideAsync(publicSaleId, httpContext, sender, ct),
 
-            "print" => Task.FromResult(Results.Ok(new PrintInsuranceQuoteResponse(
+            "print" => Task.FromResult(ApiResponse.Ok(new PrintInsuranceQuoteResponse(
                 FileBase64: "JVBERi0xLjQg...",
                 FileName: "HomeFirst_Quote_4523.pdf",
                 ContentType: "application/pdf"))),
 
-            _ => Task.FromResult(Results.Problem(
-                $"Unknown insurance quote type: '{type}'. Valid values: home-first, warranty, outside, print.",
-                statusCode: StatusCodes.Status400BadRequest))
+            _ => Task.FromResult(ApiResponse.Problem(Error.Validation(
+                "Insurance.InvalidType",
+                $"Unknown insurance quote type: '{type}'. Valid values: home-first, warranty, outside, print.")))
         };
     }
 
@@ -66,9 +67,9 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
     {
         var request = await httpContext.Request.ReadFromJsonAsync<GenerateHomeFirstQuoteRequest>(ct);
         if (request is null)
-            return Results.Problem(
-                detail: "Request body is required for HomeFirst insurance quote.",
-                statusCode: StatusCodes.Status400BadRequest);
+            return ApiResponse.Problem(Error.Validation(
+                "Insurance.MissingBody",
+                "Request body is required for HomeFirst insurance quote."));
 
         var command = new GenerateHomeFirstQuoteCommand(
             publicSaleId,
@@ -88,7 +89,7 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            r => Results.Ok(new HomeFirstQuoteResponse(
+            r => ApiResponse.Ok(new HomeFirstQuoteResponse(
                 r.TempLinkId,
                 r.InsuranceCompanyName,
                 r.Premium,
@@ -96,7 +97,7 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
                 r.MaxCoverage,
                 r.IsEligible,
                 r.ErrorMessage)),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 
     private static async Task<IResult> HandleWarrantyAsync(
@@ -109,11 +110,11 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            r => Results.Ok(new WarrantyQuoteResponse(
+            r => ApiResponse.Ok(new WarrantyQuoteResponse(
                 r.Premium,
                 r.SalesTaxPremium,
                 r.WarrantySelected)),
-            ApiResults.Problem);
+            ApiResponse.Problem);
     }
 
     private static async Task<IResult> HandleOutsideAsync(
@@ -124,9 +125,9 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
     {
         var request = await httpContext.Request.ReadFromJsonAsync<RecordOutsideInsuranceRequest>(ct);
         if (request is null)
-            return Results.Problem(
-                detail: "Request body is required for outside insurance.",
-                statusCode: StatusCodes.Status400BadRequest);
+            return ApiResponse.Problem(Error.Validation(
+                "Insurance.MissingBody",
+                "Request body is required for outside insurance."));
 
         var command = new RecordOutsideInsuranceCommand(
             publicSaleId,
@@ -137,8 +138,8 @@ internal sealed class InsuranceQuoteEndpoint : IEndpoint
         var result = await sender.Send(command, ct);
 
         return result.Match(
-            () => Results.Created(),
-            ApiResults.Problem);
+            () => ApiResponse.Success(),
+            ApiResponse.Problem);
     }
 }
 

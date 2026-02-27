@@ -17,7 +17,7 @@ internal sealed class PlaceOrderEndpoint : IEndpoint
             .WithSummary("Place a new order")
             .WithDescription("Places a new order for a product.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<PlaceOrderResponse>(StatusCodes.Status201Created)
+            .Produces<ApiEnvelope<PlaceOrderResponse>>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
@@ -33,8 +33,8 @@ internal sealed class PlaceOrderEndpoint : IEndpoint
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            id => Results.Created($"/orders/{id}", new PlaceOrderResponse(id)),
-            ApiResults.Problem);
+            id => ApiResponse.Created($"/orders/{id}", new PlaceOrderResponse(id)),
+            ApiResponse.Problem);
     }
 }
 

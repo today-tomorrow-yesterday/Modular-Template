@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Rtl.Core.Presentation.Results;
 
 namespace Rtl.Core.Presentation;
 
 /// <summary>
-/// Global exception handler that returns RFC 7807 Problem Details.
+/// Global exception handler that returns the API envelope with RFC 9457 ProblemDetails.
 /// </summary>
 public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
@@ -17,20 +18,23 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
     {
         logger.LogError(exception, "Unhandled exception occurred");
 
-        var problemDetails = new ProblemDetails
+        httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+        await httpContext.Response.WriteAsJsonAsync(new ApiEnvelope<object>
         {
-            Status = StatusCodes.Status500InternalServerError,
-            Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
-            Title = "Server failure",
-            Detail = "An unexpected error occurred"
-        };
-
-        // Add TraceId for observability and debugging
-        problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
-
-        httpContext.Response.StatusCode = problemDetails.Status.Value;
-
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            IsSuccess = false,
+            Data = default,
+            ProblemDetails = new ApiProblemEnvelope
+            {
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+                Title = "Server Failure",
+                Status = StatusCodes.Status500InternalServerError,
+                Instance = httpContext.Request.Path + httpContext.Request.QueryString,
+                RequestId = httpContext.TraceIdentifier,
+                TraceId = Activity.Current?.Id ?? string.Empty,
+                Errors = [new ApiErrorDetail { Code = "Server.InternalError", Description = "An unexpected error occurred." }]
+            }
+        }, cancellationToken);
 
         return true;
     }

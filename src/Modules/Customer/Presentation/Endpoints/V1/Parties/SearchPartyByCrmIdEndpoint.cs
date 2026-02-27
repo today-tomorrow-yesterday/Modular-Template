@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Rtl.Core.Presentation.Endpoints;
+using Rtl.Core.Presentation.Results;
 
 namespace Modules.Customer.Presentation.Endpoints.V1.Parties;
 
@@ -15,7 +16,7 @@ internal sealed class SearchPartyByCrmIdEndpoint : IEndpoint
             .WithSummary("Search party by CRM ID")
             .WithDescription("Searches for a party by their CRM identifier. Migration-period endpoint — in target ECST architecture, Sales reads from local cache.parties TPT tables instead.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<SearchPartyResponse>(StatusCodes.Status200OK)
+            .Produces<ApiEnvelope<SearchPartyResponse>>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -30,7 +31,7 @@ internal sealed class SearchPartyByCrmIdEndpoint : IEndpoint
             CrmId: crmId,
             FirstName: "John",
             LastName: "Doe");
-        return Task.FromResult(Results.Ok(mock));
+        return Task.FromResult(ApiResponse.Ok(mock));
     }
 }
 

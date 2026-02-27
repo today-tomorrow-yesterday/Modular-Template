@@ -17,7 +17,7 @@ internal sealed class CreateProductEndpoint : IEndpoint
             .WithSummary("Create a new product")
             .WithDescription("Creates a new product with the specified name, description, price, and internal cost.")
             .MapToApiVersion(new ApiVersion(1, 0))
-            .Produces<CreateProductResponse>(StatusCodes.Status201Created)
+            .Produces<ApiEnvelope<CreateProductResponse>>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
@@ -36,8 +36,8 @@ internal sealed class CreateProductEndpoint : IEndpoint
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            id => Results.Created($"/products/{id}", new CreateProductResponse(id)),
-            ApiResults.Problem);
+            id => ApiResponse.Created($"/products/{id}", new CreateProductResponse(id)),
+            ApiResponse.Problem);
     }
 }
 
