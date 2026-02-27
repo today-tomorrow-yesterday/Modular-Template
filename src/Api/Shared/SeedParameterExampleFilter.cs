@@ -1,6 +1,6 @@
 using Microsoft.OpenApi;
-using System.Text.Json.Nodes;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json.Nodes;
 
 namespace Rtl.Core.Api.Shared;
 

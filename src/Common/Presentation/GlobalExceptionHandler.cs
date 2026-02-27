@@ -1,8 +1,8 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Rtl.Core.Presentation.Results;
+using System.Diagnostics;
 
 namespace Rtl.Core.Presentation;
 

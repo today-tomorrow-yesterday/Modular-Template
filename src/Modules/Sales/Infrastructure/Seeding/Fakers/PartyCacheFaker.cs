@@ -1,6 +1,5 @@
 using Bogus;
 using Modules.Sales.Domain.PartiesCache;
-using Modules.Sales.Infrastructure.Seeding;
 
 namespace Modules.Sales.Infrastructure.Seeding.Fakers;
 

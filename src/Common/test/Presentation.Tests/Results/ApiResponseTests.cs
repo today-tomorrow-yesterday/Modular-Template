@@ -1,7 +1,7 @@
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Rtl.Core.Domain.Results;
 using Rtl.Core.Presentation.Results;
+using System.Text.Json;
 using Xunit;
 
 namespace Rtl.Core.Presentation.Tests.Results;

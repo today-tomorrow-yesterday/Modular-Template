@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Rtl.Core.Domain.Results;
+using System.Diagnostics;
 
 namespace Rtl.Core.Presentation.Results;
 
