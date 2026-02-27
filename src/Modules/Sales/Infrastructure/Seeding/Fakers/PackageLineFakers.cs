@@ -143,7 +143,7 @@ internal static class PackageLineFakers
             salePrice: retailPrice - faker.PickRandom(5_000m, 10_000m),
             estimatedCost: invoiceCost,
             retailSalePrice: retailPrice,
-            responsibility: Responsibility.Buyer,
+            responsibility: Responsibility.Seller,
             details: HomeDetails.Create(
                 homeType: homeType,
                 homeSourceType: hasCache ? HomeSourceType.OnLot : HomeSourceType.Manual,
@@ -240,7 +240,7 @@ internal static class PackageLineFakers
             salePrice: landSalePrice,
             estimatedCost: landCost,
             retailSalePrice: landSalePrice + faker.PickRandom(5_000m, 10_000m),
-            responsibility: Responsibility.Buyer,
+            responsibility: Responsibility.Seller,
             details: LandDetails.Create(
                 landPurchaseType: purchaseType,
                 customerLandType: customerLandType,

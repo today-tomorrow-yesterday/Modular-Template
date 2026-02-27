@@ -43,6 +43,7 @@ public sealed class LandLine : PackageLine<LandDetails>
             EstimatedCost = Math.Round(estimatedCost, 2),
             RetailSalePrice = Math.Round(retailSalePrice, 2),
             Responsibility = responsibility,
+            ShouldExcludeFromPricing = true,
             Details = details,
             LandParcelId = landParcelId
         };

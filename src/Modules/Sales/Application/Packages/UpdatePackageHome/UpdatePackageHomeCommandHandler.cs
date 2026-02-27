@@ -6,6 +6,7 @@ using Modules.Sales.Domain.Packages.ProjectCosts;
 using Modules.Sales.Domain.Packages.Tax;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Pricing;
+using Microsoft.Extensions.Logging;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Domain.Results;
@@ -32,7 +33,8 @@ internal sealed class UpdatePackageHomeCommandHandler(
     IPackageRepository packageRepository,
     IInventoryCacheQueries inventoryCacheQueries,
     IiSeriesAdapter iSeriesAdapter,
-    IUnitOfWork<ISalesModule> unitOfWork)
+    IUnitOfWork<ISalesModule> unitOfWork,
+    ILogger<UpdatePackageHomeCommandHandler> logger)
     : ICommandHandler<UpdatePackageHomeCommand, UpdatePackageHomeResult>
 {
     public async Task<Result<UpdatePackageHomeResult>> Handle(
@@ -298,26 +300,34 @@ internal sealed class UpdatePackageHomeCommandHandler(
         var hasWheelAndAxleCounts = home.NumberOfWheels.HasValue && home.NumberOfAxles.HasValue;
 
         WheelAndAxlePriceResult waResult;
-        if (canLookUpByStockNumber)
+        try
         {
-            waResult = await iSeriesAdapter.GetWheelAndAxlePriceByStock(
-                new WheelAndAxlePriceByStockRequest
-                {
-                    HomeCenterNumber = package.Sale.RetailLocation.RefHomeCenterNumber ?? 0,
-                    StockNumber = home.StockNumber!
-                }, cancellationToken);
+            if (canLookUpByStockNumber)
+            {
+                waResult = await iSeriesAdapter.GetWheelAndAxlePriceByStock(
+                    new WheelAndAxlePriceByStockRequest
+                    {
+                        HomeCenterNumber = package.Sale.RetailLocation.RefHomeCenterNumber ?? 0,
+                        StockNumber = home.StockNumber!
+                    }, cancellationToken);
+            }
+            else if (hasWheelAndAxleCounts)
+            {
+                waResult = await iSeriesAdapter.CalculateWheelAndAxlePriceByCount(
+                    new WheelAndAxlePriceByCountRequest
+                    {
+                        NumberOfWheels = home.NumberOfWheels!.Value,
+                        NumberOfAxles = home.NumberOfAxles!.Value
+                    }, cancellationToken);
+            }
+            else
+            {
+                return;
+            }
         }
-        else if (hasWheelAndAxleCounts)
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
-            waResult = await iSeriesAdapter.CalculateWheelAndAxlePriceByCount(
-                new WheelAndAxlePriceByCountRequest
-                {
-                    NumberOfWheels = home.NumberOfWheels!.Value,
-                    NumberOfAxles = home.NumberOfAxles!.Value
-                }, cancellationToken);
-        }
-        else
-        {
+            logger.LogWarning(ex, "W&A pricing unavailable — skipping for package {PackageId}", package.PublicId);
             return;
         }
 

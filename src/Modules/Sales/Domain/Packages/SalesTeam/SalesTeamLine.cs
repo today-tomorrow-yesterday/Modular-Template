@@ -19,6 +19,7 @@ public sealed class SalesTeamLine : PackageLine<SalesTeamDetails>
             SalePrice = 0m,
             EstimatedCost = 0m,
             RetailSalePrice = 0m,
+            ShouldExcludeFromPricing = true,
             Details = details
         };
     }

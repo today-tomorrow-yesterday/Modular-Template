@@ -25,6 +25,7 @@ public sealed class TradeInLine : PackageLine<TradeInDetails>
             EstimatedCost = Math.Round(estimatedCost, 2),
             RetailSalePrice = Math.Round(retailSalePrice, 2),
             Responsibility = responsibility,
+            ShouldExcludeFromPricing = true,
             Details = details,
             SortOrder = sortOrder
         };

@@ -127,8 +127,10 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
                 .GroupBy(l => l.RefHomeCenterNumber)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            // Package lines (needs PackageId + actual cache entities for joinable data)
-            var allLines = new List<PackageLine>();
+            // Package lines (needs PackageId + actual cache entities for joinable data).
+            // Lines are added through the Package aggregate so RecalculateGrossProfit()
+            // runs automatically — seeded packages get correct GP values.
+            var lineCount = 0;
 
             foreach (var package in packages)
             {
@@ -157,16 +159,18 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
                     package.Id, faker, onLotHome, landParcel, authorizedUser,
                     deliveryAddress, retailLocation);
 
-                allLines.AddRange(lines);
+                foreach (var line in lines)
+                    package.AddLine(line);
+
+                lineCount += lines.Count;
             }
 
-            db.PackageLines.AddRange(allLines);
             db.DeliveryAddresses.AddRange(deliveryAddresses);
 
             await db.SaveChangesAsync(ct);
             logger.LogInformation(
                 "Seeded {Count} package lines, {Addresses} delivery addresses.",
-                allLines.Count, deliveryAddresses.Count);
+                lineCount, deliveryAddresses.Count);
 
             // FundingRequestCache (ValueGeneratedNever — needs SaleId + PackageId)
             var fundingFaker = new FundingRequestCacheFaker();
