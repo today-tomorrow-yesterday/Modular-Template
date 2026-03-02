@@ -20,6 +20,7 @@ using Rtl.Core.Api.Shared;
 using Rtl.Core.Application;
 using Rtl.Core.Infrastructure;
 using Rtl.Core.Infrastructure.Application;
+using Rtl.Core.Infrastructure.Secrets;
 using Serilog;
 using CustomerApplication = Modules.Customer.Application.AssemblyReference;
 using FundingApplication = Modules.Funding.Application.AssemblyReference;
@@ -53,8 +54,7 @@ builder.Host.UseSerilog((context, configuration) =>
 // Service Configuration
 // ========================================
 
-var databaseConnectionString = builder.Configuration.GetConnectionString("Database")
-    ?? throw new InvalidOperationException("Database connection string is required");
+var databaseConnectionString = DatabaseConnectionResolver.Resolve(builder.Configuration);
 
 // Fail-Fast: Enforce SSL in Production
 if (builder.Environment.IsProduction() && 

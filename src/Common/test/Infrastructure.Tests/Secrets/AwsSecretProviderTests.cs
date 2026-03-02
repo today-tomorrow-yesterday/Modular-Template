@@ -65,8 +65,9 @@ public class AwsSecretProviderTests
         _secretsManager.ExceptionToThrow = new ResourceNotFoundException("not found");
         var sut = CreateSut();
 
-        await Assert.ThrowsAsync<ResourceNotFoundException>(
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
             () => sut.GetSecretAsync<string>("missing-secret"));
+        Assert.IsType<ResourceNotFoundException>(ex.InnerException);
     }
 
     [Fact]
@@ -75,8 +76,9 @@ public class AwsSecretProviderTests
         _secretsManager.ExceptionToThrow = new DecryptionFailureException("kms error");
         var sut = CreateSut();
 
-        await Assert.ThrowsAsync<DecryptionFailureException>(
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
             () => sut.GetSecretAsync<string>("encrypted-secret"));
+        Assert.IsType<DecryptionFailureException>(ex.InnerException);
     }
 
     [Fact]
@@ -85,8 +87,9 @@ public class AwsSecretProviderTests
         _secretsManager.ExceptionToThrow = new InvalidRequestException("pending deletion");
         var sut = CreateSut();
 
-        await Assert.ThrowsAsync<InvalidRequestException>(
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
             () => sut.GetSecretAsync<string>("deleted-secret"));
+        Assert.IsType<InvalidRequestException>(ex.InnerException);
     }
 
     [Fact]
@@ -95,8 +98,9 @@ public class AwsSecretProviderTests
         _secretsManager.ExceptionToThrow = new InvalidParameterException("bad param");
         var sut = CreateSut();
 
-        await Assert.ThrowsAsync<InvalidParameterException>(
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
             () => sut.GetSecretAsync<string>("bad-name"));
+        Assert.IsType<InvalidParameterException>(ex.InnerException);
     }
 
     [Fact]
@@ -105,8 +109,9 @@ public class AwsSecretProviderTests
         _secretsManager.ExceptionToThrow = new InternalServiceErrorException("aws down");
         var sut = CreateSut();
 
-        await Assert.ThrowsAsync<InternalServiceErrorException>(
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(
             () => sut.GetSecretAsync<string>("any-secret"));
+        Assert.IsType<InternalServiceErrorException>(ex.InnerException);
     }
 
     [Fact]

@@ -11,6 +11,8 @@ namespace Rtl.Core.Infrastructure.Secrets;
 /// <summary>
 /// AWS Secrets Manager implementation of <see cref="ISecretProvider"/>
 /// with per-key in-memory caching.
+/// Also owns the shared <see cref="AmazonSecretsManagerClient"/> used at startup
+/// by <see cref="DatabaseConnectionResolver"/> (before DI is available).
 /// </summary>
 internal sealed class AwsSecretProvider(
     IAmazonSecretsManager secretsManager,
@@ -18,15 +20,30 @@ internal sealed class AwsSecretProvider(
     IOptions<SecretProviderOptions> options,
     ILogger<AwsSecretProvider> logger) : ISecretProvider
 {
+    private static readonly Lazy<AmazonSecretsManagerClient> DefaultClient = new();
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
+    /// <summary>
+    /// The shared client instance. Registered in DI and used by
+    /// <see cref="DatabaseConnectionResolver"/> at startup — one client for the lifetime of the app.
+    /// </summary>
+    internal static IAmazonSecretsManager SharedClient => DefaultClient.Value;
+
+    /// <summary>
+    /// Fetches a raw secret string using the shared client.
+    /// Called by <see cref="DatabaseConnectionResolver"/> at startup before DI is available.
+    /// </summary>
+    internal static Task<string> FetchSecretStringAsync(
+        string secretName, CancellationToken ct = default)
+        => FetchCoreAsync(SharedClient, secretName, ct);
+
     /// <inheritdoc />
     public async Task<T> GetSecretAsync<T>(string secretName, CancellationToken ct = default)
     {
-        var raw = await GetSecretStringAsync(secretName, ct);
+        var raw = await GetCachedSecretStringAsync(secretName, ct);
 
         if (typeof(T) == typeof(string))
             return (T)(object)raw;
@@ -36,7 +53,7 @@ internal sealed class AwsSecretProvider(
                 $"Secret '{secretName}' deserialized to null for type {typeof(T).Name}.");
     }
 
-    private async Task<string> GetSecretStringAsync(string secretName, CancellationToken ct)
+    private async Task<string> GetCachedSecretStringAsync(string secretName, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(secretName);
 
@@ -47,44 +64,57 @@ internal sealed class AwsSecretProvider(
 
         logger.LogInformation("Fetching secret '{SecretName}' from AWS Secrets Manager", secretName);
 
+        var secretString = await FetchCoreAsync(secretsManager, secretName, ct);
+
+        var ttl = TimeSpan.FromMinutes(options.Value.CacheDurationMinutes);
+        cache.Set(cacheKey, secretString, ttl);
+
+        return secretString;
+    }
+
+    /// <summary>
+    /// Core AWS fetch with standardized exception handling.
+    /// </summary>
+    private static async Task<string> FetchCoreAsync(
+        IAmazonSecretsManager client,
+        string secretName,
+        CancellationToken ct = default)
+    {
         try
         {
-            var response = await secretsManager.GetSecretValueAsync(
+            var response = await client.GetSecretValueAsync(
                 new GetSecretValueRequest
                 {
                     SecretId = secretName,
                     VersionStage = "AWSCURRENT"
                 }, ct);
 
-            var ttl = TimeSpan.FromMinutes(options.Value.CacheDurationMinutes);
-            cache.Set(cacheKey, response.SecretString, ttl);
-
             return response.SecretString;
         }
         catch (ResourceNotFoundException ex)
         {
-            logger.LogError(ex, "Secret '{SecretName}' was not found in AWS Secrets Manager", secretName);
-            throw;
+            throw new InvalidOperationException(
+                $"Secret '{secretName}' was not found in AWS Secrets Manager.", ex);
         }
         catch (DecryptionFailureException ex)
         {
-            logger.LogError(ex, "Failed to decrypt secret '{SecretName}' — verify KMS key permissions", secretName);
-            throw;
+            throw new InvalidOperationException(
+                $"Failed to decrypt secret '{secretName}' — verify KMS key permissions.", ex);
         }
         catch (InvalidRequestException ex)
         {
-            logger.LogError(ex, "Invalid request for secret '{SecretName}' — it may be pending deletion", secretName);
-            throw;
+            throw new InvalidOperationException(
+                $"Invalid request for secret '{secretName}' — it may be pending deletion.", ex);
         }
         catch (InvalidParameterException ex)
         {
-            logger.LogError(ex, "Invalid parameter when fetching secret '{SecretName}'", secretName);
-            throw;
+            throw new InvalidOperationException(
+                $"Invalid parameter when fetching secret '{secretName}'.", ex);
         }
         catch (InternalServiceErrorException ex)
         {
-            logger.LogError(ex, "AWS Secrets Manager internal error fetching '{SecretName}'", secretName);
-            throw;
+            throw new InvalidOperationException(
+                $"AWS Secrets Manager internal error fetching secret '{secretName}'.", ex);
         }
     }
 }

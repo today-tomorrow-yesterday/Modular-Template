@@ -26,7 +26,7 @@ internal static class Startup
 
         if (useAws)
         {
-            services.AddSingleton<IAmazonSecretsManager>(new AmazonSecretsManagerClient());
+            services.AddSingleton(AwsSecretProvider.SharedClient);
             services.AddSingleton<ISecretProvider, AwsSecretProvider>();
         }
         else
