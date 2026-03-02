@@ -14,14 +14,20 @@ public sealed class DatabaseSecretOptions : IValidatableObject
     public const string SectionName = "DatabaseSecret";
 
     /// <summary>
-    /// Gets the Secrets Manager secret name or ARN containing RDS credentials.
+    /// Secrets Manager secret name or ARN containing RDS credentials.
     /// </summary>
     [Required]
     public string SecretName { get; init; } = string.Empty;
 
     /// <summary>
-    /// Gets the SSL mode for deployed database connections.
-    /// Defaults to <c>Require</c>.
+    /// Target database name. Overrides the dbname field from the RDS secret,
+    /// which is the RDS cluster default and not necessarily the application database.
+    /// </summary>
+    [Required]
+    public string DatabaseName { get; init; } = string.Empty;
+
+    /// <summary>
+    /// SSL mode for deployed database connections. Defaults to Require.
     /// </summary>
     public string SslMode { get; init; } = "Require";
 
@@ -33,6 +39,13 @@ public sealed class DatabaseSecretOptions : IValidatableObject
             yield return new ValidationResult(
                 "SecretName is required when DatabaseSecret section is configured.",
                 [nameof(SecretName)]);
+        }
+
+        if (string.IsNullOrWhiteSpace(DatabaseName))
+        {
+            yield return new ValidationResult(
+                "DatabaseName is required when DatabaseSecret section is configured.",
+                [nameof(DatabaseName)]);
         }
     }
 }

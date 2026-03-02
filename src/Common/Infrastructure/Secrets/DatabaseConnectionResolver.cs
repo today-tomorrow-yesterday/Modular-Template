@@ -71,11 +71,13 @@ public static class DatabaseConnectionResolver
                 $"AWS secret '{secretName}' returned JSON that could not be " +
                 $"deserialized to {nameof(DatabaseSecretPayload)}.");
 
+        var databaseName = configuration[$"{DatabaseSecretOptions.SectionName}:DatabaseName"];
+
         var sslMode = Enum.TryParse<SslMode>(
             configuration[$"{DatabaseSecretOptions.SectionName}:SslMode"], ignoreCase: true, out var parsed)
             ? parsed
             : (SslMode?)null;
 
-        return (credentials with { SslMode = sslMode }).BuildConnectionString();
+        return (credentials with { SslMode = sslMode }).BuildConnectionString(databaseName);
     }
 }
