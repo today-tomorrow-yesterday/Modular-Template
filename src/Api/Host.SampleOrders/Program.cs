@@ -5,7 +5,6 @@ using Modules.SampleOrders.Presentation.Endpoints;
 using Rtl.Core.Api.Shared;
 using Rtl.Core.Application;
 using Rtl.Core.Infrastructure;
-using Rtl.Core.Infrastructure.Secrets;
 using OrdersApplication = Modules.SampleOrders.Application.AssemblyReference;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configuration
 // ========================================
 
-var databaseConnectionString = DatabaseConnectionResolver.Resolve(builder.Configuration);
+var databaseConnectionString = builder.Configuration.GetConnectionString("Database")
+    ?? throw new InvalidOperationException("Database connection string is required");
 
 var cacheConnectionString = builder.Configuration.GetConnectionString("Cache")
     ?? "localhost:6379";
