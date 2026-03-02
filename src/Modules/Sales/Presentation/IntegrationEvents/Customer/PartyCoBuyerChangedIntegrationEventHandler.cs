@@ -10,9 +10,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 internal sealed class PartyCoBuyerChangedIntegrationEventHandler(
     ISender sender,
     ILogger<PartyCoBuyerChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyCoBuyerChangedIntegrationEvent>
+    : IntegrationEventHandler<PartyCoBuyerChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyCoBuyerChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -28,9 +28,4 @@ internal sealed class PartyCoBuyerChangedIntegrationEventHandler(
                 integrationEvent.CoBuyerLastName),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyCoBuyerChangedIntegrationEvent)integrationEvent, cancellationToken);
 }

@@ -11,9 +11,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 internal sealed class PartyLifecycleAdvancedIntegrationEventHandler(
     ISender sender,
     ILogger<PartyLifecycleAdvancedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyLifecycleAdvancedIntegrationEvent>
+    : IntegrationEventHandler<PartyLifecycleAdvancedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyLifecycleAdvancedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -28,9 +28,4 @@ internal sealed class PartyLifecycleAdvancedIntegrationEventHandler(
                 Enum.Parse<LifecycleStage>(integrationEvent.NewLifecycleStage)),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyLifecycleAdvancedIntegrationEvent)integrationEvent, cancellationToken);
 }

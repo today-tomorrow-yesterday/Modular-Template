@@ -10,9 +10,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 internal sealed class PartyMailingAddressChangedIntegrationEventHandler(
     ISender sender,
     ILogger<PartyMailingAddressChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyMailingAddressChangedIntegrationEvent>
+    : IntegrationEventHandler<PartyMailingAddressChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyMailingAddressChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -25,9 +25,4 @@ internal sealed class PartyMailingAddressChangedIntegrationEventHandler(
                 integrationEvent.PartyId),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyMailingAddressChangedIntegrationEvent)integrationEvent, cancellationToken);
 }

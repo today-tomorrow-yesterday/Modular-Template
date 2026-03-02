@@ -11,9 +11,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Inventory;
 internal sealed class OnLotHomePriceRevisedIntegrationEventHandler(
     ISender sender,
     ILogger<OnLotHomePriceRevisedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<OnLotHomePriceRevisedIntegrationEvent>
+    : IntegrationEventHandler<OnLotHomePriceRevisedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         OnLotHomePriceRevisedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -26,11 +26,6 @@ internal sealed class OnLotHomePriceRevisedIntegrationEventHandler(
             new ReviseOnLotHomeCachePriceCommand(MapToCache(integrationEvent)),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((OnLotHomePriceRevisedIntegrationEvent)integrationEvent, cancellationToken);
 
     private static OnLotHomeCache MapToCache(OnLotHomePriceRevisedIntegrationEvent e) => new()
     {

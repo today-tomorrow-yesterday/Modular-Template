@@ -10,9 +10,9 @@ namespace Modules.Customer.Presentation.IntegrationEvents;
 internal sealed class OnboardCustomerFromLoanRequestedIntegrationEventHandler(
     ISender sender,
     ILogger<OnboardCustomerFromLoanRequestedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<OnboardCustomerFromLoanRequestedIntegrationEvent>
+    : IntegrationEventHandler<OnboardCustomerFromLoanRequestedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         OnboardCustomerFromLoanRequestedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -26,9 +26,4 @@ internal sealed class OnboardCustomerFromLoanRequestedIntegrationEventHandler(
                 integrationEvent.LoanId,
                 integrationEvent.HomeCenterNumber), cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((OnboardCustomerFromLoanRequestedIntegrationEvent)integrationEvent, cancellationToken);
 }

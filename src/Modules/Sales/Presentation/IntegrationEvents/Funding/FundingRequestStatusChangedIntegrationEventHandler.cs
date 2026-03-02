@@ -13,9 +13,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Funding;
 internal sealed class FundingRequestStatusChangedIntegrationEventHandler(
     ISender sender,
     ILogger<FundingRequestStatusChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<FundingRequestStatusChangedIntegrationEvent>
+    : IntegrationEventHandler<FundingRequestStatusChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         FundingRequestStatusChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -46,11 +46,6 @@ internal sealed class FundingRequestStatusChangedIntegrationEventHandler(
             new UpsertFundingRequestCacheCommand(cache),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((FundingRequestStatusChangedIntegrationEvent)integrationEvent, cancellationToken);
 
     private static JsonDocument? BuildFundingKeys(int appId)
     {

@@ -11,9 +11,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
     ISender sender,
     ILogger<PartyOnboardedFromLoanIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyOnboardedFromLoanIntegrationEvent>
+    : IntegrationEventHandler<PartyOnboardedFromLoanIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyOnboardedFromLoanIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -51,9 +51,4 @@ internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
             new UpsertPartyCacheCommand(partyCache, personCache, OrganizationCache: null),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyOnboardedFromLoanIntegrationEvent)integrationEvent, cancellationToken);
 }

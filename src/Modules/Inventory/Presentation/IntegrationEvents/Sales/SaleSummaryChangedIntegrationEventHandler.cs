@@ -11,9 +11,9 @@ namespace Modules.Inventory.Presentation.IntegrationEvents.Sales;
 internal sealed class SaleSummaryChangedIntegrationEventHandler(
     ISender sender,
     ILogger<SaleSummaryChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<SaleSummaryChangedIntegrationEvent>
+    : IntegrationEventHandler<SaleSummaryChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         SaleSummaryChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -33,9 +33,4 @@ internal sealed class SaleSummaryChangedIntegrationEventHandler(
 
         await sender.Send(new UpsertSaleSummaryCacheCommand(cache), cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((SaleSummaryChangedIntegrationEvent)integrationEvent, cancellationToken);
 }

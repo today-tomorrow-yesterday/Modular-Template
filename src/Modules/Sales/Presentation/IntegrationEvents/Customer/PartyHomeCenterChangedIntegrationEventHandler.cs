@@ -10,9 +10,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 internal sealed class PartyHomeCenterChangedIntegrationEventHandler(
     ISender sender,
     ILogger<PartyHomeCenterChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyHomeCenterChangedIntegrationEvent>
+    : IntegrationEventHandler<PartyHomeCenterChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyHomeCenterChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -27,9 +27,4 @@ internal sealed class PartyHomeCenterChangedIntegrationEventHandler(
                 integrationEvent.NewHomeCenterNumber),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyHomeCenterChangedIntegrationEvent)integrationEvent, cancellationToken);
 }

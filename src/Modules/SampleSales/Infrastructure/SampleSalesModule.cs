@@ -58,7 +58,7 @@ public static class SampleSalesModule
         IHostEnvironment environment)
     {
         // Integration event handlers
-        services.AddIntegrationEventHandlers(AssemblyReference.Assembly);
+        services.AddIntegrationEventHandlers(Presentation.AssemblyReference.Assembly);
 
         // SQS polling (disabled in development)
         services.AddSqsPolling<ProcessSqsJob>(environment);

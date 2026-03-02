@@ -12,9 +12,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Organization;
 internal sealed class UserAccessChangedIntegrationEventHandler(
     ISender sender,
     ILogger<UserAccessChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<UserAccessChangedIntegrationEvent>
+    : IntegrationEventHandler<UserAccessChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         UserAccessChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -32,11 +32,6 @@ internal sealed class UserAccessChangedIntegrationEventHandler(
             new UpsertAuthorizedUserCacheCommand(cache),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((UserAccessChangedIntegrationEvent)integrationEvent, cancellationToken);
 
     private static AuthorizedUserCache MapToCache(UserAccessChangedIntegrationEvent e) => new()
     {

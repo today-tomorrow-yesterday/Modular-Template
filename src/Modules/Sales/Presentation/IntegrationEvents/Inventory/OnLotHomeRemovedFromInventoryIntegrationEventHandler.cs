@@ -10,9 +10,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Inventory;
 internal sealed class OnLotHomeRemovedFromInventoryIntegrationEventHandler(
     ISender sender,
     ILogger<OnLotHomeRemovedFromInventoryIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<OnLotHomeRemovedFromInventoryIntegrationEvent>
+    : IntegrationEventHandler<OnLotHomeRemovedFromInventoryIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         OnLotHomeRemovedFromInventoryIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -29,9 +29,4 @@ internal sealed class OnLotHomeRemovedFromInventoryIntegrationEventHandler(
                 integrationEvent.StockNumber),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((OnLotHomeRemovedFromInventoryIntegrationEvent)integrationEvent, cancellationToken);
 }

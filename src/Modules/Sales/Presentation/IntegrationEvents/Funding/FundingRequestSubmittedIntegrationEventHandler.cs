@@ -14,9 +14,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Funding;
 internal sealed class FundingRequestSubmittedIntegrationEventHandler(
     ISender sender,
     ILogger<FundingRequestSubmittedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<FundingRequestSubmittedIntegrationEvent>
+    : IntegrationEventHandler<FundingRequestSubmittedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         FundingRequestSubmittedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -48,11 +48,6 @@ internal sealed class FundingRequestSubmittedIntegrationEventHandler(
             new UpsertFundingRequestCacheCommand(cache),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((FundingRequestSubmittedIntegrationEvent)integrationEvent, cancellationToken);
 
     private static JsonDocument? BuildFundingKeys(int appId, string? loanId)
     {

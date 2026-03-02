@@ -16,9 +16,9 @@ internal sealed class ProductUpdatedIntegrationEventHandler(
     IProductCacheWriter productCacheWriter,
     IDateTimeProvider dateTimeProvider,
     ILogger<ProductUpdatedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<ProductUpdatedIntegrationEvent>
+    : IntegrationEventHandler<ProductUpdatedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         ProductUpdatedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -41,12 +41,5 @@ internal sealed class ProductUpdatedIntegrationEventHandler(
         };
 
         await productCacheWriter.UpsertAsync(productCache, cancellationToken);
-    }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-    {
-        return HandleAsync((ProductUpdatedIntegrationEvent)integrationEvent, cancellationToken);
     }
 }

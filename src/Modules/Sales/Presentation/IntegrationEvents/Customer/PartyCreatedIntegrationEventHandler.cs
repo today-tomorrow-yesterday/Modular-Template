@@ -11,9 +11,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 internal sealed class PartyCreatedIntegrationEventHandler(
     ISender sender,
     ILogger<PartyCreatedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyCreatedIntegrationEvent>
+    : IntegrationEventHandler<PartyCreatedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyCreatedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -84,9 +84,4 @@ internal sealed class PartyCreatedIntegrationEventHandler(
             new UpsertPartyCacheCommand(partyCache, personCache, organizationCache),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyCreatedIntegrationEvent)integrationEvent, cancellationToken);
 }

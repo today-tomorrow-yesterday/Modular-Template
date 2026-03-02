@@ -10,9 +10,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Inventory;
 internal sealed class LandParcelRemovedFromInventoryIntegrationEventHandler(
     ISender sender,
     ILogger<LandParcelRemovedFromInventoryIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<LandParcelRemovedFromInventoryIntegrationEvent>
+    : IntegrationEventHandler<LandParcelRemovedFromInventoryIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         LandParcelRemovedFromInventoryIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -29,9 +29,4 @@ internal sealed class LandParcelRemovedFromInventoryIntegrationEventHandler(
                 integrationEvent.StockNumber),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((LandParcelRemovedFromInventoryIntegrationEvent)integrationEvent, cancellationToken);
 }

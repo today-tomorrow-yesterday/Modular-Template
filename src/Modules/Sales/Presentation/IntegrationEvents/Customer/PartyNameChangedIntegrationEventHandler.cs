@@ -11,9 +11,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 internal sealed class PartyNameChangedIntegrationEventHandler(
     ISender sender,
     ILogger<PartyNameChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyNameChangedIntegrationEvent>
+    : IntegrationEventHandler<PartyNameChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyNameChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -37,9 +37,4 @@ internal sealed class PartyNameChangedIntegrationEventHandler(
                 integrationEvent.OrganizationName),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyNameChangedIntegrationEvent)integrationEvent, cancellationToken);
 }

@@ -11,9 +11,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Organization;
 internal sealed class HomeCenterChangedIntegrationEventHandler(
     ISender sender,
     ILogger<HomeCenterChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<HomeCenterChangedIntegrationEvent>
+    : IntegrationEventHandler<HomeCenterChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         HomeCenterChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -33,9 +33,4 @@ internal sealed class HomeCenterChangedIntegrationEventHandler(
                 integrationEvent.IsActive),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((HomeCenterChangedIntegrationEvent)integrationEvent, cancellationToken);
 }

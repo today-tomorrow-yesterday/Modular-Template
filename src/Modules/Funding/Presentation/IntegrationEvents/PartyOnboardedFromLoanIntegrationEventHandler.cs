@@ -13,9 +13,9 @@ internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
     ICustomerCacheWriter customerCacheWriter,
     IDateTimeProvider dateTimeProvider,
     ILogger<PartyOnboardedFromLoanIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyOnboardedFromLoanIntegrationEvent>
+    : IntegrationEventHandler<PartyOnboardedFromLoanIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyOnboardedFromLoanIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -46,11 +46,6 @@ internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
         // 2. If found: create FundingRequest with resolved PartyId, delete pending record
         // 3. Publish FundingRequestSubmitted integration event
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyOnboardedFromLoanIntegrationEvent)integrationEvent, cancellationToken);
 }
 
 public interface ICustomerCacheWriter

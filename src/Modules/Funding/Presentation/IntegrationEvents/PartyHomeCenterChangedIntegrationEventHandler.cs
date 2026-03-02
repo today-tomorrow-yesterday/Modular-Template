@@ -12,9 +12,9 @@ internal sealed class PartyHomeCenterChangedIntegrationEventHandler(
     ICustomerCacheWriter customerCacheWriter,
     IDateTimeProvider dateTimeProvider,
     ILogger<PartyHomeCenterChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyHomeCenterChangedIntegrationEvent>
+    : IntegrationEventHandler<PartyHomeCenterChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyHomeCenterChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -31,9 +31,4 @@ internal sealed class PartyHomeCenterChangedIntegrationEventHandler(
             dateTimeProvider.UtcNow,
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyHomeCenterChangedIntegrationEvent)integrationEvent, cancellationToken);
 }

@@ -13,9 +13,9 @@ internal sealed class PartyCreatedIntegrationEventHandler(
     ICustomerCacheWriter customerCacheWriter,
     IDateTimeProvider dateTimeProvider,
     ILogger<PartyCreatedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<PartyCreatedIntegrationEvent>
+    : IntegrationEventHandler<PartyCreatedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         PartyCreatedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -40,9 +40,4 @@ internal sealed class PartyCreatedIntegrationEventHandler(
 
         await customerCacheWriter.UpsertAsync(customerCache, cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((PartyCreatedIntegrationEvent)integrationEvent, cancellationToken);
 }

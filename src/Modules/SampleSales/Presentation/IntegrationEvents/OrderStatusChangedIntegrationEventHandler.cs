@@ -17,9 +17,9 @@ internal sealed class OrderStatusChangedIntegrationEventHandler(
     IOrderCacheWriter orderCacheWriter,
     IDateTimeProvider dateTimeProvider,
     ILogger<OrderStatusChangedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<OrderStatusChangedIntegrationEvent>
+    : IntegrationEventHandler<OrderStatusChangedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         OrderStatusChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -46,12 +46,5 @@ internal sealed class OrderStatusChangedIntegrationEventHandler(
         existingCache.LastSyncedAtUtc = dateTimeProvider.UtcNow;
 
         await orderCacheWriter.UpsertAsync(existingCache, cancellationToken);
-    }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-    {
-        return HandleAsync((OrderStatusChangedIntegrationEvent)integrationEvent, cancellationToken);
     }
 }

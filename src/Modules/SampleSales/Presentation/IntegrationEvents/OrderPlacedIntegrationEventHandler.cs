@@ -16,9 +16,9 @@ internal sealed class OrderPlacedIntegrationEventHandler(
     IOrderCacheWriter orderCacheWriter,
     IDateTimeProvider dateTimeProvider,
     ILogger<OrderPlacedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<OrderPlacedIntegrationEvent>
+    : IntegrationEventHandler<OrderPlacedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         OrderPlacedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -41,13 +41,6 @@ internal sealed class OrderPlacedIntegrationEventHandler(
         };
 
         await orderCacheWriter.UpsertAsync(orderCache, cancellationToken);
-    }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-    {
-        return HandleAsync((OrderPlacedIntegrationEvent)integrationEvent, cancellationToken);
     }
 }
 

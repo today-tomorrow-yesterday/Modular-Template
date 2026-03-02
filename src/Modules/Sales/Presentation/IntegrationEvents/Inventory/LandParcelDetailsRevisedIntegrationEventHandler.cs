@@ -11,9 +11,9 @@ namespace Modules.Sales.Presentation.IntegrationEvents.Inventory;
 internal sealed class LandParcelDetailsRevisedIntegrationEventHandler(
     ISender sender,
     ILogger<LandParcelDetailsRevisedIntegrationEventHandler> logger)
-    : IIntegrationEventHandler<LandParcelDetailsRevisedIntegrationEvent>
+    : IntegrationEventHandler<LandParcelDetailsRevisedIntegrationEvent>
 {
-    public async Task HandleAsync(
+    public override async Task HandleAsync(
         LandParcelDetailsRevisedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
@@ -26,11 +26,6 @@ internal sealed class LandParcelDetailsRevisedIntegrationEventHandler(
             new ReviseLandParcelCacheDetailsCommand(MapToCache(integrationEvent)),
             cancellationToken);
     }
-
-    public Task HandleAsync(
-        IIntegrationEvent integrationEvent,
-        CancellationToken cancellationToken = default)
-        => HandleAsync((LandParcelDetailsRevisedIntegrationEvent)integrationEvent, cancellationToken);
 
     private static LandParcelCache MapToCache(LandParcelDetailsRevisedIntegrationEvent e) => new()
     {
