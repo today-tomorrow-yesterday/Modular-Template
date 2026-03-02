@@ -1,6 +1,8 @@
 using Modules.Sales.Domain.Packages.Credits;
 using Modules.Sales.Domain.Packages.Events;
+using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.Insurance;
+using Modules.Sales.Domain.Packages.Land;
 using Modules.Sales.Domain.Packages.ProjectCosts;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Domain.Auditing;
@@ -84,6 +86,16 @@ public sealed class Package : AuditableEntity, IAggregateRoot
     {
         _lines.Add(line);
         RecalculateGrossProfit();
+
+        switch (line)
+        {
+            case HomeLine:
+                Raise(new HomeLineUpdatedDomainEvent { SaleId = SaleId, PackageId = Id });
+                break;
+            case LandLine:
+                Raise(new LandLineUpdatedDomainEvent { SaleId = SaleId, PackageId = Id });
+                break;
+        }
     }
 
     public void RemoveLine(PackageLine line)
