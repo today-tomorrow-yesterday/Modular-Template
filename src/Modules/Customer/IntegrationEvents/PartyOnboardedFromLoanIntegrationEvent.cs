@@ -8,8 +8,7 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record PartyOnboardedFromLoanIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int PartyId,
-    Guid PublicId,
+    Guid PartyId,
     int HomeCenterNumber,
     string? FirstName,
     string? MiddleName,

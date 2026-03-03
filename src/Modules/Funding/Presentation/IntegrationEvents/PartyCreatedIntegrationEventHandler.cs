@@ -30,7 +30,7 @@ internal sealed class PartyCreatedIntegrationEventHandler(
 
         var customerCache = new CustomerCache
         {
-            Id = integrationEvent.PartyId,
+            RefPublicId = integrationEvent.PartyId,
             LoanId = loanId,
             FirstName = integrationEvent.PersonData?.FirstName ?? string.Empty,
             LastName = integrationEvent.PersonData?.LastName ?? string.Empty,

@@ -31,7 +31,6 @@ internal sealed class PersonOnboardedFromLoanDomainEventHandler(
             new PartyOnboardedFromLoanIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                person.Id,
                 person.PublicId,
                 person.HomeCenterNumber,
                 person.Name?.FirstName,

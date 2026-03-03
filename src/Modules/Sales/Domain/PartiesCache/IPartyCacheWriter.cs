@@ -9,19 +9,19 @@ public interface IPartyCacheWriter
         CancellationToken cancellationToken = default);
 
     Task UpdateLifecycleStageAsync(
-        int refPartyId,
+        Guid refPublicId,
         LifecycleStage newLifecycleStage,
         DateTime lastSyncedAtUtc,
         CancellationToken cancellationToken = default);
 
     Task UpdateHomeCenterNumberAsync(
-        int refPartyId,
+        Guid refPublicId,
         int newHomeCenterNumber,
         DateTime lastSyncedAtUtc,
         CancellationToken cancellationToken = default);
 
     Task UpdateNameAsync(
-        int refPartyId,
+        Guid refPublicId,
         PartyType partyType,
         string displayName,
         string? firstName,
@@ -32,14 +32,14 @@ public interface IPartyCacheWriter
         CancellationToken cancellationToken = default);
 
     Task UpdateContactPointsAsync(
-        int refPartyId,
+        Guid refPublicId,
         string? email,
         string? phone,
         DateTime lastSyncedAtUtc,
         CancellationToken cancellationToken = default);
 
     Task UpdateSalesAssignmentsAsync(
-        int refPartyId,
+        Guid refPublicId,
         string? primaryFederatedId,
         string? primaryFirstName,
         string? primaryLastName,
@@ -50,14 +50,14 @@ public interface IPartyCacheWriter
         CancellationToken cancellationToken = default);
 
     Task UpdateCoBuyerAsync(
-        int refPartyId,
+        Guid refPublicId,
         string? coBuyerFirstName,
         string? coBuyerLastName,
         DateTime lastSyncedAtUtc,
         CancellationToken cancellationToken = default);
 
     Task UpdateMailingAddressAsync(
-        int refPartyId,
+        Guid refPublicId,
         DateTime lastSyncedAtUtc,
         CancellationToken cancellationToken = default);
 }

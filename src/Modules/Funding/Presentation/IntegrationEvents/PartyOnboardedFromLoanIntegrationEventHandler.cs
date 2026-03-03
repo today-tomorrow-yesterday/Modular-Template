@@ -31,7 +31,7 @@ internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
 
         var customerCache = new CustomerCache
         {
-            Id = integrationEvent.PartyId,
+            RefPublicId = integrationEvent.PartyId,
             LoanId = loanId,
             FirstName = integrationEvent.FirstName ?? string.Empty,
             LastName = integrationEvent.LastName ?? string.Empty,
@@ -51,6 +51,6 @@ internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
 public interface ICustomerCacheWriter
 {
     Task UpsertAsync(CustomerCache customerCache, CancellationToken cancellationToken = default);
-    Task UpdateNameAsync(int partyId, string firstName, string lastName, DateTime lastSyncedAtUtc, CancellationToken cancellationToken = default);
-    Task UpdateHomeCenterAsync(int partyId, int homeCenterNumber, DateTime lastSyncedAtUtc, CancellationToken cancellationToken = default);
+    Task UpdateNameAsync(Guid refPublicId, string firstName, string lastName, DateTime lastSyncedAtUtc, CancellationToken cancellationToken = default);
+    Task UpdateHomeCenterAsync(Guid refPublicId, int homeCenterNumber, DateTime lastSyncedAtUtc, CancellationToken cancellationToken = default);
 }

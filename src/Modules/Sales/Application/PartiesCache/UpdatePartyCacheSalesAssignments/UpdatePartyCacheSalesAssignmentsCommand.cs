@@ -3,7 +3,7 @@ using Rtl.Core.Application.Messaging;
 namespace Modules.Sales.Application.PartiesCache.UpdatePartyCacheSalesAssignments;
 
 public sealed record UpdatePartyCacheSalesAssignmentsCommand(
-    int RefPartyId,
+    Guid RefPublicId,
     string? PrimaryFederatedId,
     string? PrimaryFirstName,
     string? PrimaryLastName,

@@ -32,7 +32,7 @@ internal sealed class GetSaleByIdQueryHandler(ISaleRepository saleRepository)
 
         var person = sale.Party.Person;
         var customer = new SaleCustomerResult(
-            RefCustomerId: sale.Party.RefPartyId,
+            RefCustomerId: sale.Party.RefPublicId,
             FirstName: person?.FirstName ?? sale.Party.DisplayName,
             MiddleName: person?.MiddleName,
             LastName: person?.LastName ?? string.Empty,

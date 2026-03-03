@@ -195,7 +195,6 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
         var party = new PartyCache
         {
             Id = 1,
-            RefPartyId = 1,
             RefPublicId = Guid.NewGuid(),
             PartyType = PartyType.Person,
             LifecycleStage = LifecycleStage.Customer,

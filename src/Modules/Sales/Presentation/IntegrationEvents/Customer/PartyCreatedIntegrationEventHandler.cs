@@ -31,8 +31,7 @@ internal sealed class PartyCreatedIntegrationEventHandler(
 
         var partyCache = new PartyCache
         {
-            RefPartyId = integrationEvent.PartyId,
-            RefPublicId = integrationEvent.PublicId,
+            RefPublicId = integrationEvent.PartyId,
             PartyType = Enum.Parse<PartyType>(integrationEvent.PartyType),
             LifecycleStage = Enum.Parse<LifecycleStage>(integrationEvent.LifecycleStage),
             HomeCenterNumber = integrationEvent.HomeCenterNumber,

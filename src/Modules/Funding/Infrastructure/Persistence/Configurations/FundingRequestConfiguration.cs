@@ -27,8 +27,8 @@ internal sealed class FundingRequestConfiguration : IEntityTypeConfiguration<Fun
         builder.Property(f => f.CustomerId)
             .HasColumnName("customer_id");
 
-        builder.Property(f => f.RefCustomerId)
-            .HasColumnName("ref_customer_id");
+        builder.Property(f => f.RefCustomerPublicId)
+            .HasColumnName("ref_customer_public_id");
 
         builder.Property(f => f.RequestType)
             .HasColumnName("request_type")
@@ -81,8 +81,8 @@ internal sealed class FundingRequestConfiguration : IEntityTypeConfiguration<Fun
             .HasDatabaseName("ix_funding_requests_customer_id")
             .HasFilter("customer_id IS NOT NULL");
 
-        builder.HasIndex(f => f.RefCustomerId)
-            .HasDatabaseName("ix_funding_requests_ref_customer_id")
-            .HasFilter("ref_customer_id IS NOT NULL");
+        builder.HasIndex(f => f.RefCustomerPublicId)
+            .HasDatabaseName("ix_funding_requests_ref_customer_public_id")
+            .HasFilter("ref_customer_public_id IS NOT NULL");
     }
 }

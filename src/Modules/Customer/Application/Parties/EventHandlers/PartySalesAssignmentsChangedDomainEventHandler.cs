@@ -31,7 +31,6 @@ internal sealed class PartySalesAssignmentsChangedDomainEventHandler(
             new PartySalesAssignmentsChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                person.Id,
                 person.PublicId,
                 person.SalesAssignments
                     .Select(sa => new SalesAssignmentDto(

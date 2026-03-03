@@ -20,7 +20,7 @@ internal sealed class UpdatePartyCacheMailingAddressCommandHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         await partyCacheWriter.UpdateMailingAddressAsync(
-            request.RefPartyId,
+            request.RefPublicId,
             dateTimeProvider.UtcNow,
             cancellationToken);
 

@@ -6,6 +6,5 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record PartyLifecycleAdvancedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int PartyId,
-    Guid PartyPublicId,
+    Guid PartyId,
     string NewLifecycleStage) : IntegrationEvent(Id, OccurredOnUtc);

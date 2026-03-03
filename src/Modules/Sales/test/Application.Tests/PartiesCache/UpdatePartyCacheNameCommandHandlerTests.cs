@@ -24,8 +24,9 @@ public sealed class UpdatePartyCacheNameCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_updates_name()
     {
+        var refPublicId = Guid.NewGuid();
         var command = new UpdatePartyCacheNameCommand(
-            RefPartyId: 1,
+            RefPublicId: refPublicId,
             PartyType: PartyType.Person,
             DisplayName: "John Doe",
             FirstName: "John",
@@ -37,7 +38,7 @@ public sealed class UpdatePartyCacheNameCommandHandlerTests
 
         Assert.True(result.IsSuccess);
         await _partyCacheWriter.Received(1).UpdateNameAsync(
-            1, PartyType.Person, "John Doe", "John", null, "Doe", null,
+            refPublicId, PartyType.Person, "John Doe", "John", null, "Doe", null,
             _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
     }
 }

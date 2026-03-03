@@ -23,7 +23,7 @@ public sealed record RetailLocationResult(
     int? HomeCenterNumber);
 
 public sealed record SaleCustomerResult(
-    int RefCustomerId,
+    Guid RefCustomerId,
     string FirstName,
     string? MiddleName,
     string LastName,

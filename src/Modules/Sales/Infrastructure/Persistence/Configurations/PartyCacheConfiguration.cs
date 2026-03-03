@@ -16,10 +16,6 @@ internal sealed class PartyCacheConfiguration : IEntityTypeConfiguration<PartyCa
             .HasColumnName("id")
             .UseIdentityAlwaysColumn();
 
-        builder.Property(p => p.RefPartyId)
-            .HasColumnName("ref_party_id")
-            .IsRequired();
-
         builder.Property(p => p.RefPublicId)
             .HasColumnName("ref_public_id")
             .IsRequired();
@@ -48,10 +44,6 @@ internal sealed class PartyCacheConfiguration : IEntityTypeConfiguration<PartyCa
         builder.Property(p => p.LastSyncedAtUtc)
             .HasColumnName("last_synced_at_utc")
             .IsRequired();
-
-        builder.HasIndex(p => p.RefPartyId)
-            .IsUnique()
-            .HasDatabaseName("ix_parties_ref_party_id");
 
         builder.HasIndex(p => p.RefPublicId)
             .IsUnique()

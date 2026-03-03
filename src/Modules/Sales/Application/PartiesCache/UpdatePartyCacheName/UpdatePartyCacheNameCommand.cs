@@ -4,7 +4,7 @@ using Rtl.Core.Application.Messaging;
 namespace Modules.Sales.Application.PartiesCache.UpdatePartyCacheName;
 
 public sealed record UpdatePartyCacheNameCommand(
-    int RefPartyId,
+    Guid RefPublicId,
     PartyType PartyType,
     string DisplayName,
     string? FirstName,

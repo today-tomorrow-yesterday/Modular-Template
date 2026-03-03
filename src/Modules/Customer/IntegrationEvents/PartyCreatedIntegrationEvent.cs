@@ -6,8 +6,7 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record PartyCreatedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int PartyId,
-    Guid PublicId,
+    Guid PartyId,
     string PartyType,
     string LifecycleStage,
     int HomeCenterNumber,
@@ -25,7 +24,7 @@ public sealed record PersonDataDto(
     string? NameExtension,
     DateOnly? DateOfBirth,
     SalesAssignmentDto[] SalesAssignments,
-    int? CoBuyerPartyId,
+    Guid? CoBuyerPublicId,
     string? CoBuyerFirstName,
     string? CoBuyerLastName);
 

@@ -30,7 +30,6 @@ internal sealed class PartyHomeCenterChangedDomainEventHandler(
             new PartyHomeCenterChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                party.Id,
                 party.PublicId,
                 domainEvent.NewHomeCenterNumber),
             cancellationToken);

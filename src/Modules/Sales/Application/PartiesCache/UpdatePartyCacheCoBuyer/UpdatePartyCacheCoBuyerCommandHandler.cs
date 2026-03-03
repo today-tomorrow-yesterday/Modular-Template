@@ -20,7 +20,7 @@ internal sealed class UpdatePartyCacheCoBuyerCommandHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         await partyCacheWriter.UpdateCoBuyerAsync(
-            request.RefPartyId,
+            request.RefPublicId,
             request.CoBuyerFirstName,
             request.CoBuyerLastName,
             dateTimeProvider.UtcNow,

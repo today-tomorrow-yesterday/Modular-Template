@@ -20,7 +20,7 @@ internal sealed class UpdatePartyCacheContactPointsCommandHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         await partyCacheWriter.UpdateContactPointsAsync(
-            request.RefPartyId,
+            request.RefPublicId,
             request.Email,
             request.Phone,
             dateTimeProvider.UtcNow,

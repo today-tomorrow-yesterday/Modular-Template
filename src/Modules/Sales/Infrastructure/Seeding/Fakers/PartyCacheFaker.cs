@@ -5,16 +5,15 @@ namespace Modules.Sales.Infrastructure.Seeding.Fakers;
 
 internal sealed class PartyCacheFaker : Faker<PartyCache>
 {
-    private int _refPartyId;
+    private int _partyIndex;
     private int _hcIndex;
 
     public PartyCacheFaker(int[] homeCenterNumbers)
     {
-        _refPartyId = 0;
+        _partyIndex = 0;
         _hcIndex = 0;
 
-        RuleFor(p => p.RefPartyId, _ => ++_refPartyId);
-        RuleFor(p => p.RefPublicId, _ => SeedConstants.DeterministicGuid("party", _refPartyId));
+        RuleFor(p => p.RefPublicId, _ => SeedConstants.DeterministicGuid("party", ++_partyIndex));
         RuleFor(p => p.PartyType, PartyType.Person);
         RuleFor(p => p.LifecycleStage, f => f.PickRandom<LifecycleStage>());
         // Round-robin home center assignment — deterministic regardless of Bogus seed.

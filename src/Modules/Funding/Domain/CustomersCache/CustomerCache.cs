@@ -9,6 +9,7 @@ namespace Modules.Funding.Domain.CustomersCache;
 public sealed class CustomerCache : ICacheProjection
 {
     public int Id { get; set; }
+    public Guid RefPublicId { get; set; }
     [SensitiveData] public string? LoanId { get; set; }
     [SensitiveData] public string FirstName { get; set; } = string.Empty;
     [SensitiveData] public string LastName { get; set; } = string.Empty;

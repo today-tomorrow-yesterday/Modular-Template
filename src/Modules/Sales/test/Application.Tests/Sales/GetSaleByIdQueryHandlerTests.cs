@@ -237,7 +237,6 @@ public sealed class GetSaleByIdQueryHandlerTests
         var party = new PartyCache
         {
             Id = 1,
-            RefPartyId = 1,
             RefPublicId = partyPublicId ?? Guid.NewGuid(),
             PartyType = includePerson ? PartyType.Person : PartyType.Organization,
             HomeCenterNumber = partyHomeCenterNumber,

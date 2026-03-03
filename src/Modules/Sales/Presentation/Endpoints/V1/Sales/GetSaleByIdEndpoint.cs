@@ -99,7 +99,7 @@ public sealed record RetailLocationResponse(
     int? HomeCenterNumber);
 
 public sealed record SaleCustomerResponse(
-    int RefCustomerId,
+    Guid RefCustomerId,
     string FirstName,
     string? MiddleName,
     string LastName,

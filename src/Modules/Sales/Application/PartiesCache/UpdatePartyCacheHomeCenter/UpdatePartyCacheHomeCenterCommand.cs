@@ -3,5 +3,5 @@ using Rtl.Core.Application.Messaging;
 namespace Modules.Sales.Application.PartiesCache.UpdatePartyCacheHomeCenter;
 
 public sealed record UpdatePartyCacheHomeCenterCommand(
-    int RefPartyId,
+    Guid RefPublicId,
     int NewHomeCenterNumber) : ICommand;

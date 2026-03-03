@@ -20,7 +20,7 @@ internal sealed class UpdatePartyCacheSalesAssignmentsCommandHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         await partyCacheWriter.UpdateSalesAssignmentsAsync(
-            request.RefPartyId,
+            request.RefPublicId,
             request.PrimaryFederatedId,
             request.PrimaryFirstName,
             request.PrimaryLastName,

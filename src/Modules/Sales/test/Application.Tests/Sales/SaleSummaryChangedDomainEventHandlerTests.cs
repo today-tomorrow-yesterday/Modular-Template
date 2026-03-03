@@ -151,7 +151,6 @@ public sealed class SaleSummaryChangedDomainEventHandlerTests
         var party = new PartyCache
         {
             Id = 1,
-            RefPartyId = 1,
             RefPublicId = Guid.NewGuid(),
             DisplayName = customerName
         };

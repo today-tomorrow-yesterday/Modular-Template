@@ -6,8 +6,7 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record PartyCoBuyerChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int PartyId,
-    Guid PartyPublicId,
-    int? CoBuyerPartyId,
+    Guid PartyId,
+    Guid? CoBuyerPublicId,
     string? CoBuyerFirstName,
     string? CoBuyerLastName) : IntegrationEvent(Id, OccurredOnUtc);

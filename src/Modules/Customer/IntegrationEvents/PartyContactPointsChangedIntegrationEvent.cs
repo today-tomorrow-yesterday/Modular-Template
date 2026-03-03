@@ -6,6 +6,5 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record PartyContactPointsChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int PartyId,
-    Guid PartyPublicId,
+    Guid PartyId,
     ContactPointDto[] ContactPoints) : IntegrationEvent(Id, OccurredOnUtc);

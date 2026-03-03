@@ -14,7 +14,11 @@ internal sealed class CustomerCacheConfiguration : IEntityTypeConfiguration<Cust
 
         builder.Property(c => c.Id)
             .HasColumnName("id")
-            .ValueGeneratedNever();
+            .UseIdentityAlwaysColumn();
+
+        builder.Property(c => c.RefPublicId)
+            .HasColumnName("ref_public_id")
+            .IsRequired();
 
         builder.Property(c => c.LoanId)
             .HasColumnName("loan_id")
@@ -37,6 +41,10 @@ internal sealed class CustomerCacheConfiguration : IEntityTypeConfiguration<Cust
         builder.Property(c => c.LastSyncedAtUtc)
             .HasColumnName("last_synced_at_utc")
             .IsRequired();
+
+        builder.HasIndex(c => c.RefPublicId)
+            .IsUnique()
+            .HasDatabaseName("ix_customers_cache_ref_public_id");
 
         builder.HasIndex(c => c.LoanId)
             .HasDatabaseName("ix_customers_cache_loan_id");

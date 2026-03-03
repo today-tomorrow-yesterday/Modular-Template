@@ -30,7 +30,7 @@ internal sealed class DeliveryAddressCreatedDomainEventHandler(
                 domainEvent.OccurredOnUtc,
                 deliveryAddress.SaleId,
                 deliveryAddress.Sale.PublicId,
-                deliveryAddress.Sale.PartyId,
+                deliveryAddress.Sale.Party?.RefPublicId,
                 deliveryAddress.OccupancyType,
                 deliveryAddress.IsWithinCityLimits,
                 deliveryAddress.AddressLine1,

@@ -160,7 +160,6 @@ public sealed class CreateSaleCommandHandlerTests
         var party = new PartyCache
         {
             Id = partyId,
-            RefPartyId = partyId,
             RefPublicId = TestPartyPublicId,
             DisplayName = "Test Customer"
         };

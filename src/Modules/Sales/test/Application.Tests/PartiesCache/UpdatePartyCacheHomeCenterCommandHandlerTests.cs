@@ -24,12 +24,13 @@ public sealed class UpdatePartyCacheHomeCenterCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_updates_home_center_number()
     {
-        var command = new UpdatePartyCacheHomeCenterCommand(RefPartyId: 1, NewHomeCenterNumber: 200);
+        var refPublicId = Guid.NewGuid();
+        var command = new UpdatePartyCacheHomeCenterCommand(RefPublicId: refPublicId, NewHomeCenterNumber: 200);
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         await _partyCacheWriter.Received(1).UpdateHomeCenterNumberAsync(
-            1, 200, _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
+            refPublicId, 200, _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
     }
 }

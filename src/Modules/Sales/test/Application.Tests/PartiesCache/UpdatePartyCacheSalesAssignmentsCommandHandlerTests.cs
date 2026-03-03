@@ -24,8 +24,9 @@ public sealed class UpdatePartyCacheSalesAssignmentsCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_updates_sales_assignments()
     {
+        var refPublicId = Guid.NewGuid();
         var command = new UpdatePartyCacheSalesAssignmentsCommand(
-            RefPartyId: 1,
+            RefPublicId: refPublicId,
             PrimaryFederatedId: "fed-001",
             PrimaryFirstName: "Alice",
             PrimaryLastName: "Smith",
@@ -37,7 +38,7 @@ public sealed class UpdatePartyCacheSalesAssignmentsCommandHandlerTests
 
         Assert.True(result.IsSuccess);
         await _partyCacheWriter.Received(1).UpdateSalesAssignmentsAsync(
-            1, "fed-001", "Alice", "Smith", "fed-002", "Bob", "Jones",
+            refPublicId, "fed-001", "Alice", "Smith", "fed-002", "Bob", "Jones",
             _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
     }
 }

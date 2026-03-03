@@ -20,7 +20,7 @@ internal sealed class UpdatePartyCacheNameCommandHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         await partyCacheWriter.UpdateNameAsync(
-            request.RefPartyId,
+            request.RefPublicId,
             request.PartyType,
             request.DisplayName,
             request.FirstName,

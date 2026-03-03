@@ -24,12 +24,13 @@ public sealed class UpdatePartyCacheMailingAddressCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_updates_mailing_address_timestamp()
     {
-        var command = new UpdatePartyCacheMailingAddressCommand(RefPartyId: 1);
+        var refPublicId = Guid.NewGuid();
+        var command = new UpdatePartyCacheMailingAddressCommand(RefPublicId: refPublicId);
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         await _partyCacheWriter.Received(1).UpdateMailingAddressAsync(
-            1, _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
+            refPublicId, _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
     }
 }

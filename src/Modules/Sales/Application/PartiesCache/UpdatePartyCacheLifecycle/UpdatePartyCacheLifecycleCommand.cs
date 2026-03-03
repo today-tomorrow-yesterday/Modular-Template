@@ -4,5 +4,5 @@ using Rtl.Core.Application.Messaging;
 namespace Modules.Sales.Application.PartiesCache.UpdatePartyCacheLifecycle;
 
 public sealed record UpdatePartyCacheLifecycleCommand(
-    int RefPartyId,
+    Guid RefPublicId,
     LifecycleStage NewLifecycleStage) : ICommand;

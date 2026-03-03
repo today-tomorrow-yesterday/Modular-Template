@@ -31,7 +31,6 @@ internal sealed class PartyCreatedDomainEventHandler(
             new PartyCreatedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                party.Id,
                 party.PublicId,
                 party.PartyType.ToString(),
                 party.LifecycleStage.ToString(),
@@ -66,7 +65,7 @@ internal sealed class PartyCreatedDomainEventHandler(
                     sa.SalesPerson.LotNumber,
                     sa.SalesPerson.FederatedId))
                 .ToArray(),
-            person.CoBuyerPartyId,
+            (person.CoBuyer as Person)?.PublicId,
             (person.CoBuyer as Person)?.Name?.FirstName,
             (person.CoBuyer as Person)?.Name?.LastName);
     }

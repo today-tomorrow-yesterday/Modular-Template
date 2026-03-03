@@ -3,4 +3,4 @@ using Rtl.Core.Application.Messaging;
 namespace Modules.Sales.Application.PartiesCache.UpdatePartyCacheMailingAddress;
 
 public sealed record UpdatePartyCacheMailingAddressCommand(
-    int RefPartyId) : ICommand;
+    Guid RefPublicId) : ICommand;

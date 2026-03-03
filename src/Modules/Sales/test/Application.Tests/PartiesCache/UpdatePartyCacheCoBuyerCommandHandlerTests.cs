@@ -24,13 +24,14 @@ public sealed class UpdatePartyCacheCoBuyerCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_updates_co_buyer()
     {
+        var refPublicId = Guid.NewGuid();
         var command = new UpdatePartyCacheCoBuyerCommand(
-            RefPartyId: 1, CoBuyerFirstName: "Jane", CoBuyerLastName: "Doe");
+            RefPublicId: refPublicId, CoBuyerFirstName: "Jane", CoBuyerLastName: "Doe");
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         await _partyCacheWriter.Received(1).UpdateCoBuyerAsync(
-            1, "Jane", "Doe", _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
+            refPublicId, "Jane", "Doe", _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
     }
 }

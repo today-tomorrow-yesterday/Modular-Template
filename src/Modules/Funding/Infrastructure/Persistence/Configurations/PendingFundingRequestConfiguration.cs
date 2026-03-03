@@ -28,8 +28,8 @@ internal sealed class PendingFundingRequestConfiguration : IEntityTypeConfigurat
             .HasColumnName("package_id")
             .IsRequired();
 
-        builder.Property(p => p.RefCustomerId)
-            .HasColumnName("ref_customer_id");
+        builder.Property(p => p.RefCustomerPublicId)
+            .HasColumnName("ref_customer_public_id");
 
         builder.Property(p => p.RequestAmount)
             .HasColumnName("request_amount")

@@ -20,7 +20,7 @@ internal sealed class UpdatePartyCacheLifecycleCommandHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         await partyCacheWriter.UpdateLifecycleStageAsync(
-            request.RefPartyId,
+            request.RefPublicId,
             request.NewLifecycleStage,
             dateTimeProvider.UtcNow,
             cancellationToken);

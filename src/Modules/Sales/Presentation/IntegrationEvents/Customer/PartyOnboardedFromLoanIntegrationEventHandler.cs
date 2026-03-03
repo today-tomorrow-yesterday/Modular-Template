@@ -30,8 +30,7 @@ internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
 
         var partyCache = new PartyCache
         {
-            RefPartyId = integrationEvent.PartyId,
-            RefPublicId = integrationEvent.PublicId,
+            RefPublicId = integrationEvent.PartyId,
             PartyType = PartyType.Person,
             LifecycleStage = LifecycleStage.Customer,
             HomeCenterNumber = integrationEvent.HomeCenterNumber,

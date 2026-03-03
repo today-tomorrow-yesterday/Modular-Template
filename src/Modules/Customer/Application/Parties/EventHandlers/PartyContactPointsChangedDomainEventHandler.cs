@@ -30,7 +30,6 @@ internal sealed class PartyContactPointsChangedDomainEventHandler(
             new PartyContactPointsChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                party.Id,
                 party.PublicId,
                 party.ContactPoints.ToIntegrationDtos()),
             cancellationToken);

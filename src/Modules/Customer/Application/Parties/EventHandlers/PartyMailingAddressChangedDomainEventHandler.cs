@@ -30,7 +30,6 @@ internal sealed class PartyMailingAddressChangedDomainEventHandler(
             new PartyMailingAddressChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                party.Id,
                 party.PublicId,
                 party.MailingAddress.ToIntegrationDto()),
             cancellationToken);

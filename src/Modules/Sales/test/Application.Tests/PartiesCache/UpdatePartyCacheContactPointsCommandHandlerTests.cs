@@ -24,13 +24,14 @@ public sealed class UpdatePartyCacheContactPointsCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_updates_contact_points()
     {
+        var refPublicId = Guid.NewGuid();
         var command = new UpdatePartyCacheContactPointsCommand(
-            RefPartyId: 1, Email: "john@test.com", Phone: "5551234567");
+            RefPublicId: refPublicId, Email: "john@test.com", Phone: "5551234567");
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         await _partyCacheWriter.Received(1).UpdateContactPointsAsync(
-            1, "john@test.com", "5551234567", _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
+            refPublicId, "john@test.com", "5551234567", _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
     }
 }

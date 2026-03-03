@@ -38,7 +38,6 @@ internal sealed class PartyNameChangedDomainEventHandler(
             new PartyNameChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                party.Id,
                 party.PublicId,
                 party.PartyType.ToString(),
                 firstName,

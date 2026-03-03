@@ -31,9 +31,8 @@ internal sealed class PartyCoBuyerChangedDomainEventHandler(
             new PartyCoBuyerChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                person.Id,
                 person.PublicId,
-                person.CoBuyerPartyId,
+                (person.CoBuyer as Person)?.PublicId,
                 (person.CoBuyer as Person)?.Name?.FirstName,
                 (person.CoBuyer as Person)?.Name?.LastName),
             cancellationToken);

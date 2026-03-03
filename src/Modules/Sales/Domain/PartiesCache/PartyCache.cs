@@ -21,8 +21,7 @@ public enum LifecycleStage
 public sealed class PartyCache : ICacheProjection
 {
     public int Id { get; set; }
-    public int RefPartyId { get; set; } // Upsert key
-    public Guid RefPublicId { get; set; }
+    public Guid RefPublicId { get; set; } // Upsert key
     public PartyType PartyType { get; set; }
     public LifecycleStage LifecycleStage { get; set; }
     public int HomeCenterNumber { get; set; } // Used as MHC in iSeries commission request

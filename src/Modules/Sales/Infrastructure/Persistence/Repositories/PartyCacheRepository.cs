@@ -25,7 +25,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
         var existing = await DbSet
             .Include(p => p.Person)
             .Include(p => p.Organization)
-            .FirstOrDefaultAsync(p => p.RefPartyId == partyCache.RefPartyId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.RefPublicId == partyCache.RefPublicId, cancellationToken);
 
         if (existing is null)
         {
@@ -92,13 +92,13 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     }
 
     public async Task UpdateLifecycleStageAsync(
-        int refPartyId,
+        Guid refPublicId,
         LifecycleStage newLifecycleStage,
         DateTime lastSyncedAtUtc,
         CancellationToken cancellationToken = default)
     {
         var existing = await DbSet
-            .FirstOrDefaultAsync(p => p.RefPartyId == refPartyId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.RefPublicId == refPublicId, cancellationToken);
 
         if (existing is null) return;
 
@@ -109,13 +109,13 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     }
 
     public async Task UpdateHomeCenterNumberAsync(
-        int refPartyId,
+        Guid refPublicId,
         int newHomeCenterNumber,
         DateTime lastSyncedAtUtc,
         CancellationToken cancellationToken = default)
     {
         var existing = await DbSet
-            .FirstOrDefaultAsync(p => p.RefPartyId == refPartyId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.RefPublicId == refPublicId, cancellationToken);
 
         if (existing is null) return;
 
@@ -126,7 +126,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     }
 
     public async Task UpdateNameAsync(
-        int refPartyId,
+        Guid refPublicId,
         PartyType partyType,
         string displayName,
         string? firstName,
@@ -139,7 +139,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
         var existing = await DbSet
             .Include(p => p.Person)
             .Include(p => p.Organization)
-            .FirstOrDefaultAsync(p => p.RefPartyId == refPartyId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.RefPublicId == refPublicId, cancellationToken);
 
         if (existing is null) return;
 
@@ -161,7 +161,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     }
 
     public async Task UpdateContactPointsAsync(
-        int refPartyId,
+        Guid refPublicId,
         string? email,
         string? phone,
         DateTime lastSyncedAtUtc,
@@ -169,7 +169,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     {
         var existing = await DbSet
             .Include(p => p.Person)
-            .FirstOrDefaultAsync(p => p.RefPartyId == refPartyId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.RefPublicId == refPublicId, cancellationToken);
 
         if (existing?.Person is null) return;
 
@@ -181,7 +181,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     }
 
     public async Task UpdateSalesAssignmentsAsync(
-        int refPartyId,
+        Guid refPublicId,
         string? primaryFederatedId,
         string? primaryFirstName,
         string? primaryLastName,
@@ -193,7 +193,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     {
         var existing = await DbSet
             .Include(p => p.Person)
-            .FirstOrDefaultAsync(p => p.RefPartyId == refPartyId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.RefPublicId == refPublicId, cancellationToken);
 
         if (existing?.Person is null) return;
 
@@ -209,7 +209,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     }
 
     public async Task UpdateCoBuyerAsync(
-        int refPartyId,
+        Guid refPublicId,
         string? coBuyerFirstName,
         string? coBuyerLastName,
         DateTime lastSyncedAtUtc,
@@ -217,7 +217,7 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     {
         var existing = await DbSet
             .Include(p => p.Person)
-            .FirstOrDefaultAsync(p => p.RefPartyId == refPartyId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.RefPublicId == refPublicId, cancellationToken);
 
         if (existing?.Person is null) return;
 
@@ -229,13 +229,13 @@ internal sealed class PartyCacheRepository(SalesDbContext dbContext)
     }
 
     public async Task UpdateMailingAddressAsync(
-        int refPartyId,
+        Guid refPublicId,
         DateTime lastSyncedAtUtc,
         CancellationToken cancellationToken = default)
     {
         // No mailing address columns cached currently — update sync timestamp only.
         var existing = await DbSet
-            .FirstOrDefaultAsync(p => p.RefPartyId == refPartyId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.RefPublicId == refPublicId, cancellationToken);
 
         if (existing is null) return;
 

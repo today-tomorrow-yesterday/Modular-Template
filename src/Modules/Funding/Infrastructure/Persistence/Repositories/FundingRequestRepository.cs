@@ -10,14 +10,14 @@ internal sealed class FundingRequestRepository(FundingDbContext dbContext)
 {
     protected override Expression<Func<FundingRequest, int>> IdSelector => entity => entity.Id;
 
-    public async Task<IReadOnlyCollection<FundingRequest>> GetByRefCustomerIdAndLoanIdAsync(
-        int refCustomerId,
+    public async Task<IReadOnlyCollection<FundingRequest>> GetByRefCustomerPublicIdAndLoanIdAsync(
+        Guid refCustomerPublicId,
         string loanId,
         CancellationToken cancellationToken = default)
     {
         return await DbSet
             .AsNoTracking()
-            .Where(f => f.RefCustomerId == refCustomerId)
+            .Where(f => f.RefCustomerPublicId == refCustomerPublicId)
             .ToListAsync(cancellationToken);
     }
 }

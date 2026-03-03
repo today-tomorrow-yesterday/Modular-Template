@@ -6,6 +6,5 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record PartyHomeCenterChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int PartyId,
-    Guid PartyPublicId,
+    Guid PartyId,
     int NewHomeCenterNumber) : IntegrationEvent(Id, OccurredOnUtc);

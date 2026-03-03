@@ -24,13 +24,14 @@ public sealed class UpdatePartyCacheLifecycleCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_updates_lifecycle_stage()
     {
+        var refPublicId = Guid.NewGuid();
         var command = new UpdatePartyCacheLifecycleCommand(
-            RefPartyId: 1, NewLifecycleStage: LifecycleStage.Customer);
+            RefPublicId: refPublicId, NewLifecycleStage: LifecycleStage.Customer);
 
         var result = await _sut.Handle(command, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         await _partyCacheWriter.Received(1).UpdateLifecycleStageAsync(
-            1, LifecycleStage.Customer, _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
+            refPublicId, LifecycleStage.Customer, _dateTimeProvider.UtcNow, Arg.Any<CancellationToken>());
     }
 }

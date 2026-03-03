@@ -19,7 +19,7 @@ public sealed class FundingRequest : AuditableEntity
     public int? CustomerId { get; private set; }
     public CustomerCache? Customer { get; private set; }
 
-    public int? RefCustomerId { get; private set; }
+    public Guid? RefCustomerPublicId { get; private set; }
 
     public FundingRequestType RequestType { get; private set; }
 
@@ -43,7 +43,7 @@ public sealed class FundingRequest : AuditableEntity
         int saleId,
         int packageId,
         int? customerId,
-        int? refCustomerId,
+        Guid? refCustomerPublicId,
         FundingRequestType requestType,
         decimal requestAmount,
         int? homeCenterNumber,
@@ -54,7 +54,7 @@ public sealed class FundingRequest : AuditableEntity
             SaleId = saleId,
             PackageId = packageId,
             CustomerId = customerId,
-            RefCustomerId = refCustomerId,
+            RefCustomerPublicId = refCustomerPublicId,
             RequestType = requestType,
             Status = FundingRequestStatus.Pending,
             RequestAmount = requestAmount,

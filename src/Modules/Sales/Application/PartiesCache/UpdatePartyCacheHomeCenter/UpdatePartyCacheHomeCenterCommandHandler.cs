@@ -20,7 +20,7 @@ internal sealed class UpdatePartyCacheHomeCenterCommandHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         await partyCacheWriter.UpdateHomeCenterNumberAsync(
-            request.RefPartyId,
+            request.RefPublicId,
             request.NewHomeCenterNumber,
             dateTimeProvider.UtcNow,
             cancellationToken);

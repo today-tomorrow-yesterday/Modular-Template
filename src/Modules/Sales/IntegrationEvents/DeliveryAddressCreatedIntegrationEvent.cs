@@ -10,7 +10,7 @@ public sealed record DeliveryAddressCreatedIntegrationEvent(
     DateTime OccurredOnUtc,
     int SaleId,
     Guid SalePublicId,
-    int? PartyId,
+    Guid? PartyPublicId,
     string? OccupancyType,
     bool IsWithinCityLimits,
     string? AddressLine1,

@@ -17,9 +17,9 @@ internal sealed class PartyCoBuyerChangedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing PartyCoBuyerChanged: PartyId={PartyId}, CoBuyerPartyId={CoBuyerPartyId}",
+            "Processing PartyCoBuyerChanged: PartyId={PartyId}, CoBuyerPublicId={CoBuyerPublicId}",
             integrationEvent.PartyId,
-            integrationEvent.CoBuyerPartyId);
+            integrationEvent.CoBuyerPublicId);
 
         await sender.Send(
             new UpdatePartyCacheCoBuyerCommand(

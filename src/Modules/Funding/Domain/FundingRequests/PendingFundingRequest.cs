@@ -15,7 +15,7 @@ public sealed class PendingFundingRequest : Entity
 
     public int PackageId { get; private set; }
 
-    public int? RefCustomerId { get; private set; }
+    public Guid? RefCustomerPublicId { get; private set; }
 
     [SensitiveData] public decimal RequestAmount { get; private set; }
 
@@ -29,7 +29,7 @@ public sealed class PendingFundingRequest : Entity
         string loanId,
         int saleId,
         int packageId,
-        int? refCustomerId,
+        Guid? refCustomerPublicId,
         decimal requestAmount,
         int? homeCenterNumber,
         IEnumerable<FundingKey> fundingKeys)
@@ -39,7 +39,7 @@ public sealed class PendingFundingRequest : Entity
             LoanId = loanId,
             SaleId = saleId,
             PackageId = packageId,
-            RefCustomerId = refCustomerId,
+            RefCustomerPublicId = refCustomerPublicId,
             RequestAmount = requestAmount,
             HomeCenterNumber = homeCenterNumber,
             CreatedAtUtc = DateTime.UtcNow

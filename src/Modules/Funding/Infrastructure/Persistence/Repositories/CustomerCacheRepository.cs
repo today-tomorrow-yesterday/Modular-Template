@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Modules.Funding.Domain.CustomersCache;
 using Modules.Funding.Presentation.IntegrationEvents;
 using Rtl.Core.Infrastructure.Caching;
@@ -11,7 +12,8 @@ internal sealed class CustomerCacheRepository(FundingDbContext dbContext)
 {
     public async Task UpsertAsync(CustomerCache customerCache, CancellationToken cancellationToken = default)
     {
-        var existing = await DbSet.FindAsync([customerCache.Id], cancellationToken);
+        var existing = await DbSet
+            .FirstOrDefaultAsync(c => c.RefPublicId == customerCache.RefPublicId, cancellationToken);
 
         if (existing is null)
         {
@@ -29,9 +31,10 @@ internal sealed class CustomerCacheRepository(FundingDbContext dbContext)
         await DbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateNameAsync(int partyId, string firstName, string lastName, DateTime lastSyncedAtUtc, CancellationToken cancellationToken = default)
+    public async Task UpdateNameAsync(Guid refPublicId, string firstName, string lastName, DateTime lastSyncedAtUtc, CancellationToken cancellationToken = default)
     {
-        var existing = await DbSet.FindAsync([partyId], cancellationToken);
+        var existing = await DbSet
+            .FirstOrDefaultAsync(c => c.RefPublicId == refPublicId, cancellationToken);
 
         if (existing is null)
         {
@@ -45,9 +48,10 @@ internal sealed class CustomerCacheRepository(FundingDbContext dbContext)
         await DbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task UpdateHomeCenterAsync(int partyId, int homeCenterNumber, DateTime lastSyncedAtUtc, CancellationToken cancellationToken = default)
+    public async Task UpdateHomeCenterAsync(Guid refPublicId, int homeCenterNumber, DateTime lastSyncedAtUtc, CancellationToken cancellationToken = default)
     {
-        var existing = await DbSet.FindAsync([partyId], cancellationToken);
+        var existing = await DbSet
+            .FirstOrDefaultAsync(c => c.RefPublicId == refPublicId, cancellationToken);
 
         if (existing is null)
         {

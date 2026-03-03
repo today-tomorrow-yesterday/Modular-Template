@@ -26,7 +26,7 @@ public sealed class UpsertPartyCacheCommandHandlerTests
     {
         var partyCache = new PartyCache
         {
-            RefPartyId = 1,
+            RefPublicId = Guid.NewGuid(),
             PartyType = PartyType.Person,
             DisplayName = "John Doe"
         };
@@ -43,7 +43,7 @@ public sealed class UpsertPartyCacheCommandHandlerTests
     [Fact]
     public async Task Sets_LastSyncedAtUtc_from_date_time_provider()
     {
-        var partyCache = new PartyCache { RefPartyId = 1, DisplayName = "Test" };
+        var partyCache = new PartyCache { RefPublicId = Guid.NewGuid(), DisplayName = "Test" };
 
         await _sut.Handle(
             new UpsertPartyCacheCommand(partyCache, null, null), CancellationToken.None);

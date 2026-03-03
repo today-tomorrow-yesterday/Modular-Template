@@ -30,7 +30,6 @@ internal sealed class PartyLifecycleAdvancedDomainEventHandler(
             new PartyLifecycleAdvancedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
-                party.Id,
                 party.PublicId,
                 domainEvent.NewStage.ToString()),
             cancellationToken);
