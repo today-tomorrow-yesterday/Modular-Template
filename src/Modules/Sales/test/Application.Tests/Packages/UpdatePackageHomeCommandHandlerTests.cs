@@ -6,6 +6,7 @@ using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.ProjectCosts;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
 using Rtl.Core.Application.Adapters.ISeries.Pricing;
@@ -21,12 +22,13 @@ public sealed class UpdatePackageHomeCommandHandlerTests
     private readonly IInventoryCacheQueries _inventoryCacheQueries = Substitute.For<IInventoryCacheQueries>();
     private readonly IiSeriesAdapter _iSeriesAdapter = Substitute.For<IiSeriesAdapter>();
     private readonly IUnitOfWork<ISalesModule> _unitOfWork = Substitute.For<IUnitOfWork<ISalesModule>>();
+    private readonly ILogger<UpdatePackageHomeCommandHandler> _logger = Substitute.For<ILogger<UpdatePackageHomeCommandHandler>>();
     private readonly UpdatePackageHomeCommandHandler _sut;
 
     public UpdatePackageHomeCommandHandlerTests()
     {
         _sut = new UpdatePackageHomeCommandHandler(
-            _packageRepository, _inventoryCacheQueries, _iSeriesAdapter, _unitOfWork);
+            _packageRepository, _inventoryCacheQueries, _iSeriesAdapter, _unitOfWork, _logger);
     }
 
     [Fact]

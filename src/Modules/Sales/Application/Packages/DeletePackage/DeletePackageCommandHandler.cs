@@ -7,7 +7,7 @@ using Rtl.Core.Domain.Results;
 namespace Modules.Sales.Application.Packages.DeletePackage;
 
 // Flow: DELETE /api/v1/packages/{publicPackageId} → DeletePackageCommand →
-//   guard primary-with-siblings → hard delete → 204 NoContent
+//   guard draft-only, sole-remaining, primary-with-siblings → hard delete → 200 OK
 internal sealed class DeletePackageCommandHandler(
     IPackageRepository packageRepository,
     IUnitOfWork<ISalesModule> unitOfWork)
@@ -33,7 +33,9 @@ internal sealed class DeletePackageCommandHandler(
         }
 
         // Step 3: Guard — cannot delete the sole remaining package on a sale
-        var salePackages = await GetSalePackagesAsync(package.SaleId, cancellationToken);
+        var salePackages = await packageRepository.GetBySaleIdAsync(
+            package.SaleId, cancellationToken);
+
         if (salePackages.Count <= 1)
         {
             return Result.Failure(PackageErrors.CannotDeleteLastPackage());
@@ -48,16 +50,9 @@ internal sealed class DeletePackageCommandHandler(
         // Step 5: Remove package (hard delete)
         packageRepository.Remove(package);
 
-        // Step 4: Persist
+        // Step 6: Persist
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }
-
-    private async Task<IReadOnlyCollection<Package>> GetSalePackagesAsync(
-        int saleId, CancellationToken cancellationToken) =>
-        await packageRepository.GetBySaleIdAsync(saleId, cancellationToken);
-
-    private static bool HasSiblings(Package package, IReadOnlyCollection<Package> allPackages) =>
-        allPackages.Count(p => p.Id != package.Id) > 0;
 }
