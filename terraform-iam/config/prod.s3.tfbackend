@@ -1,0 +1,3 @@
+region = "us-east-1"
+bucket = "prod.rtl.us-east-1.terraform-state"
+key    = "global/iam/core-api/iam.tfstate"

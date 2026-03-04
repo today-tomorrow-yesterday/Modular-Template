@@ -1,38 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Rtl.Core.Infrastructure.EventBus.Aws;
 
 /// <summary>
-/// Configuration options for AWS EventBridge and SQS messaging.
+/// Configuration options for SQS message consumption.
 /// </summary>
 /// <remarks>
-/// These options control how the application publishes events to EventBridge
-/// and consumes events from SQS queues.
+/// These options control how the application consumes events from SQS queues.
+/// Publishing is handled separately via <see cref="Emb.EmbProducerOptions"/> and the EMB 2.0 producer.
 /// </remarks>
-public sealed class AwsMessagingOptions : IValidatableObject
+public sealed class SqsConsumerOptions : IValidatableObject
 {
     /// <summary>
-    /// The configuration section name for AWS messaging options.
+    /// The configuration section name for SQS consumer options.
     /// </summary>
-    public const string SectionName = "Messaging:AwsMessaging";
-
-    /// <summary>
-    /// Gets or sets the name of the EventBridge event bus.
-    /// </summary>
-    /// <remarks>
-    /// If not explicitly configured, this is derived from <c>Application:ShortName</c>
-    /// with the pattern: {shortname}-events (e.g., "retail-core-events").
-    /// </remarks>
-    public string EventBusName { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the source identifier for events published to EventBridge.
-    /// </summary>
-    /// <remarks>
-    /// If not explicitly configured, this is derived from <c>Application:Name</c>
-    /// in lowercase (e.g., "Rtl.Core").
-    /// </remarks>
-    public string EventSource { get; set; } = string.Empty;
+    public const string SectionName = "Messaging:SqsConsumer";
 
     /// <summary>
     /// Gets or sets the URL of the SQS queue for this module to consume events from.

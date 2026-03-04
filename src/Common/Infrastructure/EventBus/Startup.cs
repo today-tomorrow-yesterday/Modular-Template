@@ -1,5 +1,7 @@
 using Amazon.EventBridge;
+using Amazon.SimpleSystemsManagement;
 using Amazon.SQS;
+using CMH.Common.EMBClient.Producer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Quartz;
 using Rtl.Core.Application.EventBus;
 using Rtl.Core.Infrastructure.EventBus.Aws;
+using Rtl.Core.Infrastructure.EventBus.Emb;
 using Rtl.Core.Infrastructure.EventBus.InMemory;
 using Rtl.Core.Infrastructure.Resilience;
 using System.Reflection;
@@ -22,7 +25,7 @@ public static class Startup
     /// <summary>
     /// Adds messaging services configured for the current environment.
     /// Development: In-memory event bus (synchronous, no external dependencies)
-    /// Production: EventBridge (publishing) + SQS (consuming)
+    /// Production: EMB 2.0 (CMH.Common.EMBClient → EventBridge) + SQS (consuming)
     /// </summary>
     internal static IServiceCollection AddMessagingServices(
         this IServiceCollection services,
@@ -39,24 +42,39 @@ public static class Startup
         }
         else
         {
-            // Production: EventBridge + SQS with resilience patterns
-            services.AddOptions<AwsMessagingOptions>()
-                .Bind(configuration.GetSection(AwsMessagingOptions.SectionName))
+            // --- SQS Consumer Options ---
+            services.AddOptions<SqsConsumerOptions>()
+                .Bind(configuration.GetSection(SqsConsumerOptions.SectionName))
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
+
+            // --- EMB Producer Options ---
+            services.AddOptions<EmbProducerOptions>()
+                .Bind(configuration.GetSection(EmbProducerOptions.SectionName))
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            // Register EMB producer config (required by CMH.Common.EMBClient internally)
+            services.AddSingleton(new EMBProducerConfigurationOptions());
+
+            // Resolve EMB producer settings and register EMB producer
+            var embSettings = configuration.GetSection(EmbProducerOptions.SectionName).Get<EmbProducerOptions>()!;
+            services.AddEmbProducer(embSettings.CostCenter, embSettings.EventBus);
 
             // Register AWS SDK clients
             services.AddAWSService<IAmazonEventBridge>();
             services.AddAWSService<IAmazonSQS>();
+            services.AddSingleton<IAmazonSimpleSystemsManagement>(
+                new AmazonSimpleSystemsManagementClient());
 
-            // EventBridge publisher with resilience wrapper (retry + circuit breaker)
-            services.AddScoped<EventBridgeEventBus>();
+            // EMB publisher with resilience wrapper (retry + circuit breaker)
+            services.AddScoped<EmbEventBus>();
             services.AddScoped<IEventBus>(sp =>
             {
-                var innerEventBus = sp.GetRequiredService<EventBridgeEventBus>();
+                var innerEventBus = sp.GetRequiredService<EmbEventBus>();
                 var resilienceOptions = sp.GetRequiredService<IOptions<ResilienceOptions>>();
-                var logger = sp.GetRequiredService<ILogger<ResilientEventBridgeEventBus>>();
-                return new ResilientEventBridgeEventBus(innerEventBus, resilienceOptions, logger);
+                var logger = sp.GetRequiredService<ILogger<ResilientEventBusWrapper>>();
+                return new ResilientEventBusWrapper(innerEventBus, resilienceOptions, logger);
             });
         }
 

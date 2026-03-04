@@ -11,7 +11,7 @@ The resilience layer protects the application from cascading failures when exter
 | Component | Purpose |
 |-----------|---------|
 | `ResilienceOptions` | Configuration for retry, circuit breaker, and timeout policies |
-| `ResilientEventBridgeEventBus` | Decorator that wraps `IEventBus` with resilience patterns |
+| `ResilientEventBusWrapper` | Decorator that wraps `IEventBus` with resilience patterns |
 
 ## Resilience Pipeline
 

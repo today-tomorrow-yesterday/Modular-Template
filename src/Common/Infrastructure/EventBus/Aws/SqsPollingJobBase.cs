@@ -35,13 +35,13 @@ namespace Rtl.Core.Infrastructure.EventBus.Aws;
 public abstract class SqsPollingJobBase(
     IAmazonSQS sqsClient,
     IEventDispatcher eventDispatcher,
-    IOptions<AwsMessagingOptions> options,
+    IOptions<SqsConsumerOptions> options,
     IFeatureFlagService featureFlagService,
     ILogger logger) : IJob
 {
     private readonly IAmazonSQS _sqsClient = sqsClient;
     private readonly IEventDispatcher _eventDispatcher = eventDispatcher;
-    private readonly AwsMessagingOptions _options = options.Value;
+    private readonly SqsConsumerOptions _options = options.Value;
     private readonly IFeatureFlagService _featureFlagService = featureFlagService;
     private readonly ILogger _logger = logger;
 

@@ -34,10 +34,6 @@ public static class InfrastructureConfiguration
         string databaseConnectionString,
         string redisConnectionString)
     {
-        // Register post-configure handlers to derive values from ApplicationOptions
-        // Note: ApplicationOptions must be registered before this via AddApplicationOptions()
-        services.ConfigureOptions<ConfigureAwsMessagingOptions>();
-
         services.AddOptions<Rtl.Core.Infrastructure.Security.EncryptionOptions>()
             .Bind(configuration.GetSection(Rtl.Core.Infrastructure.Security.EncryptionOptions.SectionName))
             .ValidateDataAnnotations()

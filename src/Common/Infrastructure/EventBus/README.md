@@ -14,8 +14,8 @@ The Event Bus provides asynchronous communication between modules using integrat
 | `IEventDispatcher` | Route events to handlers |
 | `IIntegrationEventHandler<T>` | Handle incoming events |
 | `InMemoryEventBus` | Development: synchronous dispatch |
-| `EventBridgeEventBus` | Production: publish to AWS EventBridge |
-| `ResilientEventBridgeEventBus` | Production: adds resilience patterns (retry, circuit breaker, timeout) |
+| `EmbEventBus` | Production: the actual EMB 2.0 publisher — builds the `EMBMessage<T>` envelope and calls `IEMBProducer.SendEventAsync()` to put events onto AWS EventBridge |
+| `ResilientEventBusWrapper` | Production: the `IEventBus` that domain event handlers actually resolve — wraps `EmbEventBus` with Polly resilience (retry, circuit breaker, timeout) before delegating the publish |
 | `SqsPollingJobBase` | Production: poll SQS for events |
 
 ## Usage
@@ -54,13 +54,19 @@ No configuration needed. `InMemoryEventBus` is automatically registered.
 
 ```json
 {
-  "AwsMessaging": {
-    "EventBusName": "rtl-core-events",
-    "EventSource": "Rtl.Core",
-    "SqsQueueUrl": "https://sqs.us-east-1.amazonaws.com/123456789/my-module-queue",
-    "PollingIntervalSeconds": 5,
-    "MaxMessages": 10,
-    "VisibilityTimeoutSeconds": 30
+  "Messaging": {
+    "SqsConsumer": {
+      "SqsQueueUrl": "https://sqs.us-east-1.amazonaws.com/123456789/my-module-queue",
+      "PollingIntervalSeconds": 5,
+      "MaxMessages": 10,
+      "VisibilityTimeoutSeconds": 30
+    },
+    "EmbProducer": {
+      "EventBus": "",
+      "CostCenter": "rtl",
+      "EventSource": "rtl",
+      "Reporter": "rtl.core"
+    }
   }
 }
 ```
@@ -77,7 +83,7 @@ Each module needs:
 internal sealed class ProcessSqsJob(
     IAmazonSQS sqsClient,
     IEventDispatcher eventDispatcher,
-    IOptions<AwsMessagingOptions> options,
+    IOptions<SqsConsumerOptions> options,
     IFeatureFlagService featureFlagService,
     ILogger<ProcessSqsJob> logger)
     : SqsPollingJobBase(sqsClient, eventDispatcher, options, featureFlagService, logger)
@@ -102,7 +108,33 @@ Handlers **must be idempotent** because SQS provides at-least-once delivery.
 | Check-then-act | `if (!exists) { create(); }` |
 | Idempotency key | Store processed event IDs |
 
-## Flow
+## Publishing Call Chain
+
+When a domain event handler calls `IEventBus.PublishAsync()`, the resolved implementation in
+production is `ResilientEventBusWrapper`. It does not publish anything itself — it adds fault
+tolerance around `EmbEventBus`, which does the actual publishing to AWS EventBridge via EMB 2.0.
+
+```
+DomainEventHandler
+    │  calls IEventBus.PublishAsync(integrationEvent)
+    ▼
+ResilientEventBusWrapper          ← what DI resolves for IEventBus
+    │  Polly pipeline: timeout → retry → circuit breaker → attempt timeout
+    ▼
+EmbEventBus                       ← the actual publisher
+    │  builds EMBMessage<T> envelope
+    │  calls IEMBProducer.SendEventAsync(source, detailType, message)
+    ▼
+CMH.Common.EMBClient              ← NuGet package (internal)
+    │  events:PutEvents
+    ▼
+AWS EventBridge
+    │  rule routes to SQS
+    ▼
+SQS Queue
+```
+
+## End-to-End Flow
 
 ```
 Publishing Module                    Consuming Module
@@ -113,7 +145,10 @@ Publishing Module                    Consuming Module
 4. IEventBus.PublishAsync()
         │
         ▼
-   [EventBridge]
+   ResilientEventBusWrapper
+        │ (retry / circuit breaker)
+        ▼
+   EmbEventBus → EventBridge
         │
         ▼
    [SQS Queue] ◄─── 5. ProcessSqsJob polls
@@ -124,7 +159,9 @@ Publishing Module                    Consuming Module
 
 ## Resilience
 
-In production, the `EventBridgeEventBus` is wrapped with `ResilientEventBridgeEventBus`, which adds:
+`ResilientEventBusWrapper` is a decorator that wraps `EmbEventBus` with Polly-based fault
+tolerance for publishing. It is the `IEventBus` implementation that all callers resolve from DI.
+It adds:
 
 | Pattern | Purpose |
 |---------|---------|

@@ -10,7 +10,7 @@ namespace Modules.Sales.Infrastructure.EventBus;
 internal sealed class ProcessSqsJob(
     IAmazonSQS sqsClient,
     IEventDispatcher eventDispatcher,
-    IOptions<AwsMessagingOptions> options,
+    IOptions<SqsConsumerOptions> options,
     IFeatureFlagService featureFlagService,
     ILogger<ProcessSqsJob> logger)
     : SqsPollingJobBase(sqsClient, eventDispatcher, options, featureFlagService, logger)

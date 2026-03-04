@@ -9,30 +9,38 @@ using Rtl.Core.Application.EventBus;
 namespace Rtl.Core.Infrastructure.Resilience;
 
 /// <summary>
-/// A resilient wrapper around <see cref="IEventBus"/> that adds timeout, retry, and circuit breaker patterns.
+/// Resilience wrapper that sits above <see cref="Rtl.Core.Infrastructure.EventBus.Emb.EmbEventBus"/>
+/// (or any <see cref="IEventBus"/> implementation) and adds Polly-based fault tolerance.
 /// </summary>
 /// <remarks>
 /// <para>
-/// This decorator implements the following resilience patterns (in order):
-/// 1. Total timeout - bounds the entire operation including all retries
-/// 2. Retry with exponential backoff and optional jitter
-/// 3. Circuit breaker to prevent cascading failures
-/// 4. Per-attempt timeout - bounds each individual publish attempt
+/// This is a decorator — it does not publish events itself. It wraps the inner
+/// <see cref="IEventBus"/> (currently <see cref="Rtl.Core.Infrastructure.EventBus.Emb.EmbEventBus"/>)
+/// with a Polly resilience pipeline so that every call to PublishAsync is protected by:
+/// </para>
+/// <list type="number">
+///   <item>Total timeout — bounds the entire operation including all retries</item>
+///   <item>Retry with exponential backoff and optional jitter</item>
+///   <item>Circuit breaker — fails fast when the downstream service is unavailable</item>
+///   <item>Per-attempt timeout — bounds each individual publish attempt</item>
+/// </list>
+/// <para>
+/// Call chain: IEventBus (this wrapper) → EmbEventBus → IEMBProducer → AWS EventBridge
 /// </para>
 /// <para>
-/// Configuration is provided via <see cref="ResilienceOptions"/>.
+/// Configuration is provided via <see cref="ResilienceOptions"/> in appsettings (section: "Resilience").
 /// </para>
 /// </remarks>
-internal sealed class ResilientEventBridgeEventBus : IEventBus
+internal sealed class ResilientEventBusWrapper : IEventBus
 {
     private readonly IEventBus _innerEventBus;
     private readonly ResiliencePipeline _resiliencePipeline;
-    private readonly ILogger<ResilientEventBridgeEventBus> _logger;
+    private readonly ILogger<ResilientEventBusWrapper> _logger;
 
-    public ResilientEventBridgeEventBus(
+    public ResilientEventBusWrapper(
         IEventBus innerEventBus,
         IOptions<ResilienceOptions> options,
-        ILogger<ResilientEventBridgeEventBus> logger)
+        ILogger<ResilientEventBusWrapper> logger)
     {
         _innerEventBus = innerEventBus;
         _logger = logger;
