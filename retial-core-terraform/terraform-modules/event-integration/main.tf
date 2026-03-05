@@ -1,6 +1,6 @@
 locals {
-  create             = length(var.event_subscriptions) > 0 && var.emb_spoke_name != ""
-  qualified_name     = "${var.environment}-${var.business_unit}-${var.service_name}"
+  create         = length(var.event_subscriptions) > 0 && var.emb_spoke_name != ""
+  qualified_name = "${var.environment}-${var.business_unit}-${var.service_name}"
 }
 
 # SQS Queue for domain events

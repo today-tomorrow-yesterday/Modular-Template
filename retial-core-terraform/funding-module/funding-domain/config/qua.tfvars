@@ -103,7 +103,7 @@ infrastructure_iam_role = {
 # ====================================================== #
 # Event Integration
 # ====================================================== #
-emb_spoke_name      = "qua-rtl-emb-spoke"
+emb_spoke_name = "qua-rtl-emb-spoke"
 event_subscriptions = [
   # Customer
   "rtl.customer.partyCreated",
