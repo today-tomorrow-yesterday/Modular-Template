@@ -5,6 +5,7 @@ namespace Modules.Inventory.IntegrationEvents;
 // ECST — non-price, non-availability fields changed (specs, serial number,
 // facility, etc.). Catch-all for property changes not covered by the
 // specific PriceRevised or AvailabilityChanged events.
+[EventDetailType("rtl.inventory.onLotHomeDetailsRevised")]
 public sealed record OnLotHomeDetailsRevisedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

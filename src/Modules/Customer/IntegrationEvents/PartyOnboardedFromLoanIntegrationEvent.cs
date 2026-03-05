@@ -5,6 +5,7 @@ namespace Modules.Customer.IntegrationEvents;
 // ECST integration event — Person onboarded from VMF LOS loan deal.
 // Always Person-only. No SalesAssignments. No CoBuyer.
 // Funding correlates via LoanId in Identifiers[].
+[EventDetailType("rtl.customer.partyOnboardedFromLoan")]
 public sealed record PartyOnboardedFromLoanIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

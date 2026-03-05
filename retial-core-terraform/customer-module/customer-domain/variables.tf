@@ -200,7 +200,7 @@ variable "emb_spoke_name" {
 }
 
 variable "event_subscriptions" {
-  description = "List of event detail-types to subscribe to (e.g. ['rtl.Customer.CustomerCreated'])"
+  description = "List of event detail-types to subscribe to (e.g. ['rtl.funding.onboardCustomerFromLoanRequested'])"
   type        = list(string)
   default     = []
 }

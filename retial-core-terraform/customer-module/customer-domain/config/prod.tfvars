@@ -104,4 +104,7 @@ infrastructure_iam_role = {
 # Event Integration
 # ====================================================== #
 emb_spoke_name      = "prod-rtl-emb-spoke"
-event_subscriptions = []
+event_subscriptions = [
+  # Funding
+  "rtl.funding.onboardCustomerFromLoanRequested",
+]

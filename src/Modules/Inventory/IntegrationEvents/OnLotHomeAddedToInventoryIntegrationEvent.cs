@@ -3,6 +3,7 @@ using Rtl.Core.Application.EventBus;
 namespace Modules.Inventory.IntegrationEvents;
 
 // ECST — first CDC sync for a new on-lot home. Consumers create their cache row.
+[EventDetailType("rtl.inventory.onLotHomeAddedToInventory")]
 public sealed record OnLotHomeAddedToInventoryIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

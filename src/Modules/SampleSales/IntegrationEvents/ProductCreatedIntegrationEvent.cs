@@ -6,6 +6,7 @@ namespace Modules.SampleSales.IntegrationEvents;
 /// Integration event published when a new product is created.
 /// Other modules (e.g., Orders) can subscribe to sync their ProductCache.
 /// </summary>
+[EventDetailType("rtl.sampleSales.productCreated")]
 public sealed record ProductCreatedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

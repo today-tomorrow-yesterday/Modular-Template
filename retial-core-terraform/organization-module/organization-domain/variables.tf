@@ -200,7 +200,7 @@ variable "emb_spoke_name" {
 }
 
 variable "event_subscriptions" {
-  description = "List of event detail-types to subscribe to (e.g. ['rtl.Organization.OrgUpdated'])"
+  description = "List of event detail-types to subscribe to (e.g. ['rtl.sales.saleSummaryChanged'])"
   type        = list(string)
   default     = []
 }

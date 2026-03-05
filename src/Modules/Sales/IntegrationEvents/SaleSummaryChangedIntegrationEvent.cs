@@ -3,6 +3,7 @@ using Rtl.Core.Application.EventBus;
 namespace Modules.Sales.IntegrationEvents;
 
 // Published to Inventory module when sale summary data changes.
+[EventDetailType("rtl.sales.saleSummaryChanged")]
 public sealed record SaleSummaryChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

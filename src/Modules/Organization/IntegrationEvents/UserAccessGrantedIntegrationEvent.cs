@@ -4,6 +4,7 @@ namespace Modules.Organization.IntegrationEvents;
 
 // ECST event — initial user cache population with AuthorizedHomeCenters.
 // Consumer: Sales (cache.authorized_users)
+[EventDetailType("rtl.organization.userAccessGranted")]
 public sealed record UserAccessGrantedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

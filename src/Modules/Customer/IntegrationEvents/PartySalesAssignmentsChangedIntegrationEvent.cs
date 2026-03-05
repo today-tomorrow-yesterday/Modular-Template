@@ -3,6 +3,7 @@ using Rtl.Core.Application.EventBus;
 namespace Modules.Customer.IntegrationEvents;
 
 // Published when a Person's sales assignments change (primary/supporting sales reps).
+[EventDetailType("rtl.customer.partySalesAssignmentsChanged")]
 public sealed record PartySalesAssignmentsChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

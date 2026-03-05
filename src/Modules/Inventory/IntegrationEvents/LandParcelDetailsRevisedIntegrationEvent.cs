@@ -5,6 +5,7 @@ namespace Modules.Inventory.IntegrationEvents;
 // ECST — non-cost, non-availability fields changed (address, county, stock type,
 // etc.). Catch-all for property changes not covered by the specific
 // AppraisalRevised or AvailabilityChanged events.
+[EventDetailType("rtl.inventory.landParcelDetailsRevised")]
 public sealed record LandParcelDetailsRevisedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

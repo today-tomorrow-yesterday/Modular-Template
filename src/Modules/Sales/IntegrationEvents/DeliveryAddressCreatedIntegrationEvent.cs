@@ -5,6 +5,7 @@ namespace Modules.Sales.IntegrationEvents;
 // Published by Sales when a delivery address is first created for a sale.
 // Intended consumer: Customers module (sync address to CRM) — not yet implemented.
 // Same payload as DeliveryAddressChangedIntegrationEvent, different event name.
+[EventDetailType("rtl.sales.deliveryAddressCreated")]
 public sealed record DeliveryAddressCreatedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

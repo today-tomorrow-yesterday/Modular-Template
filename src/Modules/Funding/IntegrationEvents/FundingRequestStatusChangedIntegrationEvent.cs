@@ -4,6 +4,7 @@ namespace Modules.Funding.IntegrationEvents;
 
 // ECST event — status/approval updates (Pending→Approved→Funded).
 // Consumer: Sales (cache.funding)
+[EventDetailType("rtl.funding.fundingRequestStatusChanged")]
 public sealed record FundingRequestStatusChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

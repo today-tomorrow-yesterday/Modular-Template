@@ -4,6 +4,7 @@ namespace Modules.Organization.IntegrationEvents;
 
 // ECST event — updated user authorization and home center assignments (all 22 role types).
 // Consumer: Sales (cache.authorized_users)
+[EventDetailType("rtl.organization.userAccessChanged")]
 public sealed record UserAccessChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

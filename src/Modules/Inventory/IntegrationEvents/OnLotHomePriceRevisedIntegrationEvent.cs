@@ -4,6 +4,7 @@ namespace Modules.Inventory.IntegrationEvents;
 
 // ECST — retail/invoice/original price fields changed. Consumers upsert cache
 // and may trigger pricing review on affected downstream entities.
+[EventDetailType("rtl.inventory.onLotHomePriceRevised")]
 public sealed record OnLotHomePriceRevisedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

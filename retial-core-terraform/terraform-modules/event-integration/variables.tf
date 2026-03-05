@@ -21,7 +21,7 @@ variable "emb_spoke_name" {
 }
 
 variable "event_subscriptions" {
-  description = "List of event detail-types to subscribe to (e.g. ['rtl.Sales.OrderCreated']). Resources are only created when this list is non-empty."
+  description = "List of event detail-types to subscribe to (e.g. ['rtl.customer.partyCreated']). Resources are only created when this list is non-empty."
   type        = list(string)
   default     = []
 }

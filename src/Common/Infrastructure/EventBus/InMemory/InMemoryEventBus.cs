@@ -27,7 +27,7 @@ internal sealed class InMemoryEventBus(
     public async Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default)
         where T : IIntegrationEvent
     {
-        var eventType = typeof(T).AssemblyQualifiedName!;
+        var eventType = IntegrationEvent.GetDetailType(typeof(T));
         var eventJson = JsonConvert.SerializeObject(integrationEvent, SerializerSettings.Instance);
 
         logger.LogDebug(

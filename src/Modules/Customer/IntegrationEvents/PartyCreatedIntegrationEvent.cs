@@ -3,6 +3,7 @@ using Rtl.Core.Application.EventBus;
 namespace Modules.Customer.IntegrationEvents;
 
 // ECST integration event — full Party state (polymorphic) for consumer caching.
+[EventDetailType("rtl.customer.partyCreated")]
 public sealed record PartyCreatedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

@@ -3,6 +3,7 @@ using Rtl.Core.Application.EventBus;
 namespace Modules.Sales.IntegrationEvents;
 
 // Published to Funding module to trigger FundingRequest creation.
+[EventDetailType("rtl.sales.packageReadyForFunding")]
 public sealed record PackageReadyForFundingIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

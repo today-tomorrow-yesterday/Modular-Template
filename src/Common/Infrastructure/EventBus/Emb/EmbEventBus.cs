@@ -9,13 +9,9 @@ namespace Rtl.Core.Infrastructure.EventBus.Emb;
 /// from CMH.Common.EMBClient.
 /// </summary>
 /// <remarks>
-/// Uses AssemblyQualifiedName as the DetailType so that the consumer-side
-/// EventDispatcher can call Type.GetType(detailType) to resolve
-/// the correct IIntegrationEventHandler.
-///
-/// This differs from the legacy Sales API which uses attribute-based routing
-/// (e.g., "rtl.sales.saleCreated") — that pattern is incompatible with
-/// our generic consumer dispatch.
+/// Uses <see cref="EventDetailTypeAttribute"/> to resolve a friendly detail-type
+/// (e.g., "rtl.sales.deliveryAddressCreated"); falls back to AssemblyQualifiedName
+/// for undecorated events.
 /// </remarks>
 internal sealed class EmbEventBus(
     IEMBProducer producer,
@@ -26,7 +22,7 @@ internal sealed class EmbEventBus(
     public async Task PublishAsync<T>(T integrationEvent, CancellationToken cancellationToken = default)
         where T : IIntegrationEvent
     {
-        var detailType = typeof(T).AssemblyQualifiedName!;
+        var detailType = IntegrationEvent.GetDetailType(typeof(T));
 
         var embMessage = new EMBMessage<T>
         {

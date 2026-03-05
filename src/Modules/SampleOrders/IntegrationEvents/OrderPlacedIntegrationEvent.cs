@@ -6,6 +6,7 @@ namespace Modules.SampleOrders.IntegrationEvents;
 /// Integration event published when a new order is placed.
 /// Other modules (e.g., Sales) can subscribe to sync their OrderCache.
 /// </summary>
+[EventDetailType("rtl.sampleOrders.orderPlaced")]
 public sealed record OrderPlacedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

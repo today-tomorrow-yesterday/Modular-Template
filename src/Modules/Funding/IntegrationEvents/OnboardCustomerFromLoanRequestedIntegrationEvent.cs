@@ -7,6 +7,7 @@ namespace Modules.Funding.IntegrationEvents;
 /// arrives with a LoanId but no CustomerId.
 /// Customers module subscribes and handles customer onboarding from VMF LOS.
 /// </summary>
+[EventDetailType("rtl.funding.onboardCustomerFromLoanRequested")]
 public sealed record OnboardCustomerFromLoanRequestedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

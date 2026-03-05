@@ -104,4 +104,31 @@ infrastructure_iam_role = {
 # Event Integration
 # ====================================================== #
 emb_spoke_name      = "qua-rtl-emb-spoke"
-event_subscriptions = []
+event_subscriptions = [
+  # Customer
+  "rtl.customer.partyCreated",
+  "rtl.customer.partyNameChanged",
+  "rtl.customer.partyHomeCenterChanged",
+  "rtl.customer.partyContactPointsChanged",
+  "rtl.customer.partySalesAssignmentsChanged",
+  "rtl.customer.partyCoBuyerChanged",
+  "rtl.customer.partyOnboardedFromLoan",
+  "rtl.customer.partyLifecycleAdvanced",
+  "rtl.customer.partyMailingAddressChanged",
+  # Inventory
+  "rtl.inventory.onLotHomeAddedToInventory",
+  "rtl.inventory.onLotHomeRemovedFromInventory",
+  "rtl.inventory.onLotHomePriceRevised",
+  "rtl.inventory.onLotHomeDetailsRevised",
+  "rtl.inventory.landParcelAddedToInventory",
+  "rtl.inventory.landParcelRemovedFromInventory",
+  "rtl.inventory.landParcelDetailsRevised",
+  "rtl.inventory.landParcelAppraisalRevised",
+  # Organization
+  "rtl.organization.userAccessGranted",
+  "rtl.organization.userAccessChanged",
+  "rtl.organization.homeCenterChanged",
+  # Funding
+  "rtl.funding.fundingRequestSubmitted",
+  "rtl.funding.fundingRequestStatusChanged",
+]

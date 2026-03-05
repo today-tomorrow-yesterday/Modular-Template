@@ -4,6 +4,7 @@ namespace Modules.Organization.IntegrationEvents;
 
 // ECST event — full home center state for cache population.
 // Consumers: Sales (sales.retail_locations), Inventory (cache.home_centers)
+[EventDetailType("rtl.organization.homeCenterChanged")]
 public sealed record HomeCenterChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

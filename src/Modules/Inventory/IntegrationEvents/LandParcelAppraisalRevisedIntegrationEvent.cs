@@ -4,6 +4,7 @@ namespace Modules.Inventory.IntegrationEvents;
 
 // ECST — land cost or appraisal value changed. Consumers upsert cache
 // and may trigger pricing review on affected downstream entities.
+[EventDetailType("rtl.inventory.landParcelAppraisalRevised")]
 public sealed record LandParcelAppraisalRevisedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

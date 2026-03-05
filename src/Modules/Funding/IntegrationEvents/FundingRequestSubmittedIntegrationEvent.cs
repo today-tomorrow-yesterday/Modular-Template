@@ -4,6 +4,7 @@ namespace Modules.Funding.IntegrationEvents;
 
 // ECST event — initial funding data with FundingKeys (lender identifiers for iSeries adapter).
 // Consumer: Sales (cache.funding)
+[EventDetailType("rtl.funding.fundingRequestSubmitted")]
 public sealed record FundingRequestSubmittedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,

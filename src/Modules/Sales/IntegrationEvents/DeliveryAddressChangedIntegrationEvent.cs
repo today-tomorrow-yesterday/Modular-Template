@@ -4,6 +4,7 @@ namespace Modules.Sales.IntegrationEvents;
 
 // Published by Sales when a delivery address is updated.
 // Intended consumer: Customers module (sync address to CRM) — not yet implemented.
+[EventDetailType("rtl.sales.deliveryAddressChanged")]
 public sealed record DeliveryAddressChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
