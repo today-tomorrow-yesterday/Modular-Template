@@ -1,0 +1,3 @@
+bucket = "qua.rtl.us-east-1.terraform-state"
+key    = "retail-domain-module-database/codebuild.tfstate"
+region = "us-east-1"

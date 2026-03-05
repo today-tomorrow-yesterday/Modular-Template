@@ -1,0 +1,3 @@
+bucket = "dev.rtl.us-east-1.terraform-state"
+key    = "customer-domain-module/terraform.tfstate"
+region = "us-east-1"
