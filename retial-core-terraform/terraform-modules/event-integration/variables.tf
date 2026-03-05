@@ -38,6 +38,18 @@ variable "sqs_visibility_timeout_seconds" {
   default     = 300 # 5 minutes
 }
 
+variable "sqs_max_receive_count" {
+  description = "Number of times a message can be received before being sent to the DLQ"
+  type        = number
+  default     = 5
+}
+
+variable "sqs_dlq_message_retention_seconds" {
+  description = "DLQ message retention period in seconds"
+  type        = number
+  default     = 1209600 # 14 days
+}
+
 variable "tags" {
   description = "Resource tags"
   type        = map(string)

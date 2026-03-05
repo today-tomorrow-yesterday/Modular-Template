@@ -3,6 +3,20 @@ locals {
   qualified_name = "${var.environment}-${var.business_unit}-${var.service_name}"
 }
 
+# SQS Dead Letter Queue for failed event processing
+resource "aws_sqs_queue" "event_dlq" {
+  count = local.create ? 1 : 0
+
+  name                      = "${local.qualified_name}-event-dlq"
+  message_retention_seconds = var.sqs_dlq_message_retention_seconds
+
+  tags = merge(var.tags, {
+    Name        = "${local.qualified_name}-event-dlq"
+    Environment = var.environment
+    Purpose     = "${var.service_name} failed domain event processing"
+  })
+}
+
 # SQS Queue for domain events
 resource "aws_sqs_queue" "event_queue" {
   count = local.create ? 1 : 0
@@ -14,10 +28,27 @@ resource "aws_sqs_queue" "event_queue" {
   receive_wait_time_seconds  = 0
   visibility_timeout_seconds = var.sqs_visibility_timeout_seconds
 
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.event_dlq[0].arn
+    maxReceiveCount     = var.sqs_max_receive_count
+  })
+
   tags = merge(var.tags, {
     Name        = "${local.qualified_name}-event-queue"
     Environment = var.environment
     Purpose     = "${var.service_name} domain event processing"
+  })
+}
+
+# DLQ redrive allow policy — only the main queue can redrive to this DLQ
+resource "aws_sqs_queue_redrive_allow_policy" "event_dlq_allow" {
+  count = local.create ? 1 : 0
+
+  queue_url = aws_sqs_queue.event_dlq[0].url
+
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue"
+    sourceQueueArns   = [aws_sqs_queue.event_queue[0].arn]
   })
 }
 
