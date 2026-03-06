@@ -6,6 +6,9 @@ internal sealed class InsuranceResource : ResourceEndpoints
 {
     protected override IEndpoint[] Endpoints =>
     [
-        new InsuranceQuoteEndpoint()
+        new GenerateHomeFirstQuoteEndpoint(),
+        new GenerateWarrantyQuoteEndpoint(),
+        new RecordOutsideInsuranceEndpoint(),
+        new PrintInsuranceQuoteEndpoint(),
     ];
 }
