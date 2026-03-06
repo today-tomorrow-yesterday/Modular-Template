@@ -1,3 +1,6 @@
+using System.Text.Json.Serialization;
+using Rtl.Core.Infrastructure.ISeries.Converters;
+
 namespace Rtl.Core.Infrastructure.ISeries.WireModels.Tax;
 
 internal sealed class TaxCalcWireRequest
@@ -23,5 +26,7 @@ internal sealed class TaxCalcWireResponse
     public decimal? GrossReceiptCityTax { get; set; }
     public decimal? GrossReceiptCountyTax { get; set; }
     public decimal? ManufacturedHomeInventoryTax { get; set; }
+
+    [JsonConverter(typeof(ISeriesListConverter<string>))]
     public List<string>? Messages { get; set; }
 }

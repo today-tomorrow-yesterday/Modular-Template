@@ -11,6 +11,7 @@
   <ItemGroup>
     <PackageReference Include="AWSSDK.EventBridge" Version="4.0.5.14" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="4.0.4.6" />
+    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="4.0.2.4" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="4.0.3.21" />
     <PackageReference Include="AWSSDK.SQS" Version="4.0.2.13" />
     <PackageReference Include="Azure.Identity" Version="1.17.1" />
