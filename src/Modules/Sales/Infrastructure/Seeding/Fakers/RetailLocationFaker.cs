@@ -6,11 +6,11 @@ internal static class RetailLocationFaker
 {
     private static readonly (int Number, string Name, string State, string Zip, bool IsActive)[] HomeCenters =
     [
-        (100, "Springfield Home Center", "OH", "45502", true),
-        (200, "Indianapolis Home Center", "IN", "46201", true),
-        (300, "Dallas Home Center", "TX", "75201", true),
-        (400, "Charlotte Home Center", "NC", "28201", true),
-        (500, "Orlando Home Center", "FL", "32801", false)
+        (100, "Maryville Home Center", "TN", "37801", true),
+        (200, "Knoxville Home Center", "TN", "37920", true),
+        (300, "Birmingham Home Center", "AL", "35212", true),
+        (400, "Hilton Head Home Center", "SC", "29915", true),
+        (500, "Tallahassee Home Center", "FL", "32304", false)
     ];
 
     public static List<RetailLocation> Generate()

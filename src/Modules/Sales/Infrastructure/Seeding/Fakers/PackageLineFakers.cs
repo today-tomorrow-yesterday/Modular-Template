@@ -46,12 +46,23 @@ internal static class PackageLineFakers
 
         // Build seed context from actual entities when available, falling back to random data.
         // This ensures insurance/warranty/tax context snapshots match the real delivery address.
+        // Fallback addresses verified against the iSeries tax API (legacy database).
+        var fallbackAddress = deliveryAddress is null
+            ? faker.PickRandom(
+                ("Maryville", "Blount", "TN", "37801"),
+                ("Knoxville", "Knox", "TN", "37920"),
+                ("Birmingham", "Jefferson", "AL", "35212"),
+                ("Montgomery", "Montgomery", "AL", "36043"),
+                ("Hilton Head", "Beaufort", "SC", "29915"),
+                ("Tallahassee", "Leon", "FL", "32304"))
+            : default;
+
         var ctx = new SeedContext(
             HomeDetails: homeLine.Details!,
-            DeliveryState: deliveryAddress?.State ?? faker.PickRandom("OH", "IN", "TX", "FL", "NC", "TN", "GA", "SC"),
-            DeliveryCity: deliveryAddress?.City ?? faker.Address.City(),
-            DeliveryCounty: deliveryAddress?.County ?? faker.Address.County(),
-            DeliveryPostalCode: deliveryAddress?.PostalCode ?? faker.Address.ZipCode("#####"),
+            DeliveryState: deliveryAddress?.State ?? fallbackAddress.Item3,
+            DeliveryCity: deliveryAddress?.City ?? fallbackAddress.Item1,
+            DeliveryCounty: deliveryAddress?.County ?? fallbackAddress.Item2,
+            DeliveryPostalCode: deliveryAddress?.PostalCode ?? fallbackAddress.Item4,
             DeliveryIsWithinCityLimits: deliveryAddress?.IsWithinCityLimits ?? faker.Random.Bool(0.6f),
             OccupancyType: deliveryAddress?.OccupancyType ?? faker.PickRandom("Primary", "Secondary"),
             HomeCenterNumber: retailLocation?.RefHomeCenterNumber ?? faker.Random.Int(1, 200));
@@ -103,9 +114,19 @@ internal static class PackageLineFakers
     // When an OnLotHomeCache is provided, all dimensions, pricing, and identifiers are derived
     // from the cache entity so the package line data is joinable with the inventory cache.
 
+    // Verified home locations for iSeries compatibility.
+    private static readonly (string City, string State, string Zip)[] VerifiedHomeLocations =
+    [
+        ("Maryville", "TN", "37801"),
+        ("Knoxville", "TN", "37920"),
+        ("Birmingham", "AL", "35212"),
+        ("Montgomery", "AL", "36043"),
+    ];
+
     private static HomeLine CreateHomeLine(int packageId, Bogus.Faker faker, OnLotHomeCache? onLotHome)
     {
         var hasCache = onLotHome is not null;
+        var homeLoc = faker.PickRandom(VerifiedHomeLocations);
 
         var homeType = hasCache
             ? MapConditionToHomeType(onLotHome!.Condition)
@@ -184,9 +205,9 @@ internal static class PackageLineFakers
                 accountNumber: faker.Random.Replace("ACC-######"),
                 displayAccountId: faker.Random.Replace("DA-####"),
                 streetAddress: faker.Address.StreetAddress(),
-                city: faker.Address.City(),
-                state: faker.Address.State(),
-                zipCode: faker.Address.ZipCode("#####")),
+                city: homeLoc.City,
+                state: homeLoc.State,
+                zipCode: homeLoc.Zip),
             onLotHomeId: hasCache ? onLotHome!.Id : null);
     }
 

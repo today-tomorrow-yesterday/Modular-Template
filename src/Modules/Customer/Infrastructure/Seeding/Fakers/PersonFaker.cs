@@ -41,15 +41,24 @@ internal static class PersonFaker
                 ? DateOnly.FromDateTime(faker.Date.Past(40, DateTime.Now.AddYears(-21)))
                 : (DateOnly?)null;
 
+            // Addresses verified against the iSeries tax API (legacy database).
+            var mailingLoc = faker.PickRandom(
+                ("Maryville", "Blount", "TN", "37801"),
+                ("Knoxville", "Knox", "TN", "37920"),
+                ("Birmingham", "Jefferson", "AL", "35212"),
+                ("Montgomery", "Montgomery", "AL", "36043"),
+                ("Hilton Head", "Beaufort", "SC", "29915"),
+                ("Tallahassee", "Leon", "FL", "32304"));
+
             var mailingAddress = faker.Random.Bool(0.6f)
                 ? MailingAddress.Create(
                     addressLine1: faker.Address.StreetAddress(),
                     addressLine2: faker.Random.Bool(0.2f) ? faker.Address.SecondaryAddress() : null,
-                    city: faker.Address.City(),
-                    county: faker.Address.County(),
-                    state: faker.Address.StateAbbr(),
+                    city: mailingLoc.Item1,
+                    county: mailingLoc.Item2,
+                    state: mailingLoc.Item3,
                     country: "US",
-                    postalCode: faker.Address.ZipCode())
+                    postalCode: mailingLoc.Item4)
                 : null;
 
             var person = Person.SyncFromCrm(

@@ -88,10 +88,10 @@ internal sealed class UpdatePackageHomeEndpoint : IEndpoint
             "listingPrice": 355000.00,
             "accountNumber": "ACC-100234",
             "displayAccountId": "DA-1001",
-            "streetAddress": "123 Main St",
+            "streetAddress": "5000 Clayton Rd",
             "city": "Maryville",
             "state": "TN",
-            "zipCode": "37804"
+            "zipCode": "37801"
         }
         """;
     }

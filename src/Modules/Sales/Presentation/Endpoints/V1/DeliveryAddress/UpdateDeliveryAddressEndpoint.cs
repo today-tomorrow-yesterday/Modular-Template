@@ -31,11 +31,11 @@ internal sealed class UpdateDeliveryAddressEndpoint : IEndpoint
         {
             "occupancyType": "Primary Residence",
             "isWithinCityLimits": true,
-            "addressLine1": "456 Oak Avenue",
-            "city": "Springfield",
-            "county": "Clark",
-            "state": "OH",
-            "postalCode": "45502"
+            "addressLine1": "5000 Clayton Rd",
+            "city": "Maryville",
+            "county": "Blount",
+            "state": "TN",
+            "postalCode": "37801"
         }
         """;
     }
