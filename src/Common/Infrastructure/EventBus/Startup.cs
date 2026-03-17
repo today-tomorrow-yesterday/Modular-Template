@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Quartz;
 using Rtl.Core.Application.EventBus;
+using Rtl.Core.Application.Messaging;
 using Rtl.Core.Infrastructure.EventBus.Aws;
 using Rtl.Core.Infrastructure.EventBus.Emb;
 using Rtl.Core.Infrastructure.EventBus.InMemory;
@@ -142,6 +143,31 @@ public static class Startup
             {
                 services.AddScoped(@interface, handlerType);
             }
+        }
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registers domain event handlers from the specified assembly.
+    /// Required because IDomainEventHandler&lt;T&gt; is not a MediatR type,
+    /// so MediatR's RegisterServicesFromAssemblies does not discover them.
+    /// The outbox processor resolves handlers via DomainEventHandlersFactory.GetHandlers(),
+    /// which calls GetRequiredService(handlerType).
+    /// </summary>
+    public static IServiceCollection AddDomainEventHandlers(
+        this IServiceCollection services,
+        Assembly assembly)
+    {
+        var handlerTypes = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface)
+            .Where(t => t.GetInterfaces().Any(i =>
+                i.IsGenericType &&
+                i.GetGenericTypeDefinition() == typeof(IDomainEventHandler<>)));
+
+        foreach (var handlerType in handlerTypes)
+        {
+            services.AddScoped(handlerType);
         }
 
         return services;

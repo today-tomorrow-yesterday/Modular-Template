@@ -57,6 +57,7 @@ public static class FundingModule
         IHostEnvironment environment)
     {
         services.AddIntegrationEventHandlers(Presentation.AssemblyReference.Assembly);
+        services.AddDomainEventHandlers(Application.AssemblyReference.Assembly);
 
         services.AddSqsPolling<ProcessSqsJob>(environment);
 

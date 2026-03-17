@@ -62,6 +62,7 @@ public static class OrganizationModule
         IHostEnvironment environment)
     {
         services.AddIntegrationEventHandlers(Presentation.AssemblyReference.Assembly);
+        services.AddDomainEventHandlers(Application.AssemblyReference.Assembly);
         services.AddSqsPolling<ProcessSqsJob>(environment);
 
         services.AddOptions<OutboxOptions>()

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Modules.Inventory.Application;
 using Modules.Inventory.Domain;
 using Modules.Inventory.Domain.HomeCentersCache;
 using Modules.Inventory.Domain.LandCosts;
@@ -64,6 +65,7 @@ public static class InventoryModule
         IHostEnvironment environment)
     {
         services.AddIntegrationEventHandlers(Presentation.AssemblyReference.Assembly);
+        services.AddDomainEventHandlers(Application.AssemblyReference.Assembly);
 
         services.AddSqsPolling<ProcessSqsJob>(environment);
 
