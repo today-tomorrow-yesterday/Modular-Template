@@ -7,9 +7,9 @@ internal sealed class SyncPartyFromCrmCommandValidator : AbstractValidator<SyncP
 {
     public SyncPartyFromCrmCommandValidator()
     {
-        RuleFor(x => x.PartyId)
+        RuleFor(x => x.CrmPartyId)
             .GreaterThan(0)
-            .WithMessage("PartyId is required");
+            .WithMessage("CrmPartyId is required");
 
         RuleFor(x => x.HomeCenterNumber)
             .GreaterThan(0)

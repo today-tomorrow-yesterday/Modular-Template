@@ -25,7 +25,6 @@ public sealed record PersonDataResponse(
     string? NameExtension,
     DateOnly? DateOfBirth,
     SalesAssignmentResponse[] SalesAssignments,
-    int? CoBuyerPartyId,
     Guid? CoBuyerPublicId,
     // Flattened CoBuyer fields for BFF backward compatibility
     string? CoBuyerFirstName,
@@ -36,6 +35,15 @@ public sealed record PersonDataResponse(
 public sealed record SalesAssignmentResponse(
     string Role,
     SalesPersonResponse SalesPerson);
+
+public sealed record SalesPersonResponse(
+    string Id,
+    string Email,
+    string Username,
+    string FirstName,
+    string LastName,
+    int? HomeCenterNumber,
+    string FederatedId);
 
 public sealed record OrganizationDataResponse(
     string? OrganizationName);
@@ -57,12 +65,3 @@ public sealed record MailingAddressResponse(
     string? State,
     string? Country,
     string? PostalCode);
-
-public sealed record SalesPersonResponse(
-    string Id,
-    string Email,
-    string Username,
-    string FirstName,
-    string LastName,
-    int? LotNumber,
-    string FederatedId);

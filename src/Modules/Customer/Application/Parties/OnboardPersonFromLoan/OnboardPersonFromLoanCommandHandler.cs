@@ -39,16 +39,18 @@ internal sealed partial class OnboardPersonFromLoanCommandHandler(
             request.LoanId,
             cancellationToken);
 
-        if (vmfResponse is null || vmfResponse.Borrowers.Length == 0)
+        var noBorrowersReturned = vmfResponse is null || vmfResponse.Borrowers.Length == 0;
+        if (noBorrowersReturned)
         {
             return Result.Failure<Guid>(PartyErrors.BorrowerNotFound);
         }
 
         // ProspectorId dedup — already exists as a Party from CRM?
-        if (vmfResponse.ProspectorId is > 0)
+        if (vmfResponse!.ProspectorId is > 0)
         {
-            var existingByProspector = await partyRepository.GetByIdAsync(
-                vmfResponse.ProspectorId.Value,
+            var existingByProspector = await partyRepository.GetForUpdateByIdentifierAsync(
+                IdentifierType.CrmPartyId,
+                vmfResponse.ProspectorId.Value.ToString(),
                 cancellationToken);
 
             if (existingByProspector is Person existingPerson)
@@ -78,9 +80,10 @@ internal sealed partial class OnboardPersonFromLoanCommandHandler(
             FormatPhone(borrower.CellPhone));
 
         // Add home phone as secondary contact point
-        if (!string.IsNullOrWhiteSpace(borrower.HomePhone))
+        var homePhone = FormatPhone(borrower.HomePhone);
+        if (!string.IsNullOrWhiteSpace(homePhone))
         {
-            person.AddContactPoint(ContactPointType.HomePhone, FormatPhone(borrower.HomePhone)!);
+            person.AddContactPoint(ContactPointType.HomePhone, homePhone);
         }
 
         // CoBuyer as separate Person linked via FK
@@ -116,9 +119,10 @@ internal sealed partial class OnboardPersonFromLoanCommandHandler(
             return null;
         }
 
-        return PhoneCleanupRegex().Replace(phone, "");
+        var cleaned = PhoneCleanupRegex().Replace(phone, "").TrimStart('+');
+        return cleaned.Length > 0 ? cleaned : null;
     }
 
-    [GeneratedRegex(@"[\s\-\(\)]")]
+    [GeneratedRegex(@"[^\d+]")]
     private static partial Regex PhoneCleanupRegex();
 }

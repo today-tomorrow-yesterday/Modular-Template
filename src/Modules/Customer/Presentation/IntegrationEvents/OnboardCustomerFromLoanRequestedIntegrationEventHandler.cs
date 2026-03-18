@@ -21,9 +21,19 @@ internal sealed class OnboardCustomerFromLoanRequestedIntegrationEventHandler(
             integrationEvent.LoanId,
             integrationEvent.HomeCenterNumber);
 
-        await sender.Send(
+        var result = await sender.Send(
             new OnboardPersonFromLoanCommand(
                 integrationEvent.LoanId,
                 integrationEvent.HomeCenterNumber), cancellationToken);
+
+        if (result.IsFailure)
+        {
+            logger.LogError(
+                "Failed to onboard customer from loan {LoanId}: {Error}",
+                integrationEvent.LoanId,
+                result.Error);
+            throw new InvalidOperationException(
+                $"Onboarding failed for LoanId={integrationEvent.LoanId}: {result.Error.Description}");
+        }
     }
 }

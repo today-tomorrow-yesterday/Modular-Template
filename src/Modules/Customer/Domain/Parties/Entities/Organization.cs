@@ -37,7 +37,7 @@ public sealed class Organization : Party
     }
 
     public static Organization SyncFromCrm(
-        int partyId,
+        int crmPartyId,
         int homeCenterNumber,
         LifecycleStage lifecycleStage,
         string? organizationName,
@@ -48,7 +48,6 @@ public sealed class Organization : Party
     {
         var org = new Organization
         {
-            Id = partyId,
             PublicId = Guid.CreateVersion7(),
             LifecycleStage = lifecycleStage,
             OrganizationName = organizationName,
@@ -60,6 +59,7 @@ public sealed class Organization : Party
             LastSyncedAtUtc = DateTime.UtcNow
         };
 
+        org.AddIdentifierInternal(IdentifierType.CrmPartyId, crmPartyId.ToString());
         org.Raise(new PartyCreatedDomainEvent());
 
         return org;

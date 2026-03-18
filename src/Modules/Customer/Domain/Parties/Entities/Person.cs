@@ -46,7 +46,7 @@ public sealed class Person : Party
     }
 
     public static Person SyncFromCrm(
-        int partyId,
+        int crmPartyId,
         int homeCenterNumber,
         LifecycleStage lifecycleStage,
         PersonName? name,
@@ -59,7 +59,6 @@ public sealed class Person : Party
     {
         var person = new Person
         {
-            Id = partyId,
             PublicId = Guid.CreateVersion7(),
             LifecycleStage = lifecycleStage,
             Name = name,
@@ -72,10 +71,12 @@ public sealed class Person : Party
             LastSyncedAtUtc = DateTime.UtcNow
         };
 
+        person.AddIdentifierInternal(IdentifierType.CrmPartyId, crmPartyId.ToString());
+
         foreach (var (salesPersonId, role) in salesAssignments)
         {
             person._salesAssignments.Add(
-                SalesAssignment.Create(partyId, salesPersonId, role));
+                SalesAssignment.Create(person.Id, salesPersonId, role));
         }
 
         person.Raise(new PartyCreatedDomainEvent());
@@ -147,7 +148,7 @@ public sealed class Person : Party
                 SalesAssignment.Create(Id, salesPersonId, role));
         }
 
-        var currentAssignments = salesAssignments
+        var currentAssignments = _salesAssignments
             .Select(sa => (sa.SalesPersonId, sa.Role))
             .OrderBy(x => x.SalesPersonId)
             .ToList();
@@ -167,20 +168,22 @@ public sealed class Person : Party
 
     public void AssignSalesPerson(string salesPersonId, SalesAssignmentRole role)
     {
-        // Primary: replace existing (only one allowed)
-        // Supporting: just add (multiple allowed, but not the same SalesPerson twice)
-        if (role == SalesAssignmentRole.Primary)
+        // Check if already assigned — if same role, no-op; if different role, remove to re-add
+        var existing = _salesAssignments.FirstOrDefault(sa => sa.SalesPersonId == salesPersonId);
+        if (existing is not null)
         {
-            var existingPrimary = _salesAssignments.FirstOrDefault(sa => sa.Role == SalesAssignmentRole.Primary);
-            if (existingPrimary is not null)
-            {
-                _salesAssignments.Remove(existingPrimary);
-            }
+            if (existing.Role == role) return;
+            _salesAssignments.Remove(existing);
         }
 
-        if (_salesAssignments.Any(sa => sa.SalesPersonId == salesPersonId))
+        // Primary: only one allowed — demote current primary
+        if (role == SalesAssignmentRole.Primary)
         {
-            return;
+            var currentPrimary = _salesAssignments.FirstOrDefault(sa => sa.Role == SalesAssignmentRole.Primary);
+            if (currentPrimary is not null)
+            {
+                _salesAssignments.Remove(currentPrimary);
+            }
         }
 
         _salesAssignments.Add(SalesAssignment.Create(Id, salesPersonId, role));

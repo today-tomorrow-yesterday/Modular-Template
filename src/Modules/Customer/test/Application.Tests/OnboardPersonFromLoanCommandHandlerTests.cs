@@ -57,7 +57,8 @@ public sealed class OnboardPersonFromLoanCommandHandlerTests
 
         var existingPerson = Person.SyncFromCrm(42, 100, LifecycleStage.Opportunity,
             PersonName.Create("Existing", null, "Person"), null, [], null, null, null, null);
-        _partyRepository.GetByIdAsync(42, Arg.Any<CancellationToken>())
+        _partyRepository.GetForUpdateByIdentifierAsync(
+            IdentifierType.CrmPartyId, "42", Arg.Any<CancellationToken>())
             .Returns(existingPerson);
 
         _vmfLosAdapter.GetBorrowerByLoanIdAsync("LOAN-1", Arg.Any<CancellationToken>())

@@ -6,7 +6,7 @@ namespace Modules.Customer.Application.Parties.SyncPartyFromCrm;
 // CDC sync command — handles both Person and Organization from Salesforce CDC.
 // PartyType discriminates which sub-DTO is populated.
 public sealed record SyncPartyFromCrmCommand(
-    int PartyId,
+    int CrmPartyId,
     PartyType PartyType,
     int HomeCenterNumber,
     LifecycleStage LifecycleStage,

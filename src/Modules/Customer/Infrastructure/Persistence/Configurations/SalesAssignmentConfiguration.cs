@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Modules.Customer.Domain.Parties.Entities;
+using Modules.Customer.Domain.Parties.Enums;
 
 namespace Modules.Customer.Infrastructure.Persistence.Configurations;
 
@@ -31,7 +32,7 @@ internal sealed class SalesAssignmentConfiguration : IEntityTypeConfiguration<Sa
         // Exactly one Primary per Person; multiple Supporting allowed
         builder.HasIndex(sa => sa.PersonId)
             .IsUnique()
-            .HasFilter("role = 'Primary'");
+            .HasFilter($"role = '{nameof(SalesAssignmentRole.Primary)}'");
 
         // Prevent same SalesPerson assigned twice to the same Person
         builder.HasIndex(sa => new { sa.PersonId, sa.SalesPersonId })

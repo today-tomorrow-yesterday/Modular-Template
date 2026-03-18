@@ -35,7 +35,7 @@ public sealed class GetPartyByPublicIdQueryHandlerTests
     public async Task Returns_success_with_mapped_response_when_party_found()
     {
         var person = Person.SyncFromCrm(
-            partyId: 1,
+            crmPartyId: 1,
             homeCenterNumber: 100,
             lifecycleStage: LifecycleStage.Customer,
             name: PersonName.Create("John", null, "Doe"),

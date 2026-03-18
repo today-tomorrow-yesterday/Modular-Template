@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Modules.Customer.Domain.Parties;
 using Modules.Customer.Domain.Parties.Events;
 using Modules.Customer.IntegrationEvents;
@@ -11,7 +12,8 @@ namespace Modules.Customer.Application.Parties.EventHandlers;
 internal sealed class PartyMailingAddressChangedDomainEventHandler(
     IPartyRepository partyRepository,
     IEventBus eventBus,
-    IDateTimeProvider dateTimeProvider) : DomainEventHandler<PartyMailingAddressChangedDomainEvent>
+    IDateTimeProvider dateTimeProvider,
+    ILogger<PartyMailingAddressChangedDomainEventHandler> logger) : DomainEventHandler<PartyMailingAddressChangedDomainEvent>
 {
     public override async Task Handle(
         PartyMailingAddressChangedDomainEvent domainEvent,
@@ -23,6 +25,9 @@ internal sealed class PartyMailingAddressChangedDomainEventHandler(
 
         if (party is null)
         {
+            logger.LogWarning(
+                "Party {EntityId} not found when handling {Event}. Integration event discarded.",
+                domainEvent.EntityId, nameof(PartyMailingAddressChangedDomainEvent));
             return;
         }
 
@@ -31,7 +36,9 @@ internal sealed class PartyMailingAddressChangedDomainEventHandler(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 party.PublicId,
-                party.MailingAddress.ToIntegrationDto()),
+                party.MailingAddress is { } a
+                    ? new MailingAddressDto(a.AddressLine1, a.AddressLine2, a.City, a.County, a.State, a.Country, a.PostalCode)
+                    : null),
             cancellationToken);
     }
 }

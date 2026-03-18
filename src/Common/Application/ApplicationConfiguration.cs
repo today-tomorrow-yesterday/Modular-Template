@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Rtl.Core.Application.Behaviors;
 using System.Reflection;

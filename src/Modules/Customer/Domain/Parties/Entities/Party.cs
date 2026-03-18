@@ -92,15 +92,39 @@ public abstract class Party : Entity, IAggregateRoot
 
     public void ReplaceContactPoints(IEnumerable<(ContactPointType Type, string Value, bool IsPrimary)> incoming)
     {
+        var incomingList = incoming.ToList();
+
+        // Snapshot previous state for change detection
         var previous = _contactPoints
             .Select(cp => (cp.Type, cp.Value, cp.IsPrimary))
             .OrderBy(x => x.Type).ThenBy(x => x.Value)
             .ToList();
 
-        _contactPoints.Clear();
-        foreach (var (type, value, isPrimary) in incoming)
+        var incomingSet = incomingList
+            .Select(cp => (cp.Type, cp.Value))
+            .ToHashSet();
+
+        // Remove contacts not in incoming set
+        var toRemove = _contactPoints
+            .Where(cp => !incomingSet.Contains((cp.Type, cp.Value)))
+            .ToList();
+        foreach (var cp in toRemove)
         {
-            AddContactPointInternal(type, value, isPrimary);
+            _contactPoints.Remove(cp);
+        }
+
+        // Add or update contacts from incoming set
+        foreach (var (type, value, isPrimary) in incomingList)
+        {
+            var match = _contactPoints.FirstOrDefault(cp => cp.Type == type && cp.Value == value);
+            if (match is not null)
+            {
+                match.SetPrimary(isPrimary);
+            }
+            else
+            {
+                AddContactPointInternal(type, value, isPrimary);
+            }
         }
 
         var current = _contactPoints

@@ -62,7 +62,7 @@ internal static class PersonFaker
                 : null;
 
             var person = Person.SyncFromCrm(
-                partyId: i,
+                crmPartyId: i,
                 homeCenterNumber: homeCenterNumber,
                 lifecycleStage: stage,
                 name: PersonName.Create(firstName, middleName, lastName, nameExtension),

@@ -6,7 +6,5 @@ internal sealed class PartiesResource : ResourceEndpoints
 {
     protected override IEndpoint[] Endpoints =>
     [
-        new GetPartyByIdEndpoint(),
-        new SearchPartyByCrmIdEndpoint()
-    ];
+        new GetPartyByIdEndpoint()    ];
 }

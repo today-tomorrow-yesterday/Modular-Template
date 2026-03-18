@@ -13,8 +13,7 @@ internal sealed class PartyIdentifierConfiguration : IEntityTypeConfiguration<Pa
         builder.HasKey(pi => pi.Id);
 
         builder.Property(pi => pi.Id)
-            .HasColumnName("id")
-            .ValueGeneratedNever();
+            .HasColumnName("id");
 
         builder.Property(pi => pi.PartyId)
             .HasColumnName("party_id")

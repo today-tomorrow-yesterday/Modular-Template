@@ -14,9 +14,6 @@ public static class PartyErrors
     public static Error NotFoundByIdentifier(IdentifierType type, string value) =>
         Error.NotFound("Parties.NotFoundByIdentifier", $"No party found with {type} '{value}'.");
 
-    public static Error NotFoundByCrmCustomerId(int customerId) =>
-        Error.NotFound("Parties.NotFoundByCrmCustomerId", $"No party found with CRM customer ID '{customerId}'.");
-
     public static readonly Error InvalidLifecycleTransition =
         Error.Validation("Parties.InvalidLifecycleTransition", "The requested lifecycle transition is not valid.");
 

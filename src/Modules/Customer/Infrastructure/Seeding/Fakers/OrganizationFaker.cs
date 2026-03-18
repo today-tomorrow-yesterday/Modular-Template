@@ -22,7 +22,7 @@ internal static class OrganizationFaker
             var homeCenterNumber = faker.PickRandom(100, 200, 300, 400, 500);
 
             var org = Organization.SyncFromCrm(
-                partyId: startId + i,
+                crmPartyId: startId + i,
                 homeCenterNumber: homeCenterNumber,
                 lifecycleStage: stage,
                 organizationName: orgNames[i],

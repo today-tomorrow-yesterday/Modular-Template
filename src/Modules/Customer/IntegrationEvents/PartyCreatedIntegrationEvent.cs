@@ -27,7 +27,9 @@ public sealed record PersonDataDto(
     SalesAssignmentDto[] SalesAssignments,
     Guid? CoBuyerPublicId,
     string? CoBuyerFirstName,
-    string? CoBuyerLastName);
+    string? CoBuyerMiddleName,
+    string? CoBuyerLastName,
+    DateOnly? CoBuyerDateOfBirth);
 
 public sealed record SalesAssignmentDto(
     string Role,

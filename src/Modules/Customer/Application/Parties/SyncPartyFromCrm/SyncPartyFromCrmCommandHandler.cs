@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Modules.Customer.Domain;
 using Modules.Customer.Domain.Parties;
 using Modules.Customer.Domain.Parties.Entities;
@@ -10,24 +11,27 @@ using Rtl.Core.Domain.Results;
 
 namespace Modules.Customer.Application.Parties.SyncPartyFromCrm;
 
-// Flow: Customer.SyncPartyFromCrmCommand → upsert Customer.parties → raises Customer.PartyCreatedDomainEvent
+// Flow: SyncPartyFromCrmCommand → upsert SalesPersons (Person only) →
+//   upsert Party (create or update) + sync contact points + sync identifiers →
+//   raises PartyCreatedDomainEvent (create) or field-level change events (update)
 internal sealed class SyncPartyFromCrmCommandHandler(
     IPartyRepository partyRepository,
     ISalesPersonRepository salesPersonRepository,
-    IUnitOfWork<ICustomerModule> unitOfWork)
+    IUnitOfWork<ICustomerModule> unitOfWork,
+    ILogger<SyncPartyFromCrmCommandHandler> logger)
     : ICommandHandler<SyncPartyFromCrmCommand>
 {
     public async Task<Result> Handle(
         SyncPartyFromCrmCommand request,
         CancellationToken cancellationToken)
     {
-        // Upsert SalesPersons (Person path only)
-        if (request.PartyType == PartyType.Person && request.PersonData is not null)
-        {
-            await UpsertSalesPersonsAsync(request.PersonData, cancellationToken);
-        }
+        // Step 1: Upsert SalesPersons so FKs exist before Party insert/update
+        await UpsertSalesPersonsAsync(request, cancellationToken);
 
-        var existing = await partyRepository.GetByIdAsync(request.PartyId, cancellationToken);
+        // Step 2: Create or update the Party aggregate (lookup by CRM party ID)
+        var crmPartyIdValue = request.CrmPartyId.ToString();
+        var existing = await partyRepository.GetForUpdateByIdentifierAsync(
+            IdentifierType.CrmPartyId, crmPartyIdValue, cancellationToken);
 
         if (existing is not null)
         {
@@ -44,20 +48,30 @@ internal sealed class SyncPartyFromCrmCommandHandler(
             partyRepository.Add(createResult.Value);
         }
 
+        // Step 3: Persist all changes in a single transaction
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }
 
-    private static void UpdateExistingParty(Party existing, SyncPartyFromCrmCommand request)
+    private void UpdateExistingParty(Party existing, SyncPartyFromCrmCommand request)
     {
-        var mailingAddress = MapMailingAddress(request.MailingAddress);
+        // Step 2a: Map mailing address
+        MailingAddress? mailingAddress = null;
+        if (request.MailingAddress is not null)
+        {
+            var a = request.MailingAddress;
+            mailingAddress = MailingAddress.Create(
+                a.AddressLine1, a.AddressLine2, a.City, a.County, a.State, a.Country, a.PostalCode);
+        }
 
-        // TPH: the existing entity is already the correct derived type
+        // Step 2b: Update type-specific fields (TPH — existing entity is already the correct derived type)
         switch (existing)
         {
             case Person person when request.PersonData is not null:
-                var assignments = MapSalesAssignments(request.PersonData);
+                var assignments = request.PersonData.SalesAssignments
+                    .Select(a => (a.SalesPerson.Id, a.Role))
+                    .ToArray();
                 person.UpdateFromCrmSync(
                     request.PersonData.FirstName is not null
                         ? PersonName.Create(
@@ -82,12 +96,21 @@ internal sealed class SyncPartyFromCrmCommandHandler(
                     mailingAddress,
                     request.LastModifiedOn);
                 break;
+
+            default:
+                logger.LogWarning(
+                    "Party type mismatch during CRM sync: PartyId={PartyId}, ExistingType={ExistingType}, RequestedType={RequestedType}. Type-specific fields were not updated.",
+                    request.CrmPartyId,
+                    existing.GetType().Name,
+                    request.PartyType);
+                break;
         }
 
-        // Sync contact points — replace all (CDC is full-state, not delta)
-        SyncContactPoints(existing, request.ContactPoints);
+        // Step 2c: Replace contact points (CDC is full-state, not delta)
+        existing.ReplaceContactPoints(
+            request.ContactPoints.Select(cp => (cp.Type, cp.Value, cp.IsPrimary)));
 
-        // Sync identifiers — upsert by type
+        // Step 2d: Upsert identifiers by type
         foreach (var identifier in request.Identifiers)
         {
             existing.AddIdentifier(identifier.Type, identifier.Value);
@@ -96,16 +119,24 @@ internal sealed class SyncPartyFromCrmCommandHandler(
 
     private static Result<Party> CreateNewParty(SyncPartyFromCrmCommand request)
     {
-        var mailingAddress = MapMailingAddress(request.MailingAddress);
+        // Step 2a: Map mailing address
+        MailingAddress? mailingAddress = null;
+        if (request.MailingAddress is not null)
+        {
+            var a = request.MailingAddress;
+            mailingAddress = MailingAddress.Create(
+                a.AddressLine1, a.AddressLine2, a.City, a.County, a.State, a.Country, a.PostalCode);
+        }
 
+        // Step 2b: Create Party via type-specific factory
         var personAssignments = request.PersonData is not null
-            ? MapSalesAssignments(request.PersonData)
-            : [];
+            ? request.PersonData.SalesAssignments.Select(a => (a.SalesPerson.Id, a.Role)).ToArray()
+            : Array.Empty<(string, SalesAssignmentRole)>();
 
         Party? party = request.PartyType switch
         {
             PartyType.Person when request.PersonData is not null => Person.SyncFromCrm(
-                request.PartyId,
+                request.CrmPartyId,
                 request.HomeCenterNumber,
                 request.LifecycleStage,
                 request.PersonData.FirstName is not null
@@ -123,7 +154,7 @@ internal sealed class SyncPartyFromCrmCommandHandler(
                 request.LastModifiedOn),
 
             PartyType.Organization when request.OrganizationData is not null => Organization.SyncFromCrm(
-                request.PartyId,
+                request.CrmPartyId,
                 request.HomeCenterNumber,
                 request.LifecycleStage,
                 request.OrganizationData.OrganizationName,
@@ -140,13 +171,13 @@ internal sealed class SyncPartyFromCrmCommandHandler(
             return Result.Failure<Party>(PartyErrors.InvalidPartyTypeData(request.PartyType));
         }
 
-        // Add contact points after creation
+        // Step 2c: Add contact points
         foreach (var cp in request.ContactPoints)
         {
             party.AddContactPoint(cp.Type, cp.Value, cp.IsPrimary);
         }
 
-        // Add identifiers after creation
+        // Step 2d: Add identifiers
         foreach (var id in request.Identifiers)
         {
             party.AddIdentifier(id.Type, id.Value);
@@ -155,77 +186,30 @@ internal sealed class SyncPartyFromCrmCommandHandler(
         return party;
     }
 
-    private static void SyncContactPoints(Party party, SyncContactPointDto[] incoming)
-    {
-        // CDC is full-state — replace all contact points with incoming set.
-        // Stale contacts not in the incoming payload are removed.
-        party.ReplaceContactPoints(
-            incoming.Select(cp => (cp.Type, cp.Value, cp.IsPrimary)));
-    }
-
-    private static MailingAddress? MapMailingAddress(SyncMailingAddressDto? dto)
-    {
-        if (dto is null)
-        {
-            return null;
-        }
-
-        return MailingAddress.Create(
-            dto.AddressLine1,
-            dto.AddressLine2,
-            dto.City,
-            dto.County,
-            dto.State,
-            dto.Country,
-            dto.PostalCode);
-    }
-
     private async Task UpsertSalesPersonsAsync(
-        SyncPersonDataDto personData,
+        SyncPartyFromCrmCommand request,
         CancellationToken cancellationToken)
     {
-        foreach (var assignment in personData.SalesAssignments)
+        var hasPersonSalesData = request.PartyType == PartyType.Person && request.PersonData is not null;
+        if (!hasPersonSalesData)
         {
-            await UpsertSalesPersonAsync(assignment.SalesPerson, cancellationToken);
+            return;
         }
-    }
 
-    private static (string SalesPersonId, SalesAssignmentRole Role)[] MapSalesAssignments(
-        SyncPersonDataDto personData)
-    {
-        return personData.SalesAssignments
-            .Select(a => (a.SalesPerson.Id, a.Role))
-            .ToArray();
-    }
-
-    private async Task UpsertSalesPersonAsync(
-        SyncSalesPersonDto dto,
-        CancellationToken cancellationToken)
-    {
-        var existing = await salesPersonRepository.GetByIdAsync(dto.Id, cancellationToken);
-
-        if (existing is not null)
+        foreach (var assignment in request.PersonData!.SalesAssignments)
         {
-            existing.Update(
-                dto.Email,
-                dto.Username,
-                dto.FirstName,
-                dto.LastName,
-                dto.LotNumber,
-                dto.FederatedId);
-        }
-        else
-        {
-            var salesPerson = SalesPerson.Assign(
-                dto.Id,
-                dto.Email,
-                dto.Username,
-                dto.FirstName,
-                dto.LastName,
-                dto.LotNumber,
-                dto.FederatedId);
+            var sp = assignment.SalesPerson;
+            var existing = await salesPersonRepository.GetByIdAsync(sp.Id, cancellationToken); //TODO : Question, should we use the FederatedId?
 
-            salesPersonRepository.Add(salesPerson);
+            if (existing is not null)
+            {
+                existing.Update(sp.Email, sp.Username, sp.FirstName, sp.LastName, sp.LotNumber, sp.FederatedId);
+            }
+            else
+            {
+                salesPersonRepository.Add(
+                    SalesPerson.Assign(sp.Id, sp.Email, sp.Username, sp.FirstName, sp.LastName, sp.LotNumber, sp.FederatedId));
+            }
         }
     }
 }

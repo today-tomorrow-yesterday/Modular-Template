@@ -13,8 +13,7 @@ internal sealed class ContactPointConfiguration : IEntityTypeConfiguration<Conta
         builder.HasKey(cp => cp.Id);
 
         builder.Property(cp => cp.Id)
-            .HasColumnName("id")
-            .ValueGeneratedNever();
+            .HasColumnName("id");
 
         builder.Property(cp => cp.PartyId)
             .HasColumnName("party_id")

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Modules.Customer.Domain.Parties;
 using Modules.Customer.Domain.Parties.Events;
 using Modules.Customer.IntegrationEvents;
@@ -11,7 +12,8 @@ namespace Modules.Customer.Application.Parties.EventHandlers;
 internal sealed class PartyContactPointsChangedDomainEventHandler(
     IPartyRepository partyRepository,
     IEventBus eventBus,
-    IDateTimeProvider dateTimeProvider) : DomainEventHandler<PartyContactPointsChangedDomainEvent>
+    IDateTimeProvider dateTimeProvider,
+    ILogger<PartyContactPointsChangedDomainEventHandler> logger) : DomainEventHandler<PartyContactPointsChangedDomainEvent>
 {
     public override async Task Handle(
         PartyContactPointsChangedDomainEvent domainEvent,
@@ -23,6 +25,9 @@ internal sealed class PartyContactPointsChangedDomainEventHandler(
 
         if (party is null)
         {
+            logger.LogWarning(
+                "Party {EntityId} not found when handling {Event}. Integration event discarded.",
+                domainEvent.EntityId, nameof(PartyContactPointsChangedDomainEvent));
             return;
         }
 
@@ -31,7 +36,7 @@ internal sealed class PartyContactPointsChangedDomainEventHandler(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 party.PublicId,
-                party.ContactPoints.ToIntegrationDtos()),
+                party.ContactPoints.Select(cp => new ContactPointDto(cp.Type.ToString(), cp.Value, cp.IsPrimary)).ToArray()),
             cancellationToken);
     }
 }

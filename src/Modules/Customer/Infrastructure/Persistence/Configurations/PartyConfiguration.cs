@@ -14,8 +14,7 @@ internal sealed class PartyConfiguration : IEntityTypeConfiguration<Party>
         builder.HasKey(p => p.Id);
 
         builder.Property(p => p.Id)
-            .HasColumnName("id")
-            .ValueGeneratedNever();
+            .HasColumnName("id");
 
         builder.Property(p => p.PublicId)
             .HasColumnName("public_id")

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Modules.Customer.Domain.Parties;
 using Modules.Customer.Domain.Parties.Entities;
 using Modules.Customer.Domain.Parties.Events;
@@ -12,7 +13,8 @@ namespace Modules.Customer.Application.Parties.EventHandlers;
 internal sealed class PartySalesAssignmentsChangedDomainEventHandler(
     IPartyRepository partyRepository,
     IEventBus eventBus,
-    IDateTimeProvider dateTimeProvider) : DomainEventHandler<PartySalesAssignmentsChangedDomainEvent>
+    IDateTimeProvider dateTimeProvider,
+    ILogger<PartySalesAssignmentsChangedDomainEventHandler> logger) : DomainEventHandler<PartySalesAssignmentsChangedDomainEvent>
 {
     public override async Task Handle(
         PartySalesAssignmentsChangedDomainEvent domainEvent,
@@ -24,6 +26,9 @@ internal sealed class PartySalesAssignmentsChangedDomainEventHandler(
 
         if (party is not Person person)
         {
+            logger.LogWarning(
+                "Party {EntityId} not found or not a Person when handling {Event}. Integration event discarded.",
+                domainEvent.EntityId, nameof(PartySalesAssignmentsChangedDomainEvent));
             return;
         }
 
@@ -33,15 +38,22 @@ internal sealed class PartySalesAssignmentsChangedDomainEventHandler(
                 dateTimeProvider.UtcNow,
                 person.PublicId,
                 person.SalesAssignments
-                    .Select(sa => new SalesAssignmentDto(
-                        sa.Role.ToString(),
-                        sa.SalesPersonId,
-                        sa.SalesPerson.Email,
-                        sa.SalesPerson.Username,
-                        sa.SalesPerson.FirstName,
-                        sa.SalesPerson.LastName,
-                        sa.SalesPerson.LotNumber,
-                        sa.SalesPerson.FederatedId))
+                    .Select(sa =>
+                    {
+                        if (sa.SalesPerson is null)
+                            throw new InvalidOperationException(
+                                $"SalesPerson navigation not loaded for SalesAssignment {sa.Id}. Ensure ThenInclude is used.");
+
+                        return new SalesAssignmentDto(
+                            sa.Role.ToString(),
+                            sa.SalesPersonId,
+                            sa.SalesPerson.Email,
+                            sa.SalesPerson.Username,
+                            sa.SalesPerson.FirstName,
+                            sa.SalesPerson.LastName,
+                            sa.SalesPerson.LotNumber,
+                            sa.SalesPerson.FederatedId);
+                    })
                     .ToArray()),
             cancellationToken);
     }

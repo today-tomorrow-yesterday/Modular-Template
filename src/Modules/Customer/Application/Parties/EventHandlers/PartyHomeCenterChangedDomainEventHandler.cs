@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Modules.Customer.Domain.Parties;
 using Modules.Customer.Domain.Parties.Events;
 using Modules.Customer.IntegrationEvents;
@@ -11,7 +12,8 @@ namespace Modules.Customer.Application.Parties.EventHandlers;
 internal sealed class PartyHomeCenterChangedDomainEventHandler(
     IPartyRepository partyRepository,
     IEventBus eventBus,
-    IDateTimeProvider dateTimeProvider) : DomainEventHandler<PartyHomeCenterChangedDomainEvent>
+    IDateTimeProvider dateTimeProvider,
+    ILogger<PartyHomeCenterChangedDomainEventHandler> logger) : DomainEventHandler<PartyHomeCenterChangedDomainEvent>
 {
     public override async Task Handle(
         PartyHomeCenterChangedDomainEvent domainEvent,
@@ -23,6 +25,9 @@ internal sealed class PartyHomeCenterChangedDomainEventHandler(
 
         if (party is null)
         {
+            logger.LogWarning(
+                "Party {EntityId} not found when handling {Event}. Integration event discarded.",
+                domainEvent.EntityId, nameof(PartyHomeCenterChangedDomainEvent));
             return;
         }
 
