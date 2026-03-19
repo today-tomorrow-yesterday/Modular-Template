@@ -73,7 +73,7 @@ public sealed class RecordOutsideInsuranceCommandHandlerTests
     private static Sale CreateSaleWithContext(bool includePrimaryPackage = true)
     {
         var sale = Sale.Create(
-            partyId: 1,
+            customerId: 1,
             retailLocationId: 1,
             saleType: SaleType.B2C,
             saleNumber: 12345);

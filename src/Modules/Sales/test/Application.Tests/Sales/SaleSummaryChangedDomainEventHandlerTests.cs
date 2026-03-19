@@ -1,7 +1,7 @@
 using Modules.Sales.Application.Sales.EventHandlers;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Home;
-using Modules.Sales.Domain.PartiesCache;
+using Modules.Sales.Domain.CustomersCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using Modules.Sales.Domain.Sales.Events;
@@ -141,20 +141,20 @@ public sealed class SaleSummaryChangedDomainEventHandlerTests
         decimal retailSalePrice = 90000m)
     {
         var sale = Sale.Create(
-            partyId: 1,
+            customerId: 1,
             retailLocationId: 1,
             saleType: SaleType.B2C,
             saleNumber: 12345);
         sale.ClearDomainEvents();
 
         // Set Party navigation via reflection
-        var party = new PartyCache
+        var customer = new CustomerCache
         {
             Id = 1,
             RefPublicId = Guid.NewGuid(),
             DisplayName = customerName
         };
-        SetProperty(sale, nameof(Sale.Party), party);
+        SetProperty(sale, nameof(Sale.Customer), customer);
 
         // Set RetailLocation navigation via reflection
         var retailLocation = RetailLocation.CreateHomeCenter(

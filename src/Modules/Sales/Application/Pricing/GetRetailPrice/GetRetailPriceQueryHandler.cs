@@ -17,7 +17,7 @@ internal sealed class GetRetailPriceQueryHandler(
         GetRetailPriceQuery request,
         CancellationToken cancellationToken)
     {
-        var sale = await saleRepository.GetByPublicIdWithPartyContextAsync(
+        var sale = await saleRepository.GetByPublicIdWithCustomerContextAsync(
             request.PublicSaleId, cancellationToken);
 
         if (sale is null)

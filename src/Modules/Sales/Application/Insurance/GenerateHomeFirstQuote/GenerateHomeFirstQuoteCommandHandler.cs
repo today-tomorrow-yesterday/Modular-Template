@@ -120,7 +120,7 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
     {
         var homeDetails = ctx.HomeDetails;
         var deliveryAddress = ctx.DeliveryAddress;
-        var party = ctx.Sale.Party;
+        var customerCache = ctx.Sale.Customer;
 
         var quoteRequest = new ISeriesInsurance.HomeFirstQuoteRequest
         {
@@ -138,8 +138,8 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             InParkOrSubdivision = request.IsHomeLocatedInPark,
             HasFoundationOrMasonry = request.IsHomeOnPermanentFoundation,
             IsLandOwnedByCustomer = request.IsLandCustomerOwned,
-            FirstName = party.Person?.FirstName ?? string.Empty,
-            LastName = party.Person?.LastName ?? string.Empty,
+            FirstName = customerCache?.FirstName ?? string.Empty,
+            LastName = customerCache?.LastName ?? string.Empty,
             MailingAddress = request.MailingAddress,
             MailingCity = request.MailingCity,
             MailingState = request.MailingState,
@@ -152,7 +152,7 @@ internal sealed class GenerateHomeFirstQuoteCommandHandler(
             CoBuyerBirthDate = request.CoApplicantBirthDate.HasValue
                 ? DateOnly.FromDateTime(request.CoApplicantBirthDate.Value)
                 : null,
-            PhoneNumber = party.Person?.Phone
+            PhoneNumber = customerCache?.Phone
         };
 
         return await iSeriesAdapter.CalculateHomeFirstQuote(quoteRequest, cancellationToken);

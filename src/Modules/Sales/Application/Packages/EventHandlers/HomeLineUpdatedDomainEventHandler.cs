@@ -115,13 +115,13 @@ internal sealed class HomeLineUpdatedDomainEventHandler(
             InParkOrSubdivision = insuranceDetails.InParkOrSubdivision,
             HasFoundationOrMasonry = insuranceDetails.HasFoundationOrMasonry,
             IsLandOwnedByCustomer = insuranceDetails.IsLandOwnedByCustomer,
-            FirstName = package.Sale.Party?.Person?.FirstName ?? string.Empty,
-            LastName = package.Sale.Party?.Person?.LastName ?? string.Empty,
+            FirstName = package.Sale.Customer?.FirstName ?? string.Empty,
+            LastName = package.Sale.Customer?.LastName ?? string.Empty,
             LocationAddress = deliveryAddress?.AddressLine1 ?? string.Empty,
             LocationCity = deliveryAddress?.City ?? string.Empty,
             LocationState = deliveryAddress?.State ?? string.Empty,
             IsWithinCityLimits = deliveryAddress?.IsWithinCityLimits ?? false,
-            PhoneNumber = package.Sale.Party?.Person?.Phone
+            PhoneNumber = package.Sale.Customer?.Phone
         };
     }
 

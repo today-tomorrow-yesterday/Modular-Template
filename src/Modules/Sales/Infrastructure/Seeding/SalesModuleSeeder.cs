@@ -47,15 +47,11 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
         // Cache entities need write scope
         using (cacheWriteScope.AllowWrites())
         {
-            // PartyCache (UseIdentityAlwaysColumn — DB generates Id)
-            var partyCacheFaker = new PartyCacheFaker(activeHomeCenterNumbers);
-            var parties = partyCacheFaker.Generate(20);
-            db.PartiesCache.AddRange(parties);
-            await db.SaveChangesAsync(ct); // Must flush to get auto-generated PartyIds
-
-            // PartyPersonCache (ValueGeneratedNever on PartyId — needs PartyCache.Id)
-            var personDetails = PartyCacheFaker.GeneratePersonDetails(parties, faker);
-            db.PartyPersonsCache.AddRange(personDetails);
+            // CustomerCache (UseIdentityAlwaysColumn — DB generates Id)
+            var customerCacheFaker = new CustomerCacheFaker(activeHomeCenterNumbers);
+            var customers = customerCacheFaker.Generate(20);
+            db.CustomersCache.AddRange(customers);
+            await db.SaveChangesAsync(ct); // Must flush to get auto-generated Ids
 
             // AuthorizedUserCache (ValueGeneratedNever — manual Id)
             var authorizedUserFaker = new AuthorizedUserCacheFaker(activeHomeCenterNumbers);
@@ -76,8 +72,8 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
 
             await db.SaveChangesAsync(ct);
             logger.LogInformation(
-                "Seeded cache: {Parties} parties, {Users} authorized users, {Homes} on-lot homes, {Land} land parcels.",
-                parties.Count, authorizedUsers.Count, onLotHomes.Count, landParcels.Count);
+                "Seeded cache: {Customers} customers, {Users} authorized users, {Homes} on-lot homes, {Land} land parcels.",
+                customers.Count, authorizedUsers.Count, onLotHomes.Count, landParcels.Count);
 
             // ────────────────────────────────────────
             // Phase 2: Sequential FK chain
@@ -85,10 +81,10 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
 
             // Only assign sales to active retail locations — HC 500 is inactive.
             var retailLocationIds = retailLocations.Where(r => r.IsActive).Select(r => r.Id).ToArray();
-            var partyIds = parties.Select(p => p.Id).ToArray();
+            var customerIds = customers.Select(c => c.Id).ToArray();
 
-            // Sales (needs PartyId + RetailLocationId)
-            var sales = SaleFaker.Generate(15, partyIds, retailLocationIds, faker);
+            // Sales (needs CustomerId + RetailLocationId)
+            var sales = SaleFaker.Generate(15, customerIds, retailLocationIds, faker);
             for (var i = 0; i < sales.Count; i++)
                 SeedConstants.OverridePublicId(sales[i], SeedConstants.DeterministicGuid("sale", i));
             db.Sales.AddRange(sales);

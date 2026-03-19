@@ -3,7 +3,7 @@ using Modules.Sales.Domain;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.Insurance;
-using Modules.Sales.Domain.PartiesCache;
+using Modules.Sales.Domain.CustomersCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
@@ -168,7 +168,7 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
         string occupancyType = "Primary")
     {
         var sale = Sale.Create(
-            partyId: 1,
+            customerId: 1,
             retailLocationId: 1,
             saleType: SaleType.B2C,
             saleNumber: 12345);
@@ -192,24 +192,19 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
             SetProperty(sale, nameof(Sale.DeliveryAddress), address);
         }
 
-        var party = new PartyCache
+        var customer = new CustomerCache
         {
             Id = 1,
             RefPublicId = Guid.NewGuid(),
-            PartyType = PartyType.Person,
             LifecycleStage = LifecycleStage.Customer,
             HomeCenterNumber = 42,
             DisplayName = "John Doe",
             LastSyncedAtUtc = DateTime.UtcNow,
-            Person = new PartyPersonCache
-            {
-                PartyId = 1,
-                FirstName = "John",
-                LastName = "Doe",
-                Phone = "555-123-4567"
-            }
+            FirstName = "John",
+            LastName = "Doe",
+            Phone = "555-123-4567"
         };
-        SetProperty(sale, nameof(Sale.Party), party);
+        SetProperty(sale, nameof(Sale.Customer), customer);
 
         if (includePrimaryPackage)
         {

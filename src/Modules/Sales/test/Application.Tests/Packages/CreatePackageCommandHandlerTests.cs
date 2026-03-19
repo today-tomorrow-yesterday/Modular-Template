@@ -35,7 +35,7 @@ public sealed class CreatePackageCommandHandlerTests
     [Fact]
     public async Task Returns_failure_when_duplicate_name_exists()
     {
-        var sale = Sale.Create(partyId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
         sale.ClearDomainEvents();
         _saleRepository.GetByPublicIdAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
@@ -54,7 +54,7 @@ public sealed class CreatePackageCommandHandlerTests
     [Fact]
     public async Task Returns_success_on_happy_path()
     {
-        var sale = Sale.Create(partyId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
         sale.ClearDomainEvents();
         _saleRepository.GetByPublicIdAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);

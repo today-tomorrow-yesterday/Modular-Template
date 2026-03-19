@@ -22,7 +22,7 @@ public sealed class GetOptionTotalsQueryHandlerTests
     public async Task Returns_failure_when_sale_not_found()
     {
         var publicId = Guid.NewGuid();
-        _saleRepository.GetByPublicIdWithPartyContextAsync(publicId, Arg.Any<CancellationToken>())
+        _saleRepository.GetByPublicIdWithCustomerContextAsync(publicId, Arg.Any<CancellationToken>())
             .Returns((Sale?)null);
 
         var result = await _sut.Handle(
@@ -36,7 +36,7 @@ public sealed class GetOptionTotalsQueryHandlerTests
     public async Task Returns_success_with_option_totals()
     {
         var sale = CreateSaleWithRetailLocation("OH");
-        _saleRepository.GetByPublicIdWithPartyContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
+        _saleRepository.GetByPublicIdWithCustomerContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
 
         _iSeriesAdapter.CalculateOptionTotals(Arg.Any<ISeriesPricing.OptionTotalsRequest>(), Arg.Any<CancellationToken>())
@@ -52,7 +52,7 @@ public sealed class GetOptionTotalsQueryHandlerTests
 
     private static Sale CreateSaleWithRetailLocation(string stateCode)
     {
-        var sale = Sale.Create(partyId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
         sale.ClearDomainEvents();
 
         var retailLocation = RetailLocation.CreateHomeCenter(

@@ -1,5 +1,5 @@
 using Modules.Sales.Domain;
-using Modules.Sales.Domain.PartiesCache;
+using Modules.Sales.Domain.CustomersCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Application.Messaging;
@@ -9,7 +9,7 @@ using Rtl.Core.Domain.Results;
 namespace Modules.Sales.Application.Sales.CreateSale;
 
 internal sealed class CreateSaleCommandHandler(
-    IPartyCacheRepository partyCacheRepository,
+    ICustomerCacheRepository customerCacheRepository,
     IRetailLocationRepository retailLocationRepository,
     ISaleRepository saleRepository,
     ISaleNumberGenerator saleNumberGenerator,
@@ -20,15 +20,15 @@ internal sealed class CreateSaleCommandHandler(
         CreateSaleCommand request,
         CancellationToken cancellationToken)
     {
-        // Step 1: Resolve party from cache by PublicId
-        var partyResult = await ResolvePartyAsync(request.PartyPublicId, cancellationToken);
-        if (partyResult.IsFailure)
+        // Step 1: Resolve customer from cache by PublicId
+        var customerResult = await ResolveCustomerAsync(request.PartyPublicId, cancellationToken);
+        if (customerResult.IsFailure)
         {
-            return Result.Failure<CreateSaleResult>(partyResult.Error);
+            return Result.Failure<CreateSaleResult>(customerResult.Error);
         }
 
-        // Step 1b: Idempotency — return existing sale if one already exists for this party
-        var existingSale = await saleRepository.GetByPartyIdAsync(partyResult.Value.Id, cancellationToken);
+        // Step 1b: Idempotency — return existing sale if one already exists for this customer
+        var existingSale = await saleRepository.GetByCustomerIdAsync(customerResult.Value.Id, cancellationToken);
         if (existingSale is not null)
         {
             return new CreateSaleResult(existingSale.PublicId, existingSale.SaleNumber);
@@ -45,7 +45,7 @@ internal sealed class CreateSaleCommandHandler(
         var saleNumber = await saleNumberGenerator.GenerateNextAsync(cancellationToken);
 
         // Step 4: Create sale aggregate (raises SaleSummaryChangedDomainEvent)
-        var sale = Sale.Create(partyResult.Value.Id, locationResult.Value.Id, request.SaleType, saleNumber);
+        var sale = Sale.Create(customerResult.Value.Id, locationResult.Value.Id, request.SaleType, saleNumber);
 
         // Step 5: Persist
         saleRepository.Add(sale);
@@ -55,14 +55,14 @@ internal sealed class CreateSaleCommandHandler(
         return new CreateSaleResult(sale.PublicId, sale.SaleNumber);
     }
 
-    private async Task<Result<PartyCache>> ResolvePartyAsync(
-        Guid partyPublicId, CancellationToken cancellationToken)
+    private async Task<Result<CustomerCache>> ResolveCustomerAsync(
+        Guid customerPublicId, CancellationToken cancellationToken)
     {
-        var party = await partyCacheRepository.GetByRefPublicIdAsync(partyPublicId, cancellationToken);
+        var customer = await customerCacheRepository.GetByRefPublicIdAsync(customerPublicId, cancellationToken);
 
-        return party is not null
-            ? party
-            : Result.Failure<PartyCache>(SaleErrors.PartyNotFound(partyPublicId));
+        return customer is not null
+            ? customer
+            : Result.Failure<CustomerCache>(SaleErrors.PartyNotFound(customerPublicId));
     }
 
     private async Task<Result<RetailLocation>> ResolveActiveRetailLocationAsync(

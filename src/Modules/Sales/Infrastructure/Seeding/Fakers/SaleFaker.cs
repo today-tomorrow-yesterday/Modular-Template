@@ -6,14 +6,14 @@ internal static class SaleFaker
 {
     private static int _saleNumber = 1000;
 
-    public static List<Sale> Generate(int count, int[] partyIds, int[] retailLocationIds, Bogus.Faker faker)
+    public static List<Sale> Generate(int count, int[] customerIds, int[] retailLocationIds, Bogus.Faker faker)
     {
         var sales = new List<Sale>(count);
 
         for (var i = 0; i < count; i++)
         {
             var sale = Sale.Create(
-                partyId: faker.PickRandom(partyIds),
+                customerId: faker.PickRandom(customerIds),
                 retailLocationId: faker.PickRandom(retailLocationIds),
                 saleType: faker.PickRandom(SaleType.B2C, SaleType.B2C, SaleType.B2C, SaleType.B2B), // 75% B2C
                 saleNumber: ++_saleNumber);

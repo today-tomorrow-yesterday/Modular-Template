@@ -15,7 +15,7 @@ internal sealed class CreateSaleEndpoint : IEndpoint
     {
         group.MapPost("/", HandleAsync)
             .WithSummary("Create a new sale")
-            .WithDescription("Creates a new sale record with a party and home center assignment.")
+            .WithDescription("Creates a new sale record with a customer and home center assignment.")
             .WithName("CreateSale")
             .MapToApiVersion(new ApiVersion(1, 0))
             .Produces<ApiEnvelope<CreateSaleResponse>>(StatusCodes.Status201Created)
@@ -29,7 +29,7 @@ internal sealed class CreateSaleEndpoint : IEndpoint
     {
         public const string Request = """
         {
-            "partyId": "6c49f440-2593-bc43-8534-4f4f35c8a666",
+            "customerId": "6c49f440-2593-bc43-8534-4f4f35c8a666",
             "homeCenterNumber": 100
         }
         """;
@@ -40,7 +40,7 @@ internal sealed class CreateSaleEndpoint : IEndpoint
         ISender sender,
         CancellationToken ct)
     {
-        var command = new CreateSaleCommand(request.PartyId, request.HomeCenterNumber);
+        var command = new CreateSaleCommand(request.CustomerId, request.HomeCenterNumber);
 
         var result = await sender.Send(command, ct);
 
@@ -51,7 +51,7 @@ internal sealed class CreateSaleEndpoint : IEndpoint
 }
 
 public sealed record CreateSaleRequest(
-    Guid PartyId,
+    Guid CustomerId,
     int HomeCenterNumber);
 
 public sealed record CreateSaleResponse(

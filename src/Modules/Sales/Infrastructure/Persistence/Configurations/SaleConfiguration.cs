@@ -20,8 +20,8 @@ internal sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             .HasColumnName("public_id")
             .HasDefaultValueSql("gen_random_uuid()");
 
-        builder.Property(s => s.PartyId)
-            .HasColumnName("party_id")
+        builder.Property(s => s.CustomerId)
+            .HasColumnName("customer_id")
             .IsRequired();
 
         builder.Property(s => s.RetailLocationId)
@@ -58,8 +58,8 @@ internal sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
             .IsUnique()
             .HasDatabaseName("ix_sales_public_id");
 
-        builder.HasIndex(s => s.PartyId)
-            .HasDatabaseName("ix_sales_party_id");
+        builder.HasIndex(s => s.CustomerId)
+            .HasDatabaseName("ix_sales_customer_id");
 
         builder.HasIndex(s => s.RetailLocationId)
             .HasDatabaseName("ix_sales_retail_location_id");
@@ -69,9 +69,9 @@ internal sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
 
         builder.HasQueryFilter(s => !s.IsDeleted);
 
-        builder.HasOne(s => s.Party)
+        builder.HasOne(s => s.Customer)
             .WithMany()
-            .HasForeignKey(s => s.PartyId)
+            .HasForeignKey(s => s.CustomerId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(s => s.RetailLocation)

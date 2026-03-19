@@ -7,7 +7,7 @@ public sealed record GetSaleByIdQuery(Guid SalePublicId) : IQuery<GetSaleByIdRes
 public sealed record GetSaleByIdResult(
     Guid Id,
     int SaleNumber,
-    Guid PartyId,
+    Guid CustomerId,
     RetailLocationResult RetailLocation,
     string SaleType,
     string SaleStatus,

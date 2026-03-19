@@ -1,5 +1,5 @@
 using Modules.Sales.Application.Sales.GetSaleById;
-using Modules.Sales.Domain.PartiesCache;
+using Modules.Sales.Domain.CustomersCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
@@ -23,7 +23,7 @@ public sealed class GetSaleByIdQueryHandlerTests
     [Fact]
     public async Task Returns_failure_when_sale_not_found()
     {
-        _saleRepository.GetByPublicIdWithPartyContextAsync(TestSalePublicId, Arg.Any<CancellationToken>())
+        _saleRepository.GetByPublicIdWithCustomerContextAsync(TestSalePublicId, Arg.Any<CancellationToken>())
             .Returns((Sale?)null);
 
         var result = await _sut.Handle(
@@ -128,7 +128,7 @@ public sealed class GetSaleByIdQueryHandlerTests
             new GetSaleByIdQuery(sale.PublicId), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(partyPublicId, result.Value.PartyId);
+        Assert.Equal(partyPublicId, result.Value.CustomerId);
     }
 
     [Fact]
@@ -202,7 +202,7 @@ public sealed class GetSaleByIdQueryHandlerTests
 
     private void SetupRepository(Sale sale)
     {
-        _saleRepository.GetByPublicIdWithPartyContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
+        _saleRepository.GetByPublicIdWithCustomerContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
     }
 
@@ -227,46 +227,36 @@ public sealed class GetSaleByIdQueryHandlerTests
         string? salesforceAccountId = null)
     {
         var sale = Sale.Create(
-            partyId: 1,
+            customerId: 1,
             retailLocationId: 1,
             saleType: SaleType.B2C,
             saleNumber: 12345);
         sale.ClearDomainEvents();
 
-        // Build party cache with optional Person TPT
-        var party = new PartyCache
+        // Build flat customer cache
+        var customer = new CustomerCache
         {
             Id = 1,
             RefPublicId = partyPublicId ?? Guid.NewGuid(),
-            PartyType = includePerson ? PartyType.Person : PartyType.Organization,
             HomeCenterNumber = partyHomeCenterNumber,
             DisplayName = displayName,
-            SalesforceAccountId = salesforceAccountId
+            SalesforceAccountId = salesforceAccountId,
+            FirstName = includePerson ? firstName : displayName,
+            MiddleName = includePerson ? middleName : null,
+            LastName = includePerson ? lastName : string.Empty,
+            Email = email,
+            Phone = phone,
+            CoBuyerFirstName = coBuyerFirstName,
+            CoBuyerLastName = coBuyerLastName,
+            PrimarySalesPersonFederatedId = primarySpFederatedId,
+            PrimarySalesPersonFirstName = primarySpFirstName,
+            PrimarySalesPersonLastName = primarySpLastName,
+            SecondarySalesPersonFederatedId = secondarySpFederatedId,
+            SecondarySalesPersonFirstName = secondarySpFirstName,
+            SecondarySalesPersonLastName = secondarySpLastName
         };
 
-        if (includePerson)
-        {
-            party.Person = new PartyPersonCache
-            {
-                PartyId = 1,
-                FirstName = firstName,
-                MiddleName = middleName,
-                LastName = lastName,
-                Email = email,
-                Phone = phone,
-                CoBuyerFirstName = coBuyerFirstName,
-                CoBuyerLastName = coBuyerLastName,
-                PrimarySalesPersonFederatedId = primarySpFederatedId,
-                PrimarySalesPersonFirstName = primarySpFirstName,
-                PrimarySalesPersonLastName = primarySpLastName,
-                SecondarySalesPersonFederatedId = secondarySpFederatedId,
-                SecondarySalesPersonFirstName = secondarySpFirstName,
-                SecondarySalesPersonLastName = secondarySpLastName,
-                Party = party
-            };
-        }
-
-        SetProperty(sale, nameof(Sale.Party), party);
+        SetProperty(sale, nameof(Sale.Customer), customer);
 
         // Set RetailLocation navigation via reflection
         var retailLocation = RetailLocation.CreateHomeCenter(

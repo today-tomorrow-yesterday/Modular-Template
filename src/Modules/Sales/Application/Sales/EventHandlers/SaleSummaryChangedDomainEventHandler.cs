@@ -42,7 +42,7 @@ internal sealed class SaleSummaryChangedDomainEventHandler(
             domainEvent.OccurredOnUtc,
             StockNumber: homeLine?.Details?.StockNumber,
             SaleId: sale.Id,
-            CustomerName: sale.Party?.DisplayName,
+            CustomerName: sale.Customer?.DisplayName,
             ReceivedInDate: null, // Populated later when delivery is scheduled
             OriginalRetailPrice: homeLine?.RetailSalePrice,
             CurrentRetailPrice: homeLine?.SalePrice,

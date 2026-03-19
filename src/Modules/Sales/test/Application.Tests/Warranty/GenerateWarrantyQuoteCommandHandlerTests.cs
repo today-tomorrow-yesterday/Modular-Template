@@ -239,7 +239,7 @@ public sealed class GenerateWarrantyQuoteCommandHandlerTests
         string? occupancyType = "Primary")
     {
         var sale = Sale.Create(
-            partyId: 1,
+            customerId: 1,
             retailLocationId: 1,
             saleType: SaleType.B2C,
             saleNumber: 12345);

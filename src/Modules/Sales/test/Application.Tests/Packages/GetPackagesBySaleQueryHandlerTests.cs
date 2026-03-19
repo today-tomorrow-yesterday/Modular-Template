@@ -32,7 +32,7 @@ public sealed class GetPackagesBySaleQueryHandlerTests
     [Fact]
     public async Task Returns_success_with_packages_when_sale_found()
     {
-        var sale = Sale.Create(partyId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
         sale.ClearDomainEvents();
 
         _saleRepository.GetByPublicIdAsync(sale.PublicId, Arg.Any<CancellationToken>())

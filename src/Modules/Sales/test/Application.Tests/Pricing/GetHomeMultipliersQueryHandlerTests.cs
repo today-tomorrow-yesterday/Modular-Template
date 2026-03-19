@@ -21,7 +21,7 @@ public sealed class GetHomeMultipliersQueryHandlerTests
     public async Task Returns_failure_when_sale_not_found()
     {
         var publicId = Guid.NewGuid();
-        _saleRepository.GetByPublicIdWithPartyContextAsync(publicId, Arg.Any<CancellationToken>())
+        _saleRepository.GetByPublicIdWithCustomerContextAsync(publicId, Arg.Any<CancellationToken>())
             .Returns((Sale?)null);
 
         var result = await _sut.Handle(
@@ -35,7 +35,7 @@ public sealed class GetHomeMultipliersQueryHandlerTests
     public async Task Returns_failure_when_multiplier_not_found()
     {
         var sale = CreateSaleWithRetailLocation("TX");
-        _saleRepository.GetByPublicIdWithPartyContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
+        _saleRepository.GetByPublicIdWithCustomerContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
         _cdcPricingQueries.GetActiveMultiplierForStateAsync("TX", Arg.Any<DateOnly?>(), Arg.Any<CancellationToken>())
             .Returns((CdcPricingHomeMultiplier?)null);
@@ -51,7 +51,7 @@ public sealed class GetHomeMultipliersQueryHandlerTests
     public async Task Returns_success_when_multiplier_found()
     {
         var sale = CreateSaleWithRetailLocation("OH");
-        _saleRepository.GetByPublicIdWithPartyContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
+        _saleRepository.GetByPublicIdWithCustomerContextAsync(sale.PublicId, Arg.Any<CancellationToken>())
             .Returns(sale);
 
         var multiplier = new CdcPricingHomeMultiplier
@@ -75,7 +75,7 @@ public sealed class GetHomeMultipliersQueryHandlerTests
 
     private static Sale CreateSaleWithRetailLocation(string stateCode)
     {
-        var sale = Sale.Create(partyId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
         sale.ClearDomainEvents();
 
         var retailLocation = RetailLocation.CreateHomeCenter(

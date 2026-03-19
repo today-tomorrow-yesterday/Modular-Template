@@ -41,7 +41,7 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
     [Fact]
     public async Task Returns_failure_when_delivery_address_not_found()
     {
-        var sale = Sale.Create(partyId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
         sale.ClearDomainEvents();
         // Sale has no DeliveryAddress (null by default)
 
@@ -187,7 +187,7 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
 
     private static Sale CreateSaleWithDeliveryAddress()
     {
-        var sale = Sale.Create(partyId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
         sale.ClearDomainEvents();
 
         var address = Domain.DeliveryAddresses.DeliveryAddress.Create(

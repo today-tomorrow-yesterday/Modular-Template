@@ -16,7 +16,7 @@ internal sealed class GetHomeMultipliersQueryHandler(
         GetHomeMultipliersQuery request,
         CancellationToken cancellationToken)
     {
-        var sale = await saleRepository.GetByPublicIdWithPartyContextAsync(
+        var sale = await saleRepository.GetByPublicIdWithCustomerContextAsync(
             request.PublicSaleId, cancellationToken);
 
         if (sale is null)

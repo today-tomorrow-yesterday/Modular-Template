@@ -16,7 +16,7 @@ internal sealed class DeliveryAddressRepository(SalesDbContext dbContext)
     {
         return await DbSet
             .Include(d => d.Sale)
-                .ThenInclude(s => s.Party)
+                .ThenInclude(s => s.Customer)
             .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
     }
 }

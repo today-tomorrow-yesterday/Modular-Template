@@ -60,7 +60,7 @@ public sealed class UpdatePackageTaxCommandHandlerTests
     private static Package CreatePackageWithContext()
     {
         var sale = Sale.Create(
-            partyId: 1,
+            customerId: 1,
             retailLocationId: 1,
             saleType: SaleType.B2C,
             saleNumber: 12345);

@@ -83,7 +83,7 @@ public sealed class UpdatePackageLandCommandHandlerTests
 
     private static Package CreatePackageWithSaleContext()
     {
-        var sale = Sale.Create(partyId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
         sale.ClearDomainEvents();
 
         var retailLocation = RetailLocation.CreateHomeCenter(

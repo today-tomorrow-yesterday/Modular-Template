@@ -10,11 +10,11 @@ internal sealed class SaleRepository(SalesDbContext dbContext)
 {
     protected override Expression<Func<Sale, int>> IdSelector => entity => entity.Id;
 
-    public async Task<Sale?> GetByPartyIdAsync(int partyId, CancellationToken cancellationToken = default)
+    public async Task<Sale?> GetByCustomerIdAsync(int customerId, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.PartyId == partyId, cancellationToken);
+            .FirstOrDefaultAsync(s => s.CustomerId == customerId, cancellationToken);
     }
 
     public async Task<Sale?> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken = default)
@@ -36,16 +36,16 @@ internal sealed class SaleRepository(SalesDbContext dbContext)
         return await DbSet
             .Include(s => s.RetailLocation)
             .Include(s => s.DeliveryAddress)
-            .Include(s => s.Party).ThenInclude(p => p.Person)
+            .Include(s => s.Customer)
             .Include(s => s.Packages).ThenInclude(p => p.Lines)
             .FirstOrDefaultAsync(s => s.PublicId == publicId, cancellationToken);
     }
 
-    public async Task<Sale?> GetByPublicIdWithPartyContextAsync(Guid publicId, CancellationToken cancellationToken = default)
+    public async Task<Sale?> GetByPublicIdWithCustomerContextAsync(Guid publicId, CancellationToken cancellationToken = default)
     {
         return await DbSet
             .AsNoTracking()
-            .Include(s => s.Party).ThenInclude(p => p.Person)
+            .Include(s => s.Customer)
             .Include(s => s.RetailLocation)
             .FirstOrDefaultAsync(s => s.PublicId == publicId, cancellationToken);
     }
@@ -54,7 +54,7 @@ internal sealed class SaleRepository(SalesDbContext dbContext)
     {
         return await DbSet
             .AsNoTracking()
-            .Include(s => s.Party)
+            .Include(s => s.Customer)
             .Include(s => s.RetailLocation)
             .Include(s => s.Packages).ThenInclude(p => p.Lines)
             .FirstOrDefaultAsync(s => s.Id == id, cancellationToken);

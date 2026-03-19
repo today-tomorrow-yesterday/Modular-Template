@@ -9,7 +9,7 @@ using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.PartiesCache;
+using Modules.Sales.Domain.CustomersCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using Modules.Sales.Infrastructure.EventBus;
@@ -54,8 +54,8 @@ public static class SalesModule
 
         services.AddScoped<ISaleRepository, SaleRepository>();
         services.AddScoped<IPackageRepository, PackageRepository>();
-        services.AddScoped<IPartyCacheRepository, PartyCacheRepository>();
-        services.AddScoped<IPartyCacheWriter, PartyCacheRepository>();
+        services.AddScoped<ICustomerCacheRepository, CustomerCacheRepository>();
+        services.AddScoped<ICustomerCacheWriter, CustomerCacheRepository>();
         services.AddScoped<IAuthorizedUserCacheRepository, AuthorizedUserCacheRepository>();
         services.AddScoped<IAuthorizedUserCacheWriter, AuthorizedUserCacheRepository>();
         services.AddScoped<IFundingRequestCacheRepository, FundingRequestCacheRepository>();

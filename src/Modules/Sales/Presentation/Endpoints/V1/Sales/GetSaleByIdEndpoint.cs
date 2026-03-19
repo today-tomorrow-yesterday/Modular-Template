@@ -15,7 +15,7 @@ internal sealed class GetSaleByIdEndpoint : IEndpoint
     {
         group.MapGet("/{publicSaleId:guid}", HandleAsync)
             .WithSummary("Get a sale by ID")
-            .WithDescription("Retrieves sale details including party data and retail location.")
+            .WithDescription("Retrieves sale details including customer data and retail location.")
             .WithName("GetSaleById")
             .MapToApiVersion(new ApiVersion(1, 0))
             .Produces<ApiEnvelope<GetSaleByIdResponse>>(StatusCodes.Status200OK)
@@ -36,7 +36,7 @@ internal sealed class GetSaleByIdEndpoint : IEndpoint
             r => ApiResponse.Ok(new GetSaleByIdResponse(
                 r.Id,
                 r.SaleNumber,
-                r.PartyId,
+                r.CustomerId,
                 new RetailLocationResponse(
                     r.RetailLocation.Id,
                     r.RetailLocation.Type,
@@ -83,7 +83,7 @@ internal sealed class GetSaleByIdEndpoint : IEndpoint
 public sealed record GetSaleByIdResponse(
     Guid Id,
     int SaleNumber,
-    Guid PartyId,
+    Guid CustomerId,
     RetailLocationResponse RetailLocation,
     string SaleType,
     string SaleStatus,

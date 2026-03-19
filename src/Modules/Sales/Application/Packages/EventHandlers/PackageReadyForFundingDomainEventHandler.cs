@@ -34,7 +34,7 @@ internal sealed class PackageReadyForFundingDomainEventHandler(
             domainEvent.OccurredOnUtc,
             SaleId: sale.Id,
             PackageId: package.Id,
-            CustomerPublicId: sale.Party.RefPublicId,
+            CustomerPublicId: sale.Customer.RefPublicId,
             RequestTypeId: 0, // Derived by Funding based on deal type (cash vs loan)
             RequestAmount: domainEvent.RequestAmount,
             HomeCenterNumber: sale.RetailLocation?.RefHomeCenterNumber,

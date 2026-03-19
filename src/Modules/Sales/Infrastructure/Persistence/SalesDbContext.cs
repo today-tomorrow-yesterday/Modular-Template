@@ -6,7 +6,7 @@ using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
-using Modules.Sales.Domain.PartiesCache;
+using Modules.Sales.Domain.CustomersCache;
 using Modules.Sales.Domain.RetailLocations;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Application.Persistence;
@@ -39,9 +39,7 @@ public sealed class SalesDbContext(DbContextOptions<SalesDbContext> options)
     internal DbSet<CdcPricingHomeOptionWhitelist> CdcPricingHomeOptionWhitelists => Set<CdcPricingHomeOptionWhitelist>();
 
     // ECST caches (ICacheProjection)
-    internal DbSet<PartyCache> PartiesCache => Set<PartyCache>();
-    internal DbSet<PartyPersonCache> PartyPersonsCache => Set<PartyPersonCache>();
-    internal DbSet<PartyOrganizationCache> PartyOrganizationsCache => Set<PartyOrganizationCache>();
+    internal DbSet<CustomerCache> CustomersCache => Set<CustomerCache>();
     internal DbSet<AuthorizedUserCache> AuthorizedUsersCache => Set<AuthorizedUserCache>();
     internal DbSet<FundingRequestCache> FundingRequestsCache => Set<FundingRequestCache>();
     internal DbSet<OnLotHomeCache> OnLotHomesCache => Set<OnLotHomeCache>();
