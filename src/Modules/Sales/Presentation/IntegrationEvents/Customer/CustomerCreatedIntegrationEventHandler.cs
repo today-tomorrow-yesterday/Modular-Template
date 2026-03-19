@@ -7,21 +7,21 @@ using Rtl.Core.Application.EventBus;
 
 namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 
-// Flow: Customer.PartyCreatedIntegrationEvent → Sales.UpsertCustomerCacheCommand
+// Flow: Customer.CustomerCreatedIntegrationEvent → Sales.UpsertCustomerCacheCommand
 internal sealed class CustomerCreatedIntegrationEventHandler(
     ISender sender,
     ILogger<CustomerCreatedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyCreatedIntegrationEvent>
+    : IntegrationEventHandler<CustomerCreatedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyCreatedIntegrationEvent integrationEvent,
+        CustomerCreatedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing PartyCreated: PartyId={PartyId}",
-            integrationEvent.PartyId);
+            "Processing CustomerCreated: CustomerId={CustomerId}",
+            integrationEvent.CustomerId);
 
-        var displayName = $"{integrationEvent.PersonData?.FirstName} {integrationEvent.PersonData?.LastName}".Trim();
+        var displayName = $"{integrationEvent.FirstName} {integrationEvent.LastName}".Trim();
 
         var salesforceAccountId = integrationEvent.Identifiers
             .FirstOrDefault(i => i.Type == "SalesforceAccountId")?.Value;
@@ -31,44 +31,31 @@ internal sealed class CustomerCreatedIntegrationEventHandler(
         var phone = integrationEvent.ContactPoints
             .FirstOrDefault(cp => cp.Type == "Phone")?.Value;
 
-        string? primaryFederatedId = null, primaryFirstName = null, primaryLastName = null;
-        string? secondaryFederatedId = null, secondaryFirstName = null, secondaryLastName = null;
-
-        if (integrationEvent.PersonData is not null)
-        {
-            var primarySp = integrationEvent.PersonData.SalesAssignments
-                .FirstOrDefault(sa => sa.Role == "Primary");
-            var secondarySp = integrationEvent.PersonData.SalesAssignments
-                .FirstOrDefault(sa => sa.Role == "Supporting");
-
-            primaryFederatedId = primarySp?.FederatedId;
-            primaryFirstName = primarySp?.FirstName;
-            primaryLastName = primarySp?.LastName;
-            secondaryFederatedId = secondarySp?.FederatedId;
-            secondaryFirstName = secondarySp?.FirstName;
-            secondaryLastName = secondarySp?.LastName;
-        }
+        var primarySp = integrationEvent.SalesAssignments
+            .FirstOrDefault(sa => sa.Role == "Primary");
+        var secondarySp = integrationEvent.SalesAssignments
+            .FirstOrDefault(sa => sa.Role == "Supporting");
 
         var customerCache = new CustomerCache
         {
-            RefPublicId = integrationEvent.PartyId,
+            RefPublicId = integrationEvent.CustomerId,
             LifecycleStage = Enum.Parse<LifecycleStage>(integrationEvent.LifecycleStage),
             HomeCenterNumber = integrationEvent.HomeCenterNumber,
             DisplayName = displayName,
             SalesforceAccountId = salesforceAccountId,
-            FirstName = integrationEvent.PersonData?.FirstName ?? string.Empty,
-            MiddleName = integrationEvent.PersonData?.MiddleName,
-            LastName = integrationEvent.PersonData?.LastName ?? string.Empty,
+            FirstName = integrationEvent.FirstName ?? string.Empty,
+            MiddleName = integrationEvent.MiddleName,
+            LastName = integrationEvent.LastName ?? string.Empty,
             Email = email,
             Phone = phone,
-            CoBuyerFirstName = integrationEvent.PersonData?.CoBuyerFirstName,
-            CoBuyerLastName = integrationEvent.PersonData?.CoBuyerLastName,
-            PrimarySalesPersonFederatedId = primaryFederatedId,
-            PrimarySalesPersonFirstName = primaryFirstName,
-            PrimarySalesPersonLastName = primaryLastName,
-            SecondarySalesPersonFederatedId = secondaryFederatedId,
-            SecondarySalesPersonFirstName = secondaryFirstName,
-            SecondarySalesPersonLastName = secondaryLastName
+            CoBuyerFirstName = integrationEvent.CoBuyerFirstName,
+            CoBuyerLastName = integrationEvent.CoBuyerLastName,
+            PrimarySalesPersonFederatedId = primarySp?.FederatedId,
+            PrimarySalesPersonFirstName = primarySp?.FirstName,
+            PrimarySalesPersonLastName = primarySp?.LastName,
+            SecondarySalesPersonFederatedId = secondarySp?.FederatedId,
+            SecondarySalesPersonFirstName = secondarySp?.FirstName,
+            SecondarySalesPersonLastName = secondarySp?.LastName
         };
 
         await sender.Send(

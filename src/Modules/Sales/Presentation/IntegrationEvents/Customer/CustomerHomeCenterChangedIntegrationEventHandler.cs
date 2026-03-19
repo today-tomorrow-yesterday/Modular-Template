@@ -6,24 +6,24 @@ using Rtl.Core.Application.EventBus;
 
 namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 
-// Flow: Customer.PartyHomeCenterChangedIntegrationEvent → Sales.UpdateCustomerCacheHomeCenterCommand
+// Flow: Customer.CustomerHomeCenterChangedIntegrationEvent → Sales.UpdateCustomerCacheHomeCenterCommand
 internal sealed class CustomerHomeCenterChangedIntegrationEventHandler(
     ISender sender,
     ILogger<CustomerHomeCenterChangedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyHomeCenterChangedIntegrationEvent>
+    : IntegrationEventHandler<CustomerHomeCenterChangedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyHomeCenterChangedIntegrationEvent integrationEvent,
+        CustomerHomeCenterChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing PartyHomeCenterChanged: PartyId={PartyId}, NewHC={NewHomeCenterNumber}",
-            integrationEvent.PartyId,
+            "Processing CustomerHomeCenterChanged: CustomerId={CustomerId}, NewHC={NewHomeCenterNumber}",
+            integrationEvent.CustomerId,
             integrationEvent.NewHomeCenterNumber);
 
         await sender.Send(
             new UpdateCustomerCacheHomeCenterCommand(
-                integrationEvent.PartyId,
+                integrationEvent.CustomerId,
                 integrationEvent.NewHomeCenterNumber),
             cancellationToken);
     }

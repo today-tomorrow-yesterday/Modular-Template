@@ -31,7 +31,7 @@ internal sealed class CustomerCoBuyerChangedDomainEventHandler(
         }
 
         await eventBus.PublishAsync(
-            new PartyCoBuyerChangedIntegrationEvent(
+            new CustomerCoBuyerChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,

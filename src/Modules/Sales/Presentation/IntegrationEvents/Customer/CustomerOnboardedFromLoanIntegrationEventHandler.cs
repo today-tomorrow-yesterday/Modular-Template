@@ -7,19 +7,19 @@ using Rtl.Core.Application.EventBus;
 
 namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 
-// Flow: Customer.PartyOnboardedFromLoanIntegrationEvent → Sales.UpsertCustomerCacheCommand
+// Flow: Customer.CustomerOnboardedFromLoanIntegrationEvent → Sales.UpsertCustomerCacheCommand
 internal sealed class CustomerOnboardedFromLoanIntegrationEventHandler(
     ISender sender,
     ILogger<CustomerOnboardedFromLoanIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyOnboardedFromLoanIntegrationEvent>
+    : IntegrationEventHandler<CustomerOnboardedFromLoanIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyOnboardedFromLoanIntegrationEvent integrationEvent,
+        CustomerOnboardedFromLoanIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing PartyOnboardedFromLoan: PartyId={PartyId}",
-            integrationEvent.PartyId);
+            "Processing CustomerOnboardedFromLoan: CustomerId={CustomerId}",
+            integrationEvent.CustomerId);
 
         var displayName = $"{integrationEvent.FirstName} {integrationEvent.LastName}".Trim();
 
@@ -30,7 +30,7 @@ internal sealed class CustomerOnboardedFromLoanIntegrationEventHandler(
 
         var customerCache = new CustomerCache
         {
-            RefPublicId = integrationEvent.PartyId,
+            RefPublicId = integrationEvent.CustomerId,
             LifecycleStage = LifecycleStage.Customer,
             HomeCenterNumber = integrationEvent.HomeCenterNumber,
             DisplayName = displayName,

@@ -31,7 +31,7 @@ internal sealed class CustomerHomeCenterChangedDomainEventHandler(
         }
 
         await eventBus.PublishAsync(
-            new PartyHomeCenterChangedIntegrationEvent(
+            new CustomerHomeCenterChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,

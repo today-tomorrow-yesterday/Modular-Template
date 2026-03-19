@@ -80,7 +80,7 @@ public sealed class GetSaleByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task Returns_correct_customer_from_person_party()
+    public async Task Returns_correct_customer_data()
     {
         var sale = CreateSaleWithContext(
             firstName: "Jane",
@@ -103,7 +103,7 @@ public sealed class GetSaleByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task Returns_display_name_as_first_name_when_person_is_null()
+    public async Task Returns_display_name_as_first_name_when_name_fields_empty()
     {
         var sale = CreateSaleWithContext(includePerson: false, displayName: "Acme Corp");
         SetupRepository(sale);
@@ -118,17 +118,17 @@ public sealed class GetSaleByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task Returns_correct_party_public_id()
+    public async Task Returns_correct_customer_public_id()
     {
-        var partyPublicId = Guid.NewGuid();
-        var sale = CreateSaleWithContext(partyPublicId: partyPublicId);
+        var customerPublicId = Guid.NewGuid();
+        var sale = CreateSaleWithContext(customerPublicId: customerPublicId);
         SetupRepository(sale);
 
         var result = await _sut.Handle(
             new GetSaleByIdQuery(sale.PublicId), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal(partyPublicId, result.Value.CustomerId);
+        Assert.Equal(customerPublicId, result.Value.CustomerId);
     }
 
     [Fact]
@@ -173,9 +173,9 @@ public sealed class GetSaleByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task Returns_correct_home_center_number_from_party()
+    public async Task Returns_correct_home_center_number_from_customer()
     {
-        var sale = CreateSaleWithContext(partyHomeCenterNumber: 99);
+        var sale = CreateSaleWithContext(customerHomeCenterNumber: 99);
         SetupRepository(sale);
 
         var result = await _sut.Handle(
@@ -186,7 +186,7 @@ public sealed class GetSaleByIdQueryHandlerTests
     }
 
     [Fact]
-    public async Task Returns_salesforce_id_from_party()
+    public async Task Returns_salesforce_id_from_customer()
     {
         var sale = CreateSaleWithContext(salesforceAccountId: "001ABC");
         SetupRepository(sale);
@@ -222,8 +222,8 @@ public sealed class GetSaleByIdQueryHandlerTests
         string? secondarySpFederatedId = null,
         string? secondarySpFirstName = null,
         string? secondarySpLastName = null,
-        Guid? partyPublicId = null,
-        int partyHomeCenterNumber = 42,
+        Guid? customerPublicId = null,
+        int customerHomeCenterNumber = 42,
         string? salesforceAccountId = null)
     {
         var sale = Sale.Create(
@@ -237,8 +237,8 @@ public sealed class GetSaleByIdQueryHandlerTests
         var customer = new CustomerCache
         {
             Id = 1,
-            RefPublicId = partyPublicId ?? Guid.NewGuid(),
-            HomeCenterNumber = partyHomeCenterNumber,
+            RefPublicId = customerPublicId ?? Guid.NewGuid(),
+            HomeCenterNumber = customerHomeCenterNumber,
             DisplayName = displayName,
             SalesforceAccountId = salesforceAccountId,
             FirstName = includePerson ? firstName : displayName,

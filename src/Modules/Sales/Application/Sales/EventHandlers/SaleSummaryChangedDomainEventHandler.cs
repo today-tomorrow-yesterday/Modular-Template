@@ -17,7 +17,7 @@ internal sealed class SaleSummaryChangedDomainEventHandler(
         SaleSummaryChangedDomainEvent domainEvent,
         CancellationToken cancellationToken)
     {
-        // Step 1: Load sale with party, retail location, and package context
+        // Step 1: Load sale with customer, retail location, and package context
         var sale = await saleRepository.GetByIdWithContextAsync(
             domainEvent.SaleId, cancellationToken);
 

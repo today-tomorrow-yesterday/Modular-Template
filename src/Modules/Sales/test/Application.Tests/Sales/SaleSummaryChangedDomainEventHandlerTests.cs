@@ -147,7 +147,7 @@ public sealed class SaleSummaryChangedDomainEventHandlerTests
             saleNumber: 12345);
         sale.ClearDomainEvents();
 
-        // Set Party navigation via reflection
+        // Set Customer navigation via reflection
         var customer = new CustomerCache
         {
             Id = 1,

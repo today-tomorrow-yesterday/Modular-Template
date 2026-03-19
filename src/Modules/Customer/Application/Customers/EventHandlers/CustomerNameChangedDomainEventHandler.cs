@@ -31,16 +31,14 @@ internal sealed class CustomerNameChangedDomainEventHandler(
         }
 
         await eventBus.PublishAsync(
-            new PartyNameChangedIntegrationEvent(
+            new CustomerNameChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,
-                "Person",
                 customer.Name?.FirstName,
                 customer.Name?.MiddleName,
                 customer.Name?.LastName,
-                customer.Name?.NameExtension,
-                null),
+                customer.Name?.NameExtension),
             cancellationToken);
     }
 }

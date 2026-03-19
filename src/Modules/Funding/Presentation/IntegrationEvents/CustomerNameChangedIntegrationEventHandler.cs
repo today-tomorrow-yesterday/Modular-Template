@@ -6,26 +6,26 @@ using Rtl.Core.Domain;
 
 namespace Modules.Funding.Presentation.IntegrationEvents;
 
-// Flow: Customer.PartyNameChangedIntegrationEvent → Funding.UpdateCustomerCacheName
-internal sealed class PartyNameChangedIntegrationEventHandler(
+// Flow: Customer.CustomerNameChangedIntegrationEvent → Funding.UpdateCustomerCacheName
+internal sealed class CustomerNameChangedIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
     ICustomerCacheWriter customerCacheWriter,
     IDateTimeProvider dateTimeProvider,
-    ILogger<PartyNameChangedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyNameChangedIntegrationEvent>
+    ILogger<CustomerNameChangedIntegrationEventHandler> logger)
+    : IntegrationEventHandler<CustomerNameChangedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyNameChangedIntegrationEvent integrationEvent,
+        CustomerNameChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         using var _ = cacheWriteScope.AllowWrites();
 
         logger.LogInformation(
-            "Processing PartyNameChanged: PartyId={PartyId}",
-            integrationEvent.PartyId);
+            "Processing CustomerNameChanged: CustomerId={CustomerId}",
+            integrationEvent.CustomerId);
 
         await customerCacheWriter.UpdateNameAsync(
-            integrationEvent.PartyId,
+            integrationEvent.CustomerId,
             integrationEvent.FirstName ?? string.Empty,
             integrationEvent.LastName ?? string.Empty,
             dateTimeProvider.UtcNow,

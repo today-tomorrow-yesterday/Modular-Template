@@ -2,23 +2,14 @@ using Rtl.Core.Application.EventBus;
 
 namespace Modules.Customer.IntegrationEvents;
 
-// ECST integration event — full Party state (polymorphic) for consumer caching.
-[EventDetailType("rtl.customer.partyCreated")]
-public sealed record PartyCreatedIntegrationEvent(
+// ECST integration event — full Customer state for consumer caching.
+[EventDetailType("rtl.customer.customerCreated")]
+public sealed record CustomerCreatedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid PartyId,
-    string PartyType,
+    Guid CustomerId,
     string LifecycleStage,
     int HomeCenterNumber,
-    PersonDataDto? PersonData,
-    OrganizationDataDto? OrganizationData,
-    ContactPointDto[] ContactPoints,
-    IdentifierDto[] Identifiers,
-    MailingAddressDto? MailingAddress,
-    string? SalesforceUrl) : IntegrationEvent(Id, OccurredOnUtc);
-
-public sealed record PersonDataDto(
     string? FirstName,
     string? MiddleName,
     string? LastName,
@@ -29,7 +20,11 @@ public sealed record PersonDataDto(
     string? CoBuyerFirstName,
     string? CoBuyerMiddleName,
     string? CoBuyerLastName,
-    DateOnly? CoBuyerDateOfBirth);
+    DateOnly? CoBuyerDateOfBirth,
+    ContactPointDto[] ContactPoints,
+    IdentifierDto[] Identifiers,
+    MailingAddressDto? MailingAddress,
+    string? SalesforceUrl) : IntegrationEvent(Id, OccurredOnUtc);
 
 public sealed record SalesAssignmentDto(
     string Role,
@@ -40,8 +35,6 @@ public sealed record SalesAssignmentDto(
     string LastName,
     int? HomeCenterNumber,
     string FederatedId);
-
-public sealed record OrganizationDataDto(string? OrganizationName);
 
 public sealed record ContactPointDto(string Type, string Value, bool IsPrimary);
 

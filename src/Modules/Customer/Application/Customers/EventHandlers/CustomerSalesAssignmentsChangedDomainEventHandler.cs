@@ -31,7 +31,7 @@ internal sealed class CustomerSalesAssignmentsChangedDomainEventHandler(
         }
 
         await eventBus.PublishAsync(
-            new PartySalesAssignmentsChangedIntegrationEvent(
+            new CustomerSalesAssignmentsChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,

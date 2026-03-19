@@ -7,16 +7,16 @@ using Rtl.Core.Domain;
 
 namespace Modules.Funding.Presentation.IntegrationEvents;
 
-// Flow: Customer.PartyCreatedIntegrationEvent → Funding.UpsertCustomerCache
-internal sealed class PartyCreatedIntegrationEventHandler(
+// Flow: Customer.CustomerCreatedIntegrationEvent → Funding.UpsertCustomerCache
+internal sealed class CustomerCreatedIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
     ICustomerCacheWriter customerCacheWriter,
     IDateTimeProvider dateTimeProvider,
-    ILogger<PartyCreatedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyCreatedIntegrationEvent>
+    ILogger<CustomerCreatedIntegrationEventHandler> logger)
+    : IntegrationEventHandler<CustomerCreatedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyCreatedIntegrationEvent integrationEvent,
+        CustomerCreatedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         using var _ = cacheWriteScope.AllowWrites();
@@ -25,15 +25,15 @@ internal sealed class PartyCreatedIntegrationEventHandler(
             .FirstOrDefault(i => i.Type == "LoanId")?.Value;
 
         logger.LogInformation(
-            "Processing PartyCreated: PartyId={PartyId}",
-            integrationEvent.PartyId);
+            "Processing CustomerCreated: CustomerId={CustomerId}",
+            integrationEvent.CustomerId);
 
         var customerCache = new CustomerCache
         {
-            RefPublicId = integrationEvent.PartyId,
+            RefPublicId = integrationEvent.CustomerId,
             LoanId = loanId,
-            FirstName = integrationEvent.PersonData?.FirstName ?? string.Empty,
-            LastName = integrationEvent.PersonData?.LastName ?? string.Empty,
+            FirstName = integrationEvent.FirstName ?? string.Empty,
+            LastName = integrationEvent.LastName ?? string.Empty,
             HomeCenterNumber = integrationEvent.HomeCenterNumber,
             LastSyncedAtUtc = dateTimeProvider.UtcNow
         };

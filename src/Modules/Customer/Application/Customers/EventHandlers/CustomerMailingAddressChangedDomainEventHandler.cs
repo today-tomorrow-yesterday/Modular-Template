@@ -31,7 +31,7 @@ internal sealed class CustomerMailingAddressChangedDomainEventHandler(
         }
 
         await eventBus.PublishAsync(
-            new PartyMailingAddressChangedIntegrationEvent(
+            new CustomerMailingAddressChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,

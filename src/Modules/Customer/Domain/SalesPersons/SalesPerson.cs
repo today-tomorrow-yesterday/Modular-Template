@@ -3,7 +3,7 @@ using Rtl.Core.Domain.Auditing;
 namespace Modules.Customer.Domain.SalesPersons;
 
 // Sales associate reference data from Salesforce CDC.
-// Not independently managed — upserted during Party CDC sync processing.
+// Not independently managed — upserted during Customer CDC sync processing.
 public sealed class SalesPerson
 {
     private SalesPerson() {}

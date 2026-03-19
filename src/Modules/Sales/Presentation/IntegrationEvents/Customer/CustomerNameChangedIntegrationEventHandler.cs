@@ -6,25 +6,25 @@ using Rtl.Core.Application.EventBus;
 
 namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 
-// Flow: Customer.PartyNameChangedIntegrationEvent → Sales.UpdateCustomerCacheNameCommand
+// Flow: Customer.CustomerNameChangedIntegrationEvent → Sales.UpdateCustomerCacheNameCommand
 internal sealed class CustomerNameChangedIntegrationEventHandler(
     ISender sender,
     ILogger<CustomerNameChangedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyNameChangedIntegrationEvent>
+    : IntegrationEventHandler<CustomerNameChangedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyNameChangedIntegrationEvent integrationEvent,
+        CustomerNameChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing PartyNameChanged: PartyId={PartyId}",
-            integrationEvent.PartyId);
+            "Processing CustomerNameChanged: CustomerId={CustomerId}",
+            integrationEvent.CustomerId);
 
         var displayName = $"{integrationEvent.FirstName} {integrationEvent.LastName}".Trim();
 
         await sender.Send(
             new UpdateCustomerCacheNameCommand(
-                integrationEvent.PartyId,
+                integrationEvent.CustomerId,
                 displayName,
                 integrationEvent.FirstName,
                 integrationEvent.MiddleName,

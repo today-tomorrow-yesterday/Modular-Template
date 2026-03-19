@@ -7,16 +7,16 @@ using Rtl.Core.Domain;
 
 namespace Modules.Funding.Presentation.IntegrationEvents;
 
-// Flow: Customer.PartyOnboardedFromLoanIntegrationEvent → Funding.UpsertCustomerCache → (TODO: Funding.MatchPendingFundingRequests)
-internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
+// Flow: Customer.CustomerOnboardedFromLoanIntegrationEvent → Funding.UpsertCustomerCache → (TODO: Funding.MatchPendingFundingRequests)
+internal sealed class CustomerOnboardedFromLoanIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
     ICustomerCacheWriter customerCacheWriter,
     IDateTimeProvider dateTimeProvider,
-    ILogger<PartyOnboardedFromLoanIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyOnboardedFromLoanIntegrationEvent>
+    ILogger<CustomerOnboardedFromLoanIntegrationEventHandler> logger)
+    : IntegrationEventHandler<CustomerOnboardedFromLoanIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyOnboardedFromLoanIntegrationEvent integrationEvent,
+        CustomerOnboardedFromLoanIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         using var _ = cacheWriteScope.AllowWrites();
@@ -25,13 +25,13 @@ internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
             .FirstOrDefault(i => i.Type == "LoanId")?.Value;
 
         logger.LogInformation(
-            "Processing PartyOnboardedFromLoan: PartyId={PartyId}, LoanId={LoanId}",
-            integrationEvent.PartyId,
+            "Processing CustomerOnboardedFromLoan: CustomerId={CustomerId}, LoanId={LoanId}",
+            integrationEvent.CustomerId,
             loanId);
 
         var customerCache = new CustomerCache
         {
-            RefPublicId = integrationEvent.PartyId,
+            RefPublicId = integrationEvent.CustomerId,
             LoanId = loanId,
             FirstName = integrationEvent.FirstName ?? string.Empty,
             LastName = integrationEvent.LastName ?? string.Empty,
@@ -43,7 +43,7 @@ internal sealed class PartyOnboardedFromLoanIntegrationEventHandler(
 
         // TODO: When FundingRequest domain is implemented:
         // 1. Query PendingFundingRequests by LoanId
-        // 2. If found: create FundingRequest with resolved PartyId, delete pending record
+        // 2. If found: create FundingRequest with resolved CustomerId, delete pending record
         // 3. Publish FundingRequestSubmitted integration event
     }
 }

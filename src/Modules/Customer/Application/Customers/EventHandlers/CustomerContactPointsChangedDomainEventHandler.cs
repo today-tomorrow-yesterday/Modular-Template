@@ -31,7 +31,7 @@ internal sealed class CustomerContactPointsChangedDomainEventHandler(
         }
 
         await eventBus.PublishAsync(
-            new PartyContactPointsChangedIntegrationEvent(
+            new CustomerContactPointsChangedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,

@@ -6,24 +6,24 @@ using Rtl.Core.Application.EventBus;
 
 namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 
-// Flow: Customer.PartyCoBuyerChangedIntegrationEvent → Sales.UpdateCustomerCacheCoBuyerCommand
+// Flow: Customer.CustomerCoBuyerChangedIntegrationEvent → Sales.UpdateCustomerCacheCoBuyerCommand
 internal sealed class CustomerCoBuyerChangedIntegrationEventHandler(
     ISender sender,
     ILogger<CustomerCoBuyerChangedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyCoBuyerChangedIntegrationEvent>
+    : IntegrationEventHandler<CustomerCoBuyerChangedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyCoBuyerChangedIntegrationEvent integrationEvent,
+        CustomerCoBuyerChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing PartyCoBuyerChanged: PartyId={PartyId}, CoBuyerPublicId={CoBuyerPublicId}",
-            integrationEvent.PartyId,
+            "Processing CustomerCoBuyerChanged: CustomerId={CustomerId}, CoBuyerPublicId={CoBuyerPublicId}",
+            integrationEvent.CustomerId,
             integrationEvent.CoBuyerPublicId);
 
         await sender.Send(
             new UpdateCustomerCacheCoBuyerCommand(
-                integrationEvent.PartyId,
+                integrationEvent.CustomerId,
                 integrationEvent.CoBuyerFirstName,
                 integrationEvent.CoBuyerLastName),
             cancellationToken);

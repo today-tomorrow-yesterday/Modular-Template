@@ -6,7 +6,7 @@ internal sealed class CreateSaleCommandValidator : AbstractValidator<CreateSaleC
 {
     public CreateSaleCommandValidator()
     {
-        RuleFor(x => x.PartyPublicId)
+        RuleFor(x => x.CustomerPublicId)
             .NotEmpty();
 
         RuleFor(x => x.HomeCenterNumber)

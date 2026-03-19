@@ -18,7 +18,7 @@ public sealed class CreateSaleCommandHandlerTests
     private readonly IUnitOfWork<ISalesModule> _unitOfWork = Substitute.For<IUnitOfWork<ISalesModule>>();
     private readonly CreateSaleCommandHandler _sut;
 
-    private static readonly Guid TestPartyPublicId = Guid.NewGuid();
+    private static readonly Guid TestCustomerPublicId = Guid.NewGuid();
     private const int TestHomeCenterNumber = 42;
     private const int TestSaleNumber = 100001;
 
@@ -36,16 +36,16 @@ public sealed class CreateSaleCommandHandlerTests
     }
 
     [Fact]
-    public async Task Returns_failure_when_party_not_found()
+    public async Task Returns_failure_when_customer_not_found()
     {
-        _customerCacheRepository.GetByRefPublicIdAsync(TestPartyPublicId, Arg.Any<CancellationToken>())
+        _customerCacheRepository.GetByRefPublicIdAsync(TestCustomerPublicId, Arg.Any<CancellationToken>())
             .Returns((CustomerCache?)null);
 
         var result = await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
 
         Assert.True(result.IsFailure);
-        Assert.Equal("Party.NotFound", result.Error.Code);
+        Assert.Equal("Customer.NotFound", result.Error.Code);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public sealed class CreateSaleCommandHandlerTests
             .Returns((RetailLocation?)null);
 
         var result = await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal("RetailLocation.NotFound", result.Error.Code);
@@ -69,7 +69,7 @@ public sealed class CreateSaleCommandHandlerTests
         SetupRetailLocation(isActive: false);
 
         var result = await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
 
         Assert.True(result.IsFailure);
         Assert.Equal("RetailLocation.Inactive", result.Error.Code);
@@ -82,7 +82,7 @@ public sealed class CreateSaleCommandHandlerTests
         SetupRetailLocation(isActive: true);
 
         var result = await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.NotEqual(Guid.Empty, result.Value.PublicId);
@@ -96,7 +96,7 @@ public sealed class CreateSaleCommandHandlerTests
         SetupRetailLocation(isActive: true);
 
         await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
 
         _saleRepository.Received(1).Add(Arg.Any<Sale>());
     }
@@ -108,19 +108,19 @@ public sealed class CreateSaleCommandHandlerTests
         SetupRetailLocation(isActive: true);
 
         await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
 
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task Sale_has_correct_party_id_and_retail_location_id()
+    public async Task Sale_has_correct_customer_id_and_retail_location_id()
     {
         SetupCustomerCache(customerId: 7);
         var retailLocation = SetupRetailLocation(isActive: true);
 
         await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
 
         _saleRepository.Received(1).Add(Arg.Is<Sale>(s =>
             s.CustomerId == 7 &&
@@ -136,19 +136,19 @@ public sealed class CreateSaleCommandHandlerTests
         SetupRetailLocation(isActive: true);
 
         await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber, SaleType.B2B), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber, SaleType.B2B), CancellationToken.None);
 
         _saleRepository.Received(1).Add(Arg.Is<Sale>(s => s.SaleType == SaleType.B2B));
     }
 
     [Fact]
-    public async Task Does_not_call_save_changes_when_party_not_found()
+    public async Task Does_not_call_save_changes_when_customer_not_found()
     {
-        _customerCacheRepository.GetByRefPublicIdAsync(TestPartyPublicId, Arg.Any<CancellationToken>())
+        _customerCacheRepository.GetByRefPublicIdAsync(TestCustomerPublicId, Arg.Any<CancellationToken>())
             .Returns((CustomerCache?)null);
 
         await _sut.Handle(
-            new CreateSaleCommand(TestPartyPublicId, TestHomeCenterNumber), CancellationToken.None);
+            new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
 
         await _unitOfWork.DidNotReceive().SaveChangesAsync(Arg.Any<CancellationToken>());
     }
@@ -160,11 +160,11 @@ public sealed class CreateSaleCommandHandlerTests
         var customer = new CustomerCache
         {
             Id = customerId,
-            RefPublicId = TestPartyPublicId,
+            RefPublicId = TestCustomerPublicId,
             DisplayName = "Test Customer"
         };
 
-        _customerCacheRepository.GetByRefPublicIdAsync(TestPartyPublicId, Arg.Any<CancellationToken>())
+        _customerCacheRepository.GetByRefPublicIdAsync(TestCustomerPublicId, Arg.Any<CancellationToken>())
             .Returns(customer);
     }
 

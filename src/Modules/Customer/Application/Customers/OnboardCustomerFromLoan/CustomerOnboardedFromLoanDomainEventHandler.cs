@@ -31,7 +31,7 @@ internal sealed class CustomerOnboardedFromLoanDomainEventHandler(
         }
 
         await eventBus.PublishAsync(
-            new PartyOnboardedFromLoanIntegrationEvent(
+            new CustomerOnboardedFromLoanIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,

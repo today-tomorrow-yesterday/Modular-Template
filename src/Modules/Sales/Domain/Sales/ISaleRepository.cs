@@ -4,7 +4,7 @@ namespace Modules.Sales.Domain.Sales;
 
 public interface ISaleRepository : IRepository<Sale, int>
 {
-    Task<Sale?> GetByCustomerIdAsync(int partyId, CancellationToken cancellationToken = default);
+    Task<Sale?> GetByCustomerIdAsync(int customerId, CancellationToken cancellationToken = default);
 
     Task<Sale?> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken = default);
 

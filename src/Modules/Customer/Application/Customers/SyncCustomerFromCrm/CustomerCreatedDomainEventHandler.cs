@@ -33,41 +33,38 @@ internal sealed class CustomerCreatedDomainEventHandler(
         var coBuyer = customer.CoBuyer;
 
         await eventBus.PublishAsync(
-            new PartyCreatedIntegrationEvent(
+            new CustomerCreatedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,
-                "Person",
                 customer.LifecycleStage.ToString(),
                 customer.HomeCenterNumber,
-                new PersonDataDto(
-                    customer.Name?.FirstName,
-                    customer.Name?.MiddleName,
-                    customer.Name?.LastName,
-                    customer.Name?.NameExtension,
-                    customer.DateOfBirth,
-                    [.. customer.SalesAssignments.Select(sa =>
-                    {
-                        if (sa.SalesPerson is null)
-                            throw new InvalidOperationException(
-                                $"SalesPerson navigation not loaded for SalesAssignment {sa.Id}. Ensure ThenInclude is used.");
+                customer.Name?.FirstName,
+                customer.Name?.MiddleName,
+                customer.Name?.LastName,
+                customer.Name?.NameExtension,
+                customer.DateOfBirth,
+                [.. customer.SalesAssignments.Select(sa =>
+                {
+                    if (sa.SalesPerson is null)
+                        throw new InvalidOperationException(
+                            $"SalesPerson navigation not loaded for SalesAssignment {sa.Id}. Ensure ThenInclude is used.");
 
-                        return new SalesAssignmentDto(
-                            sa.Role.ToString(),
-                            sa.SalesPersonId,
-                            sa.SalesPerson.Email,
-                            sa.SalesPerson.Username,
-                            sa.SalesPerson.FirstName,
-                            sa.SalesPerson.LastName,
-                            sa.SalesPerson.LotNumber,
-                            sa.SalesPerson.FederatedId);
-                    })],
-                    coBuyer?.PublicId,
-                    coBuyer?.Name?.FirstName,
-                    coBuyer?.Name?.MiddleName,
-                    coBuyer?.Name?.LastName,
-                    coBuyer?.DateOfBirth),
-                null,
+                    return new SalesAssignmentDto(
+                        sa.Role.ToString(),
+                        sa.SalesPersonId,
+                        sa.SalesPerson.Email,
+                        sa.SalesPerson.Username,
+                        sa.SalesPerson.FirstName,
+                        sa.SalesPerson.LastName,
+                        sa.SalesPerson.LotNumber,
+                        sa.SalesPerson.FederatedId);
+                })],
+                coBuyer?.PublicId,
+                coBuyer?.Name?.FirstName,
+                coBuyer?.Name?.MiddleName,
+                coBuyer?.Name?.LastName,
+                coBuyer?.DateOfBirth,
                 customer.ContactPoints.Select(cp => new ContactPointDto(cp.Type.ToString(), cp.Value, cp.IsPrimary)).ToArray(),
                 customer.Identifiers.Select(id => new IdentifierDto(id.Type.ToString(), id.Value)).ToArray(),
                 customer.MailingAddress is { } a

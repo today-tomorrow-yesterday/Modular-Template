@@ -7,24 +7,24 @@ using Rtl.Core.Application.EventBus;
 
 namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 
-// Flow: Customer.PartyLifecycleAdvancedIntegrationEvent → Sales.UpdateCustomerCacheLifecycleCommand
+// Flow: Customer.CustomerLifecycleAdvancedIntegrationEvent → Sales.UpdateCustomerCacheLifecycleCommand
 internal sealed class CustomerLifecycleAdvancedIntegrationEventHandler(
     ISender sender,
     ILogger<CustomerLifecycleAdvancedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyLifecycleAdvancedIntegrationEvent>
+    : IntegrationEventHandler<CustomerLifecycleAdvancedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyLifecycleAdvancedIntegrationEvent integrationEvent,
+        CustomerLifecycleAdvancedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing PartyLifecycleAdvanced: PartyId={PartyId}, NewStage={NewStage}",
-            integrationEvent.PartyId,
+            "Processing CustomerLifecycleAdvanced: CustomerId={CustomerId}, NewStage={NewStage}",
+            integrationEvent.CustomerId,
             integrationEvent.NewLifecycleStage);
 
         await sender.Send(
             new UpdateCustomerCacheLifecycleCommand(
-                integrationEvent.PartyId,
+                integrationEvent.CustomerId,
                 Enum.Parse<LifecycleStage>(integrationEvent.NewLifecycleStage)),
             cancellationToken);
     }

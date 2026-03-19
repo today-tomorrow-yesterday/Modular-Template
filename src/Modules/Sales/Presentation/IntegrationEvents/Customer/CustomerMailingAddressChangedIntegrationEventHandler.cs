@@ -6,23 +6,23 @@ using Rtl.Core.Application.EventBus;
 
 namespace Modules.Sales.Presentation.IntegrationEvents.Customer;
 
-// Flow: Customer.PartyMailingAddressChangedIntegrationEvent → Sales.UpdateCustomerCacheMailingAddressCommand
+// Flow: Customer.CustomerMailingAddressChangedIntegrationEvent → Sales.UpdateCustomerCacheMailingAddressCommand
 internal sealed class CustomerMailingAddressChangedIntegrationEventHandler(
     ISender sender,
     ILogger<CustomerMailingAddressChangedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyMailingAddressChangedIntegrationEvent>
+    : IntegrationEventHandler<CustomerMailingAddressChangedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyMailingAddressChangedIntegrationEvent integrationEvent,
+        CustomerMailingAddressChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing PartyMailingAddressChanged: PartyId={PartyId}",
-            integrationEvent.PartyId);
+            "Processing CustomerMailingAddressChanged: CustomerId={CustomerId}",
+            integrationEvent.CustomerId);
 
         await sender.Send(
             new UpdateCustomerCacheMailingAddressCommand(
-                integrationEvent.PartyId),
+                integrationEvent.CustomerId),
             cancellationToken);
     }
 }

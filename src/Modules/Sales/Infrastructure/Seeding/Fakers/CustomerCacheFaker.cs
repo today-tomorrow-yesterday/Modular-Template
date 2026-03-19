@@ -13,7 +13,7 @@ internal sealed class CustomerCacheFaker : Faker<CustomerCache>
         _customerIndex = 0;
         _hcIndex = 0;
 
-        RuleFor(c => c.RefPublicId, _ => SeedConstants.DeterministicGuid("party", ++_customerIndex));
+        RuleFor(c => c.RefPublicId, _ => SeedConstants.DeterministicGuid("customer", ++_customerIndex));
         RuleFor(c => c.LifecycleStage, f => f.PickRandom<LifecycleStage>());
         // Round-robin home center assignment — deterministic regardless of Bogus seed.
         RuleFor(c => c.HomeCenterNumber, _ => homeCenterNumbers[_hcIndex++ % homeCenterNumbers.Length]);

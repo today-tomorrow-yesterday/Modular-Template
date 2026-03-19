@@ -31,7 +31,7 @@ internal sealed class CustomerLifecycleAdvancedDomainEventHandler(
         }
 
         await eventBus.PublishAsync(
-            new PartyLifecycleAdvancedIntegrationEvent(
+            new CustomerLifecycleAdvancedIntegrationEvent(
                 Guid.NewGuid(),
                 dateTimeProvider.UtcNow,
                 customer.PublicId,

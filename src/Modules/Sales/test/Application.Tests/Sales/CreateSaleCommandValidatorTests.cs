@@ -30,13 +30,13 @@ public sealed class CreateSaleCommandValidatorTests
     }
 
     [Fact]
-    public void Empty_party_public_id_fails_validation()
+    public void Empty_customer_public_id_fails_validation()
     {
         var command = new CreateSaleCommand(Guid.Empty, 42);
 
         var result = _sut.TestValidate(command);
 
-        result.ShouldHaveValidationErrorFor(x => x.PartyPublicId);
+        result.ShouldHaveValidationErrorFor(x => x.CustomerPublicId);
     }
 
     [Fact]

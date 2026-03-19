@@ -21,7 +21,7 @@ internal sealed class CreateSaleCommandHandler(
         CancellationToken cancellationToken)
     {
         // Step 1: Resolve customer from cache by PublicId
-        var customerResult = await ResolveCustomerAsync(request.PartyPublicId, cancellationToken);
+        var customerResult = await ResolveCustomerAsync(request.CustomerPublicId, cancellationToken);
         if (customerResult.IsFailure)
         {
             return Result.Failure<CreateSaleResult>(customerResult.Error);
@@ -62,7 +62,7 @@ internal sealed class CreateSaleCommandHandler(
 
         return customer is not null
             ? customer
-            : Result.Failure<CustomerCache>(SaleErrors.PartyNotFound(customerPublicId));
+            : Result.Failure<CustomerCache>(SaleErrors.CustomerNotFound(customerPublicId));
     }
 
     private async Task<Result<RetailLocation>> ResolveActiveRetailLocationAsync(

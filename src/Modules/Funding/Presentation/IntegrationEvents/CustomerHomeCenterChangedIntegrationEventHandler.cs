@@ -6,27 +6,27 @@ using Rtl.Core.Domain;
 
 namespace Modules.Funding.Presentation.IntegrationEvents;
 
-// Flow: Customer.PartyHomeCenterChangedIntegrationEvent → Funding.UpdateCustomerCacheHomeCenter
-internal sealed class PartyHomeCenterChangedIntegrationEventHandler(
+// Flow: Customer.CustomerHomeCenterChangedIntegrationEvent → Funding.UpdateCustomerCacheHomeCenter
+internal sealed class CustomerHomeCenterChangedIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
     ICustomerCacheWriter customerCacheWriter,
     IDateTimeProvider dateTimeProvider,
-    ILogger<PartyHomeCenterChangedIntegrationEventHandler> logger)
-    : IntegrationEventHandler<PartyHomeCenterChangedIntegrationEvent>
+    ILogger<CustomerHomeCenterChangedIntegrationEventHandler> logger)
+    : IntegrationEventHandler<CustomerHomeCenterChangedIntegrationEvent>
 {
     public override async Task HandleAsync(
-        PartyHomeCenterChangedIntegrationEvent integrationEvent,
+        CustomerHomeCenterChangedIntegrationEvent integrationEvent,
         CancellationToken cancellationToken = default)
     {
         using var _ = cacheWriteScope.AllowWrites();
 
         logger.LogInformation(
-            "Processing PartyHomeCenterChanged: PartyId={PartyId}, NewHC={NewHomeCenterNumber}",
-            integrationEvent.PartyId,
+            "Processing CustomerHomeCenterChanged: CustomerId={CustomerId}, NewHC={NewHomeCenterNumber}",
+            integrationEvent.CustomerId,
             integrationEvent.NewHomeCenterNumber);
 
         await customerCacheWriter.UpdateHomeCenterAsync(
-            integrationEvent.PartyId,
+            integrationEvent.CustomerId,
             integrationEvent.NewHomeCenterNumber,
             dateTimeProvider.UtcNow,
             cancellationToken);
