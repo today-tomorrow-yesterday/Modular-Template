@@ -18,7 +18,7 @@ internal sealed class CustomerModuleSeeder : IModuleSeeder
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger<CustomerModuleSeeder>();
 
         // Idempotency check
-        if (await db.Parties.AnyAsync(ct))
+        if (await db.Customers.AnyAsync(ct))
         {
             logger.LogInformation("Customer module already has data. Skipping seed.");
             return;
@@ -38,22 +38,14 @@ internal sealed class CustomerModuleSeeder : IModuleSeeder
         var salesPersonIds = salesPersons.Select(sp => sp.Id).ToArray();
 
         // ────────────────────────────────────────
-        // Phase 2: Parties (Person + Organization via TPH)
+        // Phase 2: Customers
         // ────────────────────────────────────────
 
-        // Persons (partyIds 1..15) — with SalesAssignments created via factory
-        var persons = PersonFaker.Generate(15, salesPersonIds, faker);
-        foreach (var p in persons) p.ClearDomainEvents();
-        db.Persons.AddRange(persons);
-
-        // Organizations (partyIds 16..18) — no SalesAssignments, no CoBuyer
-        var orgs = OrganizationFaker.Generate(startId: 16, faker);
-        foreach (var o in orgs) o.ClearDomainEvents();
-        db.Organizations.AddRange(orgs);
+        var customers = CustomerFaker.Generate(15, salesPersonIds, faker);
+        foreach (var c in customers) c.ClearDomainEvents();
+        db.Customers.AddRange(customers);
 
         await db.SaveChangesAsync(ct);
-        logger.LogInformation(
-            "Seeded {Persons} persons, {Orgs} organizations.",
-            persons.Count, orgs.Count);
+        logger.LogInformation("Seeded {Count} customers.", customers.Count);
     }
 }

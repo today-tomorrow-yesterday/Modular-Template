@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Modules.Customer.Domain.Parties.Entities;
+using Modules.Customer.Domain.Customers.Entities;
 
 namespace Modules.Customer.Infrastructure.Persistence.Configurations;
 
@@ -15,8 +15,8 @@ internal sealed class ContactPointConfiguration : IEntityTypeConfiguration<Conta
         builder.Property(cp => cp.Id)
             .HasColumnName("id");
 
-        builder.Property(cp => cp.PartyId)
-            .HasColumnName("party_id")
+        builder.Property(cp => cp.CustomerId)
+            .HasColumnName("customer_id")
             .IsRequired();
 
         builder.Property(cp => cp.Type)
@@ -34,9 +34,8 @@ internal sealed class ContactPointConfiguration : IEntityTypeConfiguration<Conta
             .HasColumnName("is_primary")
             .IsRequired();
 
-        // Index for lookups by party + type
-        builder.HasIndex(cp => new { cp.PartyId, cp.Type })
-            .HasDatabaseName("ix_contact_points_party_id_type");
+        builder.HasIndex(cp => new { cp.CustomerId, cp.Type })
+            .HasDatabaseName("ix_contact_points_customer_id_type");
 
         builder.Ignore(cp => cp.DomainEvents);
     }

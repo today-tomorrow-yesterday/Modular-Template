@@ -1,4 +1,4 @@
-using Modules.Customer.Application.Parties.OnboardPersonFromLoan;
+using Modules.Customer.Application.Customers.OnboardCustomerFromLoan;
 
 namespace Modules.Customer.Infrastructure.Adapters;
 

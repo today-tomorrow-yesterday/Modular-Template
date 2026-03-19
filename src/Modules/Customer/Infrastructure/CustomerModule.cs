@@ -2,9 +2,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Modules.Customer.Application;
-using Modules.Customer.Application.Parties.OnboardPersonFromLoan;
+using Modules.Customer.Application.Customers.OnboardCustomerFromLoan;
 using Modules.Customer.Domain;
-using Modules.Customer.Domain.Parties;
+using Modules.Customer.Domain.Customers;
 using Modules.Customer.Domain.SalesPersons;
 using Modules.Customer.Infrastructure.Adapters;
 using Modules.Customer.Infrastructure.EventBus;
@@ -47,11 +47,10 @@ public static class CustomerModule
     {
         services.AddModuleDbContext<CustomerDbContext>(databaseConnectionString, Schemas.Customers);
 
-        services.AddScoped<IPartyRepository, PartyRepository>();
+        services.AddScoped<ICustomerRepository, CustomerRepository>();
         services.AddScoped<ISalesPersonRepository, SalesPersonRepository>();
         services.AddScoped<IUnitOfWork<ICustomerModule>>(sp => sp.GetRequiredService<CustomerDbContext>());
 
-        // VMF LOS adapter - stubbed for now, replace with real implementation
         services.AddScoped<IVmfLosAdapter, StubVmfLosAdapter>();
 
         return services;
@@ -62,21 +61,17 @@ public static class CustomerModule
         IConfiguration configuration,
         IHostEnvironment environment)
     {
-        // Integration event handlers (Presentation assembly) + domain event handlers (Application assembly)
         services.AddIntegrationEventHandlers(Presentation.AssemblyReference.Assembly);
         services.AddDomainEventHandlers(Application.AssemblyReference.Assembly);
 
-        // SQS polling (disabled in development)
         services.AddSqsPolling<ProcessSqsJob>(environment);
 
-        // Outbox pattern
         services.AddOptions<OutboxOptions>()
             .Bind(configuration.GetSection("Messaging:Outbox"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
         services.ConfigureOptions<ConfigureProcessOutboxJob<ProcessOutboxJob>>();
 
-        // Inbox pattern
         services.AddOptions<InboxOptions>()
             .Bind(configuration.GetSection("Messaging:Inbox"))
             .ValidateDataAnnotations()

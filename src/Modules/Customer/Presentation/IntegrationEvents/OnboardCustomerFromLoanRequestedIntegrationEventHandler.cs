@@ -1,12 +1,12 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Modules.Customer.Application.Parties.OnboardPersonFromLoan;
+using Modules.Customer.Application.Customers.OnboardCustomerFromLoan;
 using Modules.Funding.IntegrationEvents;
 using Rtl.Core.Application.EventBus;
 
 namespace Modules.Customer.Presentation.IntegrationEvents;
 
-// Flow: Funding.OnboardCustomerFromLoanRequestedIntegrationEvent → Customer.OnboardPersonFromLoanCommand
+// Flow: Funding.OnboardCustomerFromLoanRequestedIntegrationEvent → Customer.OnboardCustomerFromLoanCommand
 internal sealed class OnboardCustomerFromLoanRequestedIntegrationEventHandler(
     ISender sender,
     ILogger<OnboardCustomerFromLoanRequestedIntegrationEventHandler> logger)
@@ -22,7 +22,7 @@ internal sealed class OnboardCustomerFromLoanRequestedIntegrationEventHandler(
             integrationEvent.HomeCenterNumber);
 
         var result = await sender.Send(
-            new OnboardPersonFromLoanCommand(
+            new OnboardCustomerFromLoanCommand(
                 integrationEvent.LoanId,
                 integrationEvent.HomeCenterNumber), cancellationToken);
 

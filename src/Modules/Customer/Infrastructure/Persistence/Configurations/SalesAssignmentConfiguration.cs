@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Modules.Customer.Domain.Parties.Entities;
-using Modules.Customer.Domain.Parties.Enums;
+using Modules.Customer.Domain.Customers.Entities;
+using Modules.Customer.Domain.Customers.Enums;
 
 namespace Modules.Customer.Infrastructure.Persistence.Configurations;
 
@@ -17,8 +17,8 @@ internal sealed class SalesAssignmentConfiguration : IEntityTypeConfiguration<Sa
             .HasColumnName("id")
             .UseIdentityAlwaysColumn();
 
-        builder.Property(sa => sa.PersonId)
-            .HasColumnName("person_id");
+        builder.Property(sa => sa.CustomerId)
+            .HasColumnName("customer_id");
 
         builder.Property(sa => sa.SalesPersonId)
             .HasColumnName("sales_person_id")
@@ -29,13 +29,13 @@ internal sealed class SalesAssignmentConfiguration : IEntityTypeConfiguration<Sa
             .HasConversion<string>()
             .HasMaxLength(50);
 
-        // Exactly one Primary per Person; multiple Supporting allowed
-        builder.HasIndex(sa => sa.PersonId)
+        // Exactly one Primary per Customer; multiple Supporting allowed
+        builder.HasIndex(sa => sa.CustomerId)
             .IsUnique()
             .HasFilter($"role = '{nameof(SalesAssignmentRole.Primary)}'");
 
-        // Prevent same SalesPerson assigned twice to the same Person
-        builder.HasIndex(sa => new { sa.PersonId, sa.SalesPersonId })
+        // Prevent same SalesPerson assigned twice to the same Customer
+        builder.HasIndex(sa => new { sa.CustomerId, sa.SalesPersonId })
             .IsUnique();
 
         builder.HasOne(sa => sa.SalesPerson)

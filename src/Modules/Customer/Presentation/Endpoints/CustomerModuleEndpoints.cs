@@ -1,4 +1,4 @@
-using Modules.Customer.Presentation.Endpoints.V1.Parties;
+using Modules.Customer.Presentation.Endpoints.V1.Customers;
 using Rtl.Core.Presentation.Endpoints;
 
 namespace Modules.Customer.Presentation.Endpoints;
@@ -11,6 +11,6 @@ public sealed class CustomerModuleEndpoints : ModuleEndpoints
 
     protected override IEnumerable<(string ResourcePath, string Tag, IResourceEndpoints Endpoints)> GetResources()
     {
-        yield return ("customers/parties", "Parties", new PartiesResource());
+        yield return ("customers", "Customers", new CustomersResource());
     }
 }

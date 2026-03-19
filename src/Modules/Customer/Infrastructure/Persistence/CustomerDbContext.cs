@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Modules.Customer.Domain;
-using Modules.Customer.Domain.Parties.Entities;
+using Modules.Customer.Domain.Customers.Entities;
 using Modules.Customer.Domain.SalesPersons;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Infrastructure.Persistence;
@@ -12,12 +12,9 @@ public sealed class CustomerDbContext(DbContextOptions<CustomerDbContext> option
 {
     internal DbSet<SalesPerson> SalesPersons => Set<SalesPerson>();
 
-    // Party model — TPH inheritance (single "parties" table, "party_type" discriminator)
-    internal DbSet<Party> Parties => Set<Party>();
-    internal DbSet<Person> Persons => Set<Person>();
-    internal DbSet<Organization> Organizations => Set<Organization>();
+    internal DbSet<Domain.Customers.Entities.Customer> Customers => Set<Domain.Customers.Entities.Customer>();
     internal DbSet<ContactPoint> ContactPoints => Set<ContactPoint>();
-    internal DbSet<PartyIdentifier> PartyIdentifiers => Set<PartyIdentifier>();
+    internal DbSet<CustomerIdentifier> CustomerIdentifiers => Set<CustomerIdentifier>();
 
     protected override string Schema => Schemas.Customers;
 
