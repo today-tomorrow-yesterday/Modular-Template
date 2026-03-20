@@ -57,8 +57,8 @@ var app = builder.Build();
 // Apply migrations in development
 app.ApplyMigrations<SalesDbContext>(builder.Environment, databaseConnectionString);
 
-// Seed data after migrations (environments controlled via Seeding:Environments config)
-await app.SeedDataAsync(builder.Environment, builder.Configuration);
+// Seed data after migrations (controlled via Seeding:Enabled in appsettings)
+await app.SeedDataAsync(builder.Configuration);
 
 // Create the API version set for endpoint mapping
 var apiVersionSet = app.NewApiVersionSet()

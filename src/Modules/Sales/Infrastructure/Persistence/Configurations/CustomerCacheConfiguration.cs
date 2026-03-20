@@ -22,7 +22,7 @@ internal sealed class CustomerCacheConfiguration : IEntityTypeConfiguration<Cust
         builder.Property(c => c.MiddleName).HasColumnName("middle_name").HasMaxLength(200);
         builder.Property(c => c.LastName).HasColumnName("last_name").HasMaxLength(200);
         builder.Property(c => c.Email).HasColumnName("email").HasMaxLength(500);
-        builder.Property(c => c.Phone).HasColumnName("phone").HasMaxLength(50);
+        builder.Property(c => c.Phone).HasColumnName("phone").HasMaxLength(200);
         builder.Property(c => c.CoBuyerFirstName).HasColumnName("co_buyer_first_name").HasMaxLength(200);
         builder.Property(c => c.CoBuyerLastName).HasColumnName("co_buyer_last_name").HasMaxLength(200);
         builder.Property(c => c.PrimarySalesPersonFederatedId).HasColumnName("primary_sales_person_federated_id").HasMaxLength(200);

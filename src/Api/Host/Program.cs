@@ -146,8 +146,8 @@ app.ApplyMigrations(
     ("Organization", typeof(OrganizationDbContext)),
     ("Funding", typeof(FundingDbContext)));
 
-// Seed data after migrations (environments controlled via Seeding:Environments config)
-await app.SeedDataAsync(builder.Environment, builder.Configuration);
+// Seed data after migrations (controlled via Seeding:Enabled in appsettings)
+await app.SeedDataAsync(builder.Configuration);
 
 // Create the API version set for endpoint mapping
 var apiVersionSet = app.CreateApiVersionSet();

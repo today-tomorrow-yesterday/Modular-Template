@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Rtl.Core.Application.Seeding;
 
@@ -11,18 +10,12 @@ public static class DatabaseSeedingExtensions
 {
     public static async Task<IApplicationBuilder> SeedDataAsync(
         this IApplicationBuilder app,
-        IHostEnvironment environment,
         IConfiguration configuration)
     {
         var options = configuration.GetSection(SeedingOptions.SectionName)
             .Get<SeedingOptions>() ?? new SeedingOptions();
 
         if (!options.Enabled)
-        {
-            return app;
-        }
-
-        if (!options.Environments.Contains(environment.EnvironmentName, StringComparer.OrdinalIgnoreCase))
         {
             return app;
         }
