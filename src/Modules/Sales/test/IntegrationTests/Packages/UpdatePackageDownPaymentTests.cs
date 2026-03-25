@@ -5,7 +5,7 @@ using Modules.Sales.Presentation.Endpoints.V1.Packages.DownPayment;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class UpdatePackageDownPaymentTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdatePackageDownPaymentTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/packages/{PackageId}/down-payment";
 

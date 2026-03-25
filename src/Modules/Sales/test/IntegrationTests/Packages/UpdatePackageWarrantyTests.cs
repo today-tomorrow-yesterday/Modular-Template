@@ -5,7 +5,7 @@ using Modules.Sales.Presentation.Endpoints.V1.Packages.Warranty;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class UpdatePackageWarrantyTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdatePackageWarrantyTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/packages/{PackageId}/warranty";
 

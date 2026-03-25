@@ -13,6 +13,7 @@ using Rtl.Core.Infrastructure.Messaging;
 using Rtl.Core.Infrastructure.Outbox.Handler;
 using Rtl.Core.Infrastructure.Serialization;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 
 namespace Rtl.Core.Infrastructure.Outbox.Job;
@@ -94,7 +95,8 @@ public abstract class ProcessOutboxJobBase<TModule>(
                 // Check cancellation before potentially long deserialization
                 context.CancellationToken.ThrowIfCancellationRequested();
 
-                var domainEventType = Type.GetType(outboxMessage.Type)!;
+                var domainEventType = Type.GetType(outboxMessage.Type)
+                    ?? ResolveTypeByName(outboxMessage.Type);
                 var domainEvent = (IDomainEvent)JsonConvert.DeserializeObject(
                     outboxMessage.Content,
                     domainEventType,
@@ -247,6 +249,27 @@ public abstract class ProcessOutboxJobBase<TModule>(
                     transaction: transaction);
             }
         }
+    }
+
+    /// <summary>
+    /// Resolves a domain event type by short name when Type.GetType() fails.
+    /// The outbox stores short class names (e.g., "CustomerCreatedDomainEvent").
+    /// This scans HandlersAssembly and its referenced assemblies (which includes
+    /// the Domain assembly where events are defined).
+    /// </summary>
+    private Type ResolveTypeByName(string typeName)
+    {
+        var assemblies = new[] { HandlersAssembly }
+            .Concat(HandlersAssembly.GetReferencedAssemblies().Select(Assembly.Load));
+
+        foreach (var assembly in assemblies)
+        {
+            var type = assembly.GetTypes().FirstOrDefault(t => t.Name == typeName);
+            if (type is not null) return type;
+        }
+
+        throw new InvalidOperationException(
+            $"Could not resolve domain event type '{typeName}' in {HandlersAssembly.GetName().Name} or its referenced assemblies.");
     }
 
     /// <summary>

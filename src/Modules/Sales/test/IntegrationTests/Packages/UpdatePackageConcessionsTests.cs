@@ -6,7 +6,7 @@ using Modules.Sales.Presentation.Endpoints.V1.Packages.Concessions;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class UpdatePackageConcessionsTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdatePackageConcessionsTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/packages/{PackageId}/concessions";
 

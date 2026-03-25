@@ -6,7 +6,7 @@ using Modules.Sales.Presentation.Endpoints.V1.Packages.TradeIns;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class UpdatePackageTradeInsTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdatePackageTradeInsTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/packages/{PackageId}/trade-ins";
 

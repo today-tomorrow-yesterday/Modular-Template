@@ -14,7 +14,7 @@ namespace Modules.Sales.IntegrationTests.Sales;
 // - Valid customer + home center -> 201 Created with sale ID and sale number
 // - Unknown customer ID -> error response (Customer.NotFound)
 // - Unknown home center number -> error response (RetailLocation.NotFound)
-public class CreateSaleTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class CreateSaleTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private const string Endpoint = "/api/v1/sales";
 

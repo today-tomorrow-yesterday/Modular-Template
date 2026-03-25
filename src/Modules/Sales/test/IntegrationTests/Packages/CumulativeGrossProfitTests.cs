@@ -10,7 +10,7 @@ using Modules.Sales.Presentation.Endpoints.V1.Packages.Warranty;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class CumulativeGrossProfitTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class CumulativeGrossProfitTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task FullJourney_GrossProfitAccumulatesCorrectly()

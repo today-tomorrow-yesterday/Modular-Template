@@ -3,7 +3,7 @@ using Modules.Sales.IntegrationTests.Abstractions;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class UpdatePackageHomeTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdatePackageHomeTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/packages/{PackageId}/home";
 

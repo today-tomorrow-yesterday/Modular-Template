@@ -19,7 +19,7 @@ namespace Modules.Sales.IntegrationTests.DeliveryAddresses;
 // - State change -> flags tax recalculation on the package
 // - Occupancy becomes ineligible ("Rental") -> removes insurance and warranty lines
 // - No existing address -> 404 Not Found
-public class UpdateDeliveryAddressTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/sales/{SaleId}/delivery-address";
 
@@ -83,7 +83,7 @@ public class UpdateDeliveryAddressTests(SalesTestFactory factory) : SalesIntegra
         // Arrange
         await ArrangeSaleWithHomeAsync();
 
-        // Add insurance
+        // Arrange — add insurance and warranty to verify removal
         var insuranceRequest = new UpdatePackageInsuranceRequest(
             InsuranceType: nameof(InsuranceType.HomeFirst),
             CoverageAmount: 300_000m,
@@ -96,13 +96,11 @@ public class UpdateDeliveryAddressTests(SalesTestFactory factory) : SalesIntegra
             TotalPremium: 1_500m);
         await Client.PutAndAssertOkAsync($"/api/v1/packages/{PackageId}/insurance", insuranceRequest);
 
-        // Add warranty
         var warrantyRequest = new UpdatePackageWarrantyRequest(
             WarrantySelected: true,
             WarrantyAmount: 1_500m);
         await Client.PutAndAssertOkAsync($"/api/v1/packages/{PackageId}/warranty", warrantyRequest);
 
-        // Confirm both exist
         var packageBeforeUpdate = await GetPackageAsync();
         Assert.NotNull(packageBeforeUpdate.Insurance);                             // Should have insurance before occupancy change
         Assert.NotNull(packageBeforeUpdate.Warranty);                              // Should have warranty before occupancy change

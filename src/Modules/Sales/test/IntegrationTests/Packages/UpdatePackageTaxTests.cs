@@ -5,7 +5,7 @@ using Modules.Sales.Presentation.Endpoints.V1.Tax;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class UpdatePackageTaxTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdatePackageTaxTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/packages/{PackageId}/tax";
 

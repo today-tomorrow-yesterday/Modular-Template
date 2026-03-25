@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using Modules.Sales.Application.Packages.GetPackageById;
 using Modules.Sales.IntegrationTests.Abstractions;
 using Modules.Sales.Presentation.Endpoints.V1.DeliveryAddress;
 using Rtl.Core.Presentation.Results;
@@ -16,7 +15,7 @@ namespace Modules.Sales.IntegrationTests.DeliveryAddresses;
 // - Duplicate address -> 409 Conflict (only one per sale)
 // - Unknown sale ID -> 404 Not Found
 // - Persistence: POST then GET back, verify all fields
-public class CreateDeliveryAddressTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class CreateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/sales/{SaleId}/delivery-address";
 

@@ -1,4 +1,4 @@
-﻿using Bogus;
+using Bogus;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -11,10 +11,10 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     protected static readonly Faker Faker = new();
 
     private readonly IServiceScope _scope;
-    protected readonly IntegrationTestWebAppFactory Factory;
+    protected readonly IntegrationTestFixture<Program> Factory;
     protected readonly ISender Sender;
 
-    protected BaseIntegrationTest(IntegrationTestWebAppFactory factory)
+    protected BaseIntegrationTest(IntegrationTestFixture<Program> factory)
     {
         Factory = factory;
         _scope = factory.Services.CreateScope();

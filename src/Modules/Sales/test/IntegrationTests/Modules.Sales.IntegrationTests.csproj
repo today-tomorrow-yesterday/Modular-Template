@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Common\test\IntegrationTests\Rtl.Core.IntegrationTests.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Modules.Sales.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\Customer\Infrastructure\Modules.Customer.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

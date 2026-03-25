@@ -6,7 +6,7 @@ using Modules.Sales.Presentation.Endpoints.V1.Packages.Insurance;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class UpdatePackageInsuranceTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdatePackageInsuranceTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/packages/{PackageId}/insurance";
 

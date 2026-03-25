@@ -19,7 +19,7 @@ namespace Modules.Sales.IntegrationTests.Sales;
 //   verify make/model persisted and gross profit calculated (multi-section, no W&A)
 // - Duplicate delivery address -> 409 Conflict (only one per sale)
 // - Duplicate package name -> 409 Conflict (names are unique within a sale)
-public class SaleLifecycleTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class SaleLifecycleTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     [Fact]
     public async Task FullJourney_CreateSale_DeliveryAddress_Package_UpdateHome()

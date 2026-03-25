@@ -1,18 +1,12 @@
 using System.Net.Http.Json;
 using Bogus;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Modules.Sales.Application.Packages.GetPackageById;
 using Modules.Sales.Application.Packages.UpdatePackageHome;
-using Modules.Sales.Domain.CustomersCache;
 using Modules.Sales.Domain.Packages.Home;
-using Modules.Sales.Domain.RetailLocationCache;
-using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
-using Modules.Sales.Infrastructure.Persistence;
 using Modules.Sales.Presentation.Endpoints.V1.DeliveryAddress;
 using Modules.Sales.Presentation.Endpoints.V1.Packages;
 using Modules.Sales.Presentation.Endpoints.V1.Sales;
-using Rtl.Core.Application.Caching;
 using Rtl.Core.Presentation.Results;
 
 namespace Modules.Sales.IntegrationTests.Abstractions;
@@ -21,23 +15,21 @@ namespace Modules.Sales.IntegrationTests.Abstractions;
 //
 // Handles:
 // - Test lifecycle (Respawn reset, reference data seeding)
-// - Setup helpers that build up state step by step (ArrangeSaleAsync → ArrangeSaleWithHomeAsync)
+// - Setup helpers that build up state step by step (ArrangeSaleAsync -> ArrangeSaleWithHomeAsync)
 // - State tracking (SaleId, PackageId, etc.)
 //
 // Generic HTTP helpers (PutAndAssertOkAsync, GetAsync<T>, etc.) are extension methods
-// on HttpClient in SalesHttpHelpers — usable by any test, with or without this base class.
+// on HttpClient in SalesHttpHelpers -- usable by any test, with or without this base class.
 [Collection("SalesIntegration")]
-public abstract class SalesIntegrationTestBase(SalesTestFactory factory) : IAsyncLifetime
+public abstract class SalesIntegrationTestBase(SalesIntegrationTestFixture fixture) : IAsyncLifetime
 {
     protected static readonly Faker Faker = new();
 
-    private readonly IServiceScope _scope = factory.Services.CreateScope();
-    protected readonly SalesTestFactory Factory = factory;
-    protected readonly HttpClient Client = factory.CreateClient();
+    protected readonly SalesIntegrationTestFixture Fixture = fixture;
+    protected readonly HttpClient Client = fixture.CreateClient();
 
-    // Populated by SeedReferenceDataAsync
-    protected Guid TestCustomerId { get; private set; }
-    protected int TestHomeCenterNumber { get; private set; } = 100;
+    protected Guid TestCustomerId => Fixture.TestCustomerId;
+    protected int TestHomeCenterNumber => SalesIntegrationTestFixture.TestHomeCenterNumber;
 
     // Populated by setup helpers
     protected Guid SaleId { get; private set; }
@@ -45,58 +37,20 @@ public abstract class SalesIntegrationTestBase(SalesTestFactory factory) : IAsyn
     protected Guid PackageId { get; private set; }
     protected Guid DeliveryAddressId { get; private set; }
 
-    // ── Lifecycle ────────────────────────────────────────────────────
+    // -- Lifecycle -------------------------------------------------------
 
     public async Task InitializeAsync()
     {
-        await Factory.ResetDatabaseAsync();
-        await SeedReferenceDataAsync();
+        await Fixture.ResetDatabaseAsync();
     }
 
     public Task DisposeAsync()
     {
         Client.Dispose();
-        _scope.Dispose();
         return Task.CompletedTask;
     }
 
-    protected T GetService<T>() where T : notnull
-        => _scope.ServiceProvider.GetRequiredService<T>();
-
-    // ── Reference data seeding ───────────────────────────────────────
-
-    private async Task SeedReferenceDataAsync()
-    {
-        var db = GetService<SalesDbContext>();
-        var cacheScope = GetService<ICacheWriteScope>();
-
-        using (cacheScope.AllowWrites())
-        {
-            var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
-                TestHomeCenterNumber, "Test HC", "TN", "37801", isActive: true);
-            db.Set<RetailLocationCacheEntity>().Add(retailLocation);
-
-            db.Set<CustomerCache>().Add(new CustomerCache
-            {
-                RefPublicId = Guid.NewGuid(),
-                HomeCenterNumber = TestHomeCenterNumber,
-                LifecycleStage = LifecycleStage.Customer,
-                DisplayName = "Test Customer",
-                FirstName = "Test",
-                LastName = "Customer",
-                LastSyncedAtUtc = DateTime.UtcNow
-            });
-
-            await db.SaveChangesAsync();
-        }
-
-        // Read back the customer ID that was assigned
-        var customer = await db.Set<CustomerCache>()
-            .FirstAsync(customer => customer.HomeCenterNumber == TestHomeCenterNumber);
-        TestCustomerId = customer.RefPublicId;
-    }
-
-    // ── Setup helpers ────────────────────────────────────────────────
+    // -- Setup helpers ---------------------------------------------------
 
     // Creates a sale. Sets SaleId and SaleNumber.
     protected async Task ArrangeSaleAsync()
@@ -203,4 +157,25 @@ public abstract class SalesIntegrationTestBase(SalesTestFactory factory) : IAsyn
     // GET the current package detail using the stored PackageId.
     protected async Task<PackageDetailResponse> GetPackageAsync()
         => await Client.GetPackageAsync(PackageId);
+
+    // Seeds a LandParcelCache entry for tests that need HomeCenterOwnedLand lookup.
+    protected async Task SeedLandParcelCacheAsync(string stockNumber, decimal landCost)
+    {
+        using var scope = Fixture.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<Modules.Sales.Infrastructure.Persistence.SalesDbContext>();
+        var cacheWriteScope = scope.ServiceProvider.GetRequiredService<Rtl.Core.Application.Caching.ICacheWriteScope>();
+
+        using (cacheWriteScope.AllowWrites())
+        {
+            db.Set<Modules.Sales.Domain.InventoryCache.LandParcelCache>().Add(new Modules.Sales.Domain.InventoryCache.LandParcelCache
+            {
+                RefLandParcelId = 9001,
+                RefHomeCenterNumber = TestHomeCenterNumber,
+                RefStockNumber = stockNumber,
+                LandCost = landCost,
+                LastSyncedAtUtc = DateTime.UtcNow
+            });
+            await db.SaveChangesAsync();
+        }
+    }
 }

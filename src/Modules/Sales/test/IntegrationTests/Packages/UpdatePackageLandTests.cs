@@ -1,17 +1,13 @@
 using System.Net;
 using System.Net.Http.Json;
-using Microsoft.Extensions.DependencyInjection;
-using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages.Land;
 using Modules.Sales.Domain.Packages.ProjectCosts;
-using Modules.Sales.Infrastructure.Persistence;
 using Modules.Sales.IntegrationTests.Abstractions;
 using Modules.Sales.Presentation.Endpoints.V1.Packages.Land;
-using Rtl.Core.Application.Caching;
 
 namespace Modules.Sales.IntegrationTests.Packages;
 
-public class UpdatePackageLandTests(SalesTestFactory factory) : SalesIntegrationTestBase(factory)
+public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : SalesIntegrationTestBase(fixture)
 {
     private string Endpoint => $"/api/v1/packages/{PackageId}/land";
 
@@ -143,28 +139,7 @@ public class UpdatePackageLandTests(SalesTestFactory factory) : SalesIntegration
         var packageBeforeUpdate = await GetPackageAsync();
 
         // Seed a LandParcelCache entry for HomeCenterOwnedLand lookup
-        using var scope = Factory.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<SalesDbContext>();
-        var cacheScope = scope.ServiceProvider.GetRequiredService<ICacheWriteScope>();
-        using (cacheScope.AllowWrites())
-        {
-            db.Set<LandParcelCache>().Add(new LandParcelCache
-            {
-                RefLandParcelId = 1,
-                RefHomeCenterNumber = TestHomeCenterNumber,
-                RefStockNumber = "LOT-001",
-                StockType = "Land",
-                LandCost = 70_000m,
-                Appraisal = 90_000m,
-                Address = "456 Oak Rd",
-                City = "Nashville",
-                State = "TN",
-                Zip = "37201",
-                County = "Davidson",
-                LastSyncedAtUtc = DateTime.UtcNow
-            });
-            await db.SaveChangesAsync();
-        }
+        await SeedLandParcelCacheAsync("LOT-001", 70_000m);
 
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageLandRequest(
