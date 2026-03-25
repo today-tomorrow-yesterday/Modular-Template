@@ -59,4 +59,9 @@ internal sealed class UpdatePackageWarrantyEndpoint : IEndpoint
 
 public sealed record UpdatePackageWarrantyRequest(
     bool WarrantySelected,
-    decimal WarrantyAmount);
+    decimal WarrantyAmount,
+    decimal SalesTaxPremium,
+    decimal SalePrice,
+    decimal EstimatedCost,
+    decimal RetailSalePrice,
+    bool ShouldExcludeFromPricing);

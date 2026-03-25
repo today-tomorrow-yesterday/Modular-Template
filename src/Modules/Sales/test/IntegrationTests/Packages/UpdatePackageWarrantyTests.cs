@@ -20,7 +20,12 @@ public class UpdatePackageWarrantyTests(SalesIntegrationTestFixture fixture) : S
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageWarrantyRequest(
             WarrantySelected: true,
-            WarrantyAmount: warrantyAmount));
+            WarrantyAmount: warrantyAmount,
+            SalesTaxPremium: 0m,
+            SalePrice: warrantyAmount,
+            EstimatedCost: 0m,
+            RetailSalePrice: warrantyAmount,
+            ShouldExcludeFromPricing: false));
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);                               // Should have returned 200 OK
@@ -45,7 +50,12 @@ public class UpdatePackageWarrantyTests(SalesIntegrationTestFixture fixture) : S
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageWarrantyRequest(
             WarrantySelected: false,
-            WarrantyAmount: 0m));
+            WarrantyAmount: 0m,
+            SalesTaxPremium: 0m,
+            SalePrice: 0m,
+            EstimatedCost: 0m,
+            RetailSalePrice: 0m,
+            ShouldExcludeFromPricing: false));
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
@@ -68,7 +78,12 @@ public class UpdatePackageWarrantyTests(SalesIntegrationTestFixture fixture) : S
 
         var request = new UpdatePackageWarrantyRequest(
             WarrantySelected: true,
-            WarrantyAmount: warrantyAmount);
+            WarrantyAmount: warrantyAmount,
+            SalesTaxPremium: 0m,
+            SalePrice: warrantyAmount,
+            EstimatedCost: 0m,
+            RetailSalePrice: warrantyAmount,
+            ShouldExcludeFromPricing: false);
 
         // Act — save same values twice
         var response1 = await Client.PutAsJsonAsync(Endpoint, request);

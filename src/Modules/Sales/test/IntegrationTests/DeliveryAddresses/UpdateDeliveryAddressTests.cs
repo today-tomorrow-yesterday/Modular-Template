@@ -85,12 +85,18 @@ public class UpdateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : S
 
         // Arrange — add insurance and warranty to verify removal
         var insuranceRequest = new UpdatePackageInsuranceRequest(
+            SalePrice: 1_500m,
+            EstimatedCost: 0m,
+            RetailSalePrice: 1_500m,
+            Responsibility: null,
+            ShouldExcludeFromPricing: false,
             InsuranceType: nameof(InsuranceType.HomeFirst),
             CoverageAmount: 300_000m,
             HasFoundationOrMasonry: false,
             InParkOrSubdivision: false,
             IsLandOwnedByCustomer: true,
             IsPremiumFinanced: true,
+            QuoteId: 0,
             CompanyName: "HomeFirst Insurance Co",
             MaxCoverage: 350_000m,
             TotalPremium: 1_500m);
@@ -98,7 +104,12 @@ public class UpdateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : S
 
         var warrantyRequest = new UpdatePackageWarrantyRequest(
             WarrantySelected: true,
-            WarrantyAmount: 1_500m);
+            WarrantyAmount: 1_500m,
+            SalesTaxPremium: 0m,
+            SalePrice: 1_500m,
+            EstimatedCost: 0m,
+            RetailSalePrice: 1_500m,
+            ShouldExcludeFromPricing: false);
         await Client.PutAndAssertOkAsync($"/api/v1/packages/{PackageId}/warranty", warrantyRequest);
 
         var packageBeforeUpdate = await GetPackageAsync();

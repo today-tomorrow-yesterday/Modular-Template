@@ -107,6 +107,50 @@ public class SalesIntegrationTestFixture : IntegrationTestFixture<Program>
         return customer.PublicId;
     }
 
+    // Updates an existing customer via CRM sync (same command, triggers conditional domain events).
+    // The CrmPartyId must match a previously created customer.
+    public async Task UpdateCustomerViaCrmSyncAsync(
+        int crmPartyId,
+        int? homeCenterNumber = null,
+        string? firstName = null,
+        string? lastName = null,
+        Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncContactPointDto[]? contactPoints = null,
+        Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncMailingAddressDto? mailingAddress = null)
+    {
+        using var scope = Services.CreateScope();
+        var sender = scope.ServiceProvider.GetRequiredService<MediatR.ISender>();
+        var command = new Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncCustomerFromCrmCommand(
+            CrmPartyId: crmPartyId,
+            HomeCenterNumber: homeCenterNumber ?? TestHomeCenterNumber,
+            LifecycleStage: Modules.Customer.Domain.Customers.Enums.LifecycleStage.Customer,
+            FirstName: firstName ?? "Jane",
+            MiddleName: null,
+            LastName: lastName ?? "Doe",
+            NameExtension: null,
+            DateOfBirth: new DateOnly(1990, 1, 15),
+            SalesAssignments: [],
+            ContactPoints: contactPoints ??
+            [
+                new Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncContactPointDto(
+                    Modules.Customer.Domain.Customers.Enums.ContactPointType.Email, $"{(firstName ?? "jane").ToLower()}@test.com", true),
+                new Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncContactPointDto(
+                    Modules.Customer.Domain.Customers.Enums.ContactPointType.Phone, "555-0100", false)
+            ],
+            Identifiers:
+            [
+                new Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncIdentifierDto(
+                    Modules.Customer.Domain.Customers.Enums.IdentifierType.CrmPartyId, crmPartyId.ToString())
+            ],
+            MailingAddress: mailingAddress,
+            SalesforceUrl: null,
+            CreatedOn: DateTimeOffset.UtcNow,
+            LastModifiedOn: DateTimeOffset.UtcNow);
+
+        var result = await sender.Send(command);
+        if (result.IsFailure)
+            throw new InvalidOperationException($"UpdateCustomerViaCrmSync failed: {result.Error}");
+    }
+
     // ── Cache seeding helpers ──────────────────────────────────────
 
     /// <summary>

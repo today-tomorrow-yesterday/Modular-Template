@@ -20,12 +20,18 @@ public class UpdatePackageInsuranceTests(SalesIntegrationTestFixture fixture) : 
 
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageInsuranceRequest(
+            SalePrice: insurancePremium,
+            EstimatedCost: 0m,
+            RetailSalePrice: insurancePremium,
+            Responsibility: null,
+            ShouldExcludeFromPricing: false,
             InsuranceType: nameof(InsuranceType.HomeFirst),
             CoverageAmount: 300_000m,
             HasFoundationOrMasonry: false,
             InParkOrSubdivision: false,
             IsLandOwnedByCustomer: true,
             IsPremiumFinanced: true,
+            QuoteId: 0,
             CompanyName: "HomeFirst Insurance Co",
             MaxCoverage: 350_000m,
             TotalPremium: insurancePremium));
@@ -52,12 +58,18 @@ public class UpdatePackageInsuranceTests(SalesIntegrationTestFixture fixture) : 
 
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageInsuranceRequest(
+            SalePrice: insurancePremium,
+            EstimatedCost: 0m,
+            RetailSalePrice: insurancePremium,
+            Responsibility: null,
+            ShouldExcludeFromPricing: false,
             InsuranceType: nameof(InsuranceType.Outside),
             CoverageAmount: 250_000m,
             HasFoundationOrMasonry: false,
             InParkOrSubdivision: false,
             IsLandOwnedByCustomer: false,
             IsPremiumFinanced: false,
+            QuoteId: 0,
             CompanyName: "External Insurance LLC",
             MaxCoverage: 300_000m,
             TotalPremium: insurancePremium));

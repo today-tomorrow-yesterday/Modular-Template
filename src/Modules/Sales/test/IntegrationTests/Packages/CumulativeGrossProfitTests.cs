@@ -79,7 +79,14 @@ public class CumulativeGrossProfitTests(SalesIntegrationTestFixture fixture) : S
         // Act
         var warrantyResponse = await Client.PutAsJsonAsync(
             $"/api/v1/packages/{PackageId}/warranty",
-            new UpdatePackageWarrantyRequest(WarrantySelected: true, WarrantyAmount: warrantyAmount));
+            new UpdatePackageWarrantyRequest(
+                WarrantySelected: true,
+                WarrantyAmount: warrantyAmount,
+                SalesTaxPremium: 0m,
+                SalePrice: warrantyAmount,
+                EstimatedCost: 0m,
+                RetailSalePrice: warrantyAmount,
+                ShouldExcludeFromPricing: false));
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, warrantyResponse.StatusCode);    // Should have returned 200 OK

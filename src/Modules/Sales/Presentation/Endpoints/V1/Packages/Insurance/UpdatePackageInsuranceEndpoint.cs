@@ -72,12 +72,18 @@ internal sealed class UpdatePackageInsuranceEndpoint : IEndpoint
 }
 
 public sealed record UpdatePackageInsuranceRequest(
+    decimal SalePrice,
+    decimal EstimatedCost,
+    decimal RetailSalePrice,
+    string? Responsibility,
+    bool ShouldExcludeFromPricing,
     string InsuranceType,
     decimal CoverageAmount,
     bool HasFoundationOrMasonry,
     bool InParkOrSubdivision,
     bool IsLandOwnedByCustomer,
     bool IsPremiumFinanced,
+    int QuoteId,
     string CompanyName,
     decimal MaxCoverage,
     decimal TotalPremium);
