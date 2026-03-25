@@ -20,7 +20,7 @@ public class UpdatePackageHomeTests(SalesTestFactory factory) : SalesIntegration
         var updatedPackage = await GetPackageAsync();
 
         var waPc = Assert.Single(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.WheelsAndAxles);
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.WheelsAndAxles);
         Assert.Equal(ProjectCostItems.WaRental, waPc.ItemId); // Should use WaRental item for rental
         Assert.Equal(FakeiSeriesAdapter.WaSalePrice, waPc.SalePrice); // Should set SP from iSeries
         Assert.Equal(FakeiSeriesAdapter.WaCost, waPc.EstimatedCost); // Should set EC from iSeries
@@ -43,7 +43,7 @@ public class UpdatePackageHomeTests(SalesTestFactory factory) : SalesIntegration
         var updatedPackage = await GetPackageAsync();
 
         var waPc = Assert.Single(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.WheelsAndAxles);
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.WheelsAndAxles);
         Assert.Equal(ProjectCostItems.WaPurchase, waPc.ItemId); // Should use WaPurchase item for purchase
         Assert.Equal(FakeiSeriesAdapter.WaSalePrice, waPc.SalePrice); // Should set SP from iSeries
         Assert.Equal(FakeiSeriesAdapter.WaCost, waPc.EstimatedCost); // Should set EC from iSeries
@@ -67,7 +67,7 @@ public class UpdatePackageHomeTests(SalesTestFactory factory) : SalesIntegration
         var updatedPackage = await GetPackageAsync();
 
         Assert.DoesNotContain(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.WheelsAndAxles); // Should not create W&A PC for multi-section
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.WheelsAndAxles); // Should not create W&A PC for multi-section
 
         // GP = HomeSP - HomeEC = 80000 - 60000 = 20000 (no W&A contribution)
         Assert.Equal(20_000m, updatedPackage.GrossProfit); // Should calculate gross profit without W&A

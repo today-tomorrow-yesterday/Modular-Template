@@ -92,7 +92,7 @@ public abstract class SalesIntegrationTestBase(SalesTestFactory factory) : IAsyn
 
         // Read back the customer ID that was assigned
         var customer = await db.Set<CustomerCache>()
-            .FirstAsync(c => c.HomeCenterNumber == TestHomeCenterNumber);
+            .FirstAsync(customer => customer.HomeCenterNumber == TestHomeCenterNumber);
         TestCustomerId = customer.RefPublicId;
     }
 

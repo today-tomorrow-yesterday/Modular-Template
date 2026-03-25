@@ -63,8 +63,8 @@ public class UpdatePackageLandTests(SalesTestFactory factory) : SalesIntegration
         Assert.True(updatedPackage.Land.ShouldExcludeFromPricing); // Should have been excluded from pricing (land is always excluded)
 
         var landPayoffPc = Assert.Single(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.LandPayoff
-               && pc.ItemId == ProjectCostItems.LandPayoff);
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.LandPayoff
+               && projectCost.ItemId == ProjectCostItems.LandPayoff);
         Assert.Equal(20_000m, landPayoffPc.SalePrice); // Should mirror land sale price on land payoff project cost
         Assert.Equal(20_000m, landPayoffPc.EstimatedCost); // Should mirror land estimated cost on land payoff project cost
         Assert.True(landPayoffPc.ShouldExcludeFromPricing); // Should have excluded land payoff from pricing
@@ -123,8 +123,8 @@ public class UpdatePackageLandTests(SalesTestFactory factory) : SalesIntegration
         Assert.True(updatedPackage.Land.ShouldExcludeFromPricing); // Should have been excluded from pricing (land is always excluded)
 
         var landPayoffPc = Assert.Single(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.LandPayoff
-               && pc.ItemId == ProjectCostItems.LandPayoff);
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.LandPayoff
+               && projectCost.ItemId == ProjectCostItems.LandPayoff);
         Assert.Equal(75_000m, landPayoffPc.SalePrice); // Should have mirrored land sale price
         Assert.Equal(75_000m, landPayoffPc.EstimatedCost); // Should have mirrored land estimated cost
         Assert.True(landPayoffPc.ShouldExcludeFromPricing); // Should have excluded land payoff from pricing
@@ -259,8 +259,8 @@ public class UpdatePackageLandTests(SalesTestFactory factory) : SalesIntegration
         Assert.True(updatedPackage.Land.ShouldExcludeFromPricing); // Should exclude PrivateProperty from pricing
 
         Assert.DoesNotContain(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.LandPayoff
-               && pc.ItemId == ProjectCostItems.LandPayoff); // Should not create LandPayoff PC when no priced type
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.LandPayoff
+               && projectCost.ItemId == ProjectCostItems.LandPayoff); // Should not create LandPayoff PC when no priced type
 
         // GP unchanged — no land pricing contribution
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit

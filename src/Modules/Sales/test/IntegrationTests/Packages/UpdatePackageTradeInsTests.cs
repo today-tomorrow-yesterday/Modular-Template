@@ -46,8 +46,8 @@ public class UpdatePackageTradeInsTests(SalesTestFactory factory) : SalesIntegra
         var updatedPackage = await GetPackageAsync();
 
         var overAllowancePc = Assert.Single(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.TradeOverAllowance
-               && pc.ItemId == ProjectCostItems.TradeOverAllowance);
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.TradeOverAllowance
+               && projectCost.ItemId == ProjectCostItems.TradeOverAllowance);
         Assert.Equal(5_000m, overAllowancePc.EstimatedCost); // Should set EC to over-allowance amount
 
         // GP = packageBeforeUpdate.GP - overAllowance = 20200 - 5000 = 15200
@@ -72,8 +72,8 @@ public class UpdatePackageTradeInsTests(SalesTestFactory factory) : SalesIntegra
         var updatedPackage = await GetPackageAsync();
 
         Assert.DoesNotContain(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.TradeOverAllowance
-               && pc.ItemId == ProjectCostItems.TradeOverAllowance); // Should not create over-allowance PC
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.TradeOverAllowance
+               && projectCost.ItemId == ProjectCostItems.TradeOverAllowance); // Should not create over-allowance PC
 
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
     }
@@ -97,8 +97,8 @@ public class UpdatePackageTradeInsTests(SalesTestFactory factory) : SalesIntegra
         var updatedPackage = await GetPackageAsync();
 
         var overAllowancePcs = updatedPackage.ProjectCosts
-            .Where(pc => pc.CategoryNumber == ProjectCostCategories.TradeOverAllowance
-                      && pc.ItemId == ProjectCostItems.TradeOverAllowance)
+            .Where(projectCost => projectCost.CategoryNumber == ProjectCostCategories.TradeOverAllowance
+                      && projectCost.ItemId == ProjectCostItems.TradeOverAllowance)
             .ToArray();
         Assert.Single(overAllowancePcs); // Should create only one over-allowance PC for the trade that exceeded book value
         Assert.Equal(3_000m, overAllowancePcs[0].EstimatedCost); // Should set EC to over-allowance amount for that trade

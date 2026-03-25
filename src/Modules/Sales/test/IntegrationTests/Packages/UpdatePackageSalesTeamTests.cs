@@ -85,12 +85,12 @@ public class UpdatePackageSalesTeamTests(SalesTestFactory factory) : SalesIntegr
         Assert.Equal(2, updatedPackage.SalesTeam.Length); // Should have two sales team members
 
         var primary = Assert.Single(updatedPackage.SalesTeam,
-            m => m.Role == "Primary Salesperson");
+            member => member.Role == "Primary Salesperson");
         Assert.Equal(60.0m, primary.CommissionSplitPercentage); // Should set 60% split for primary
         Assert.True(primary.ShouldExcludeFromPricing); // Should exclude sales team from pricing
 
         var secondary = Assert.Single(updatedPackage.SalesTeam,
-            m => m.Role == "Secondary Salesperson");
+            member => member.Role == "Secondary Salesperson");
         Assert.Equal(40.0m, secondary.CommissionSplitPercentage); // Should set 40% split for secondary
 
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit

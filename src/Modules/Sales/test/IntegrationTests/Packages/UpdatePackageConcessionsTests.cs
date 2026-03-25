@@ -28,8 +28,8 @@ public class UpdatePackageConcessionsTests(SalesTestFactory factory) : SalesInte
         Assert.True(updatedPackage.Concessions.ShouldExcludeFromPricing); // Should exclude concessions from pricing
 
         var sellerPaidPc = Assert.Single(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.SellerPaidClosingCost
-               && pc.ItemId == ProjectCostItems.SellerPaidClosingCost);
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.SellerPaidClosingCost
+               && projectCost.ItemId == ProjectCostItems.SellerPaidClosingCost);
         Assert.Equal(3_000m, sellerPaidPc.EstimatedCost); // Should set EC to concession amount
 
         // GP = packageBeforeUpdate.GP - concession = 20200 - 3000 = 17200
@@ -54,8 +54,8 @@ public class UpdatePackageConcessionsTests(SalesTestFactory factory) : SalesInte
         Assert.Null(updatedPackage.Concessions); // Should not create concessions line for zero amount
 
         Assert.DoesNotContain(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.SellerPaidClosingCost
-               && pc.ItemId == ProjectCostItems.SellerPaidClosingCost); // Should not create seller paid PC
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.SellerPaidClosingCost
+               && projectCost.ItemId == ProjectCostItems.SellerPaidClosingCost); // Should not create seller paid PC
 
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
     }
@@ -77,8 +77,8 @@ public class UpdatePackageConcessionsTests(SalesTestFactory factory) : SalesInte
         var updatedPackage = await GetPackageAsync();
 
         var sellerPaidPc = Assert.Single(updatedPackage.ProjectCosts,
-            pc => pc.CategoryNumber == ProjectCostCategories.SellerPaidClosingCost
-               && pc.ItemId == ProjectCostItems.SellerPaidClosingCost);
+            projectCost => projectCost.CategoryNumber == ProjectCostCategories.SellerPaidClosingCost
+               && projectCost.ItemId == ProjectCostItems.SellerPaidClosingCost);
         Assert.Equal(5_000m, sellerPaidPc.EstimatedCost); // Should update PC to new concession amount
 
         // GP = packageBeforeUpdate.GP - concession = 20200 - 5000 = 15200
