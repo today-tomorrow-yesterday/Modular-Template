@@ -1,11 +1,15 @@
+using System.Net;
 using System.Net.Http.Json;
 using Bogus;
 using Modules.Sales.Application.Packages.GetPackageById;
 using Modules.Sales.Application.Packages.UpdatePackageHome;
+using Modules.Sales.Application.Packages.UpdatePackageSalesTeam;
 using Modules.Sales.Domain.Packages.Home;
+using Modules.Sales.Domain.Packages.SalesTeam;
 using Modules.Sales.Presentation.Endpoints.V1.DeliveryAddress;
 using Modules.Sales.Presentation.Endpoints.V1.Packages;
 using Modules.Sales.Presentation.Endpoints.V1.Sales;
+using Modules.Sales.Presentation.Endpoints.V1.Tax;
 using Rtl.Core.Presentation.Results;
 
 namespace Modules.Sales.EndpointTests.Abstractions;
@@ -151,6 +155,50 @@ public abstract class SalesEndpointTestBase(SalesEndpointTestFixture fixture) : 
                 City: null,
                 State: null,
                 ZipCode: null));
+    }
+
+    // Creates sale + delivery + package + home + tax config. For tax calculation tests.
+    protected async Task ArrangeSaleWithTaxConfigAsync()
+    {
+        await ArrangeSaleWithHomeAsync();
+
+        var response = await Client.PutAsJsonAsync(
+            $"/api/v1/packages/{PackageId}/tax",
+            new UpdatePackageTaxRequest(
+                PreviouslyTitled: "N",
+                TaxExemptionId: null,
+                QuestionAnswers: []));
+
+        response.EnsureSuccessStatusCode();
+    }
+
+    // Creates sale + delivery + package + home + tax config + funding cache. Full setup for tax/commission.
+    protected async Task ArrangeSaleWithTaxConfigAndFundingAsync()
+    {
+        await ArrangeSaleWithTaxConfigAsync();
+        await Fixture.SeedFundingRequestCacheAsync(SaleId, PackageId);
+    }
+
+    // Creates sale + delivery + package + home + sales team (two members).
+    protected async Task ArrangeSaleWithSalesTeamAsync()
+    {
+        await ArrangeSaleWithHomeAsync();
+
+        var response = await Client.PutAsJsonAsync(
+            $"/api/v1/packages/{PackageId}/sales-team",
+            new[]
+            {
+                new UpdatePackageSalesTeamMemberRequest(
+                    SalesEndpointTestFixture.TestAuthorizedUserId1,
+                    SalesTeamRole.Primary,
+                    60.0m),
+                new UpdatePackageSalesTeamMemberRequest(
+                    SalesEndpointTestFixture.TestAuthorizedUserId2,
+                    SalesTeamRole.Secondary,
+                    40.0m)
+            });
+
+        response.EnsureSuccessStatusCode();
     }
 
     // GET the current package detail using the stored PackageId.
