@@ -9,6 +9,15 @@ using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.Retai
 
 namespace Modules.Sales.Integration.Shared;
 
+// Boots the full application via WebApplicationFactory and configures it for Sales integration testing.
+//
+// Between each test:
+// - Respawn truncates the sales, packages, and cache schemas
+// - Reference data is re-seeded: a RetailLocationCache (HC 100), a CustomerCache, and two AuthorizedUserCache entries
+//
+// The real iSeries adapter is replaced with FakeiSeriesAdapter so tests don't call external systems.
+// Test constants (TestHomeCenterNumber, TestAuthorizedUserId1/2, TestCustomerId) are available
+// for any test that needs to reference the seeded data.
 public abstract class SalesTestFixtureBase : IntegrationTestFixture<Program>
 {
     public const int TestHomeCenterNumber = 100;
@@ -36,9 +45,9 @@ public abstract class SalesTestFixtureBase : IntegrationTestFixture<Program>
 
         using (cacheScope.AllowWrites())
         {
-            var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
-                TestHomeCenterNumber, "Test HC", "TN", "37801", isActive: true);
+            var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(TestHomeCenterNumber, "Test HC", "TN", "37801", isActive: true);
             db.Set<RetailLocationCacheEntity>().Add(retailLocation);
+
             db.Set<CustomerCache>().Add(new CustomerCache
             {
                 RefPublicId = customerPublicId,

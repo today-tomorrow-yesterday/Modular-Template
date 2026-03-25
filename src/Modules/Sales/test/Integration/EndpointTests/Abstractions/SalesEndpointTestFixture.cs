@@ -5,6 +5,11 @@ using Rtl.Core.Application.Caching;
 
 namespace Modules.Sales.EndpointTests.Abstractions;
 
+// Test fixture for Sales API endpoint tests (CreateSale, UpdatePackageHome, etc.).
+//
+// Provides helpers to seed cache data that certain endpoints depend on —
+// for example, SeedLandParcelCacheAsync populates inventory cache entries
+// needed by the UpdatePackageLand handler's HomeCenterOwnedLand lookup.
 public class SalesEndpointTestFixture : SalesTestFixtureBase
 {
     // ── Cache seeding helpers ──────────────────────────────────────
@@ -20,8 +25,8 @@ public class SalesEndpointTestFixture : SalesTestFixtureBase
 
         using (cacheWriteScope.AllowWrites())
         {
-            db.Set<Modules.Sales.Domain.InventoryCache.LandParcelCache>().Add(
-                new Modules.Sales.Domain.InventoryCache.LandParcelCache
+            db.Set<Domain.InventoryCache.LandParcelCache>().Add(
+                new Domain.InventoryCache.LandParcelCache
                 {
                     RefLandParcelId = Random.Shared.Next(9000, 99999),
                     RefHomeCenterNumber = TestHomeCenterNumber,
