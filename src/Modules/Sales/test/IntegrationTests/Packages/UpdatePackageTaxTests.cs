@@ -22,12 +22,12 @@ public class UpdatePackageTaxTests(SalesIntegrationTestFixture fixture) : SalesI
             QuestionAnswers: []));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);   // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Tax); // Should create tax section
+        Assert.NotNull(updatedPackage.Tax);                     // Should create tax section
         Assert.Equal("Y", updatedPackage.Tax.PreviouslyTitled); // Should persist PreviouslyTitled as "Y"
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should flag taxes for recalculation
+        Assert.True(updatedPackage.MustRecalculateTaxes);       // Should flag taxes for recalculation
     }
 
     [Fact]
@@ -46,11 +46,11 @@ public class UpdatePackageTaxTests(SalesIntegrationTestFixture fixture) : SalesI
         var response2 = await Client.PutAsJsonAsync(Endpoint, request);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response1.StatusCode); // Should have returned 200 OK
-        Assert.Equal(HttpStatusCode.OK, response2.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response1.StatusCode);   // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response2.StatusCode);   // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should persist MustRecalculateTaxes flag
+        Assert.True(updatedPackage.MustRecalculateTaxes);        // Should persist MustRecalculateTaxes flag
         Assert.Equal("N", updatedPackage.Tax!.PreviouslyTitled); // Should persist PreviouslyTitled as "N"
     }
 }

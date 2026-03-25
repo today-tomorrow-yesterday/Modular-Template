@@ -17,6 +17,8 @@ public class UpdatePackageSalesTeamTests(SalesIntegrationTestFixture fixture) : 
     public async Task SalesTeam_TwoMembers()
     {
         // Arrange
+        var primarySplitPercentage = 60.0m;
+        var secondarySplitPercentage = 40.0m;
         await ArrangeSaleWithHomeAsync();
         var packageBeforeUpdate = await GetPackageAsync();
 
@@ -26,27 +28,27 @@ public class UpdatePackageSalesTeamTests(SalesIntegrationTestFixture fixture) : 
             new UpdatePackageSalesTeamMemberRequest(
                 SalesIntegrationTestFixture.TestAuthorizedUserId1,
                 SalesTeamRole.Primary,
-                60.0m),
+                primarySplitPercentage),
             new UpdatePackageSalesTeamMemberRequest(
                 SalesIntegrationTestFixture.TestAuthorizedUserId2,
                 SalesTeamRole.Secondary,
-                40.0m)
+                secondarySplitPercentage)
         });
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.Equal(2, updatedPackage.SalesTeam.Length); // Should have two sales team members
+        Assert.Equal(2, updatedPackage.SalesTeam.Length);                          // Should have two sales team members
 
         var primary = Assert.Single(updatedPackage.SalesTeam,
             member => member.Role == PrimarySalespersonRole);
-        Assert.Equal(60.0m, primary.CommissionSplitPercentage); // Should set 60% split for primary
-        Assert.True(primary.ShouldExcludeFromPricing); // Should exclude sales team from pricing
+        Assert.Equal(primarySplitPercentage, primary.CommissionSplitPercentage);   // Should set 60% split for primary
+        Assert.True(primary.ShouldExcludeFromPricing);                             // Should exclude sales team from pricing
 
         var secondary = Assert.Single(updatedPackage.SalesTeam,
             member => member.Role == SecondarySalespersonRole);
-        Assert.Equal(40.0m, secondary.CommissionSplitPercentage); // Should set 40% split for secondary
+        Assert.Equal(secondarySplitPercentage, secondary.CommissionSplitPercentage); // Should set 40% split for secondary
 
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
     }
@@ -55,6 +57,7 @@ public class UpdatePackageSalesTeamTests(SalesIntegrationTestFixture fixture) : 
     public async Task SalesTeam_SingleMember()
     {
         // Arrange
+        var splitPercentage = 100.0m;
         await ArrangeSaleWithHomeAsync();
         var packageBeforeUpdate = await GetPackageAsync();
 
@@ -64,16 +67,16 @@ public class UpdatePackageSalesTeamTests(SalesIntegrationTestFixture fixture) : 
             new UpdatePackageSalesTeamMemberRequest(
                 SalesIntegrationTestFixture.TestAuthorizedUserId1,
                 SalesTeamRole.Primary,
-                100.0m)
+                splitPercentage)
         });
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
         var member = Assert.Single(updatedPackage.SalesTeam);
-        Assert.Equal(100.0m, member.CommissionSplitPercentage); // Should set 100% split
-        Assert.True(member.ShouldExcludeFromPricing); // Should exclude sales team from pricing
+        Assert.Equal(splitPercentage, member.CommissionSplitPercentage);            // Should set 100% split
+        Assert.True(member.ShouldExcludeFromPricing);                              // Should exclude sales team from pricing
 
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
     }

@@ -1,14 +1,12 @@
 using Modules.SampleSales.Application.Products.CreateProduct;
 using Rtl.Core.Domain.Results;
+using Rtl.Core.IntegrationTests;
 using Rtl.Core.IntegrationTests.Abstractions;
 
 namespace Modules.SampleSales.IntegrationTests.Products;
 
-public class CreateProductTests : BaseIntegrationTest
+public class CreateProductTests(IntegrationTestFixture<Program> factory) : BaseIntegrationTest(factory)
 {
-    public CreateProductTests(IntegrationTestWebAppFactory factory)
-        : base(factory) { }
-
     [Fact]
     public async Task Should_CreateProduct_WhenCommandIsValid()
     {

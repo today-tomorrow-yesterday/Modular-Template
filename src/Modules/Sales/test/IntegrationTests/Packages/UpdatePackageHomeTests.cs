@@ -21,13 +21,13 @@ public class UpdatePackageHomeTests(SalesIntegrationTestFixture fixture) : Sales
 
         var waPc = Assert.Single(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.WheelsAndAxles);
-        Assert.Equal(ProjectCostItems.WaRental, waPc.ItemId); // Should use WaRental item for rental
-        Assert.Equal(FakeiSeriesAdapter.WaSalePrice, waPc.SalePrice); // Should set SP from iSeries
-        Assert.Equal(FakeiSeriesAdapter.WaCost, waPc.EstimatedCost); // Should set EC from iSeries
+        Assert.Equal(ProjectCostItems.WaRental, waPc.ItemId);                                        // Should use WaRental item for rental
+        Assert.Equal(FakeiSeriesAdapter.WaSalePrice, waPc.SalePrice);                                // Should set SP from iSeries
+        Assert.Equal(FakeiSeriesAdapter.WaCost, waPc.EstimatedCost);                                 // Should set EC from iSeries
 
         // GP = (HomeSP - HomeEC) + (WaSP - WaEC) = (80000 - 60000) + (500 - 300) = 20200
-        Assert.Equal(20_200m, updatedPackage.GrossProfit); // Should calculate gross profit correctly
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should flag taxes for recalculation
+        Assert.Equal(20_200m, updatedPackage.GrossProfit);                                   // Should calculate gross profit correctly
+        Assert.True(updatedPackage.MustRecalculateTaxes);                                            // Should flag taxes for recalculation
     }
 
     [Fact]
@@ -44,13 +44,13 @@ public class UpdatePackageHomeTests(SalesIntegrationTestFixture fixture) : Sales
 
         var waPc = Assert.Single(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.WheelsAndAxles);
-        Assert.Equal(ProjectCostItems.WaPurchase, waPc.ItemId); // Should use WaPurchase item for purchase
-        Assert.Equal(FakeiSeriesAdapter.WaSalePrice, waPc.SalePrice); // Should set SP from iSeries
-        Assert.Equal(FakeiSeriesAdapter.WaCost, waPc.EstimatedCost); // Should set EC from iSeries
+        Assert.Equal(ProjectCostItems.WaPurchase, waPc.ItemId);       // Should use WaPurchase item for purchase
+        Assert.Equal(FakeiSeriesAdapter.WaSalePrice, waPc.SalePrice);                                 // Should set SP from iSeries
+        Assert.Equal(FakeiSeriesAdapter.WaCost, waPc.EstimatedCost);                                  // Should set EC from iSeries
 
         // GP = (HomeSP - HomeEC) + (WaSP - WaEC) = (80000 - 60000) + (500 - 300) = 20200
-        Assert.Equal(20_200m, updatedPackage.GrossProfit); // Should calculate gross profit correctly
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should flag taxes for recalculation
+        Assert.Equal(20_200m, updatedPackage.GrossProfit);                                    // Should calculate gross profit correctly
+        Assert.True(updatedPackage.MustRecalculateTaxes);                                             // Should flag taxes for recalculation
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class UpdatePackageHomeTests(SalesIntegrationTestFixture fixture) : Sales
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.WheelsAndAxles); // Should not create W&A PC for multi-section
 
         // GP = HomeSP - HomeEC = 80000 - 60000 = 20000 (no W&A contribution)
-        Assert.Equal(20_000m, updatedPackage.GrossProfit); // Should calculate gross profit without W&A
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should flag taxes for recalculation
+        Assert.Equal(20_000m, updatedPackage.GrossProfit);                                              // Should calculate gross profit without W&A
+        Assert.True(updatedPackage.MustRecalculateTaxes);                                                       // Should flag taxes for recalculation
     }
 }

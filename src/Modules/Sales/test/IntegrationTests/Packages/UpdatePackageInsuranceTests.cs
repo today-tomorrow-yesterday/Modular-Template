@@ -14,6 +14,7 @@ public class UpdatePackageInsuranceTests(SalesIntegrationTestFixture fixture) : 
     public async Task Insurance_HomeFirst()
     {
         // Arrange
+        var insurancePremium = 800m;
         await ArrangeSaleWithHomeAsync();
         var packageBeforeUpdate = await GetPackageAsync();
 
@@ -27,24 +28,25 @@ public class UpdatePackageInsuranceTests(SalesIntegrationTestFixture fixture) : 
             IsPremiumFinanced: true,
             CompanyName: "HomeFirst Insurance Co",
             MaxCoverage: 350_000m,
-            TotalPremium: 800m));
+            TotalPremium: insurancePremium));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                                  // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Insurance); // Should create insurance section
+        Assert.NotNull(updatedPackage.Insurance);                                              // Should create insurance section
         Assert.Equal(nameof(InsuranceType.HomeFirst), updatedPackage.Insurance.InsuranceType); // Should set insurance type
-        Assert.Equal(800m, updatedPackage.Insurance.SalePrice); // Should set SP to total premium
+        Assert.Equal(insurancePremium, updatedPackage.Insurance.SalePrice);                    // Should set SP to total premium
 
         // GP = packageBeforeUpdate.GP + insuranceSP = before + 800
-        Assert.Equal(packageBeforeUpdate.GrossProfit + 800m, updatedPackage.GrossProfit); // Should increase GP by insurance sale price
+        Assert.Equal(packageBeforeUpdate.GrossProfit + insurancePremium, updatedPackage.GrossProfit); // Should increase GP by insurance sale price
     }
 
     [Fact]
     public async Task Insurance_Outside()
     {
         // Arrange
+        var insurancePremium = 600m;
         await ArrangeSaleWithHomeAsync();
         var packageBeforeUpdate = await GetPackageAsync();
 
@@ -58,17 +60,17 @@ public class UpdatePackageInsuranceTests(SalesIntegrationTestFixture fixture) : 
             IsPremiumFinanced: false,
             CompanyName: "External Insurance LLC",
             MaxCoverage: 300_000m,
-            TotalPremium: 600m));
+            TotalPremium: insurancePremium));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                                // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Insurance); // Should create insurance section
+        Assert.NotNull(updatedPackage.Insurance);                                            // Should create insurance section
         Assert.Equal(nameof(InsuranceType.Outside), updatedPackage.Insurance.InsuranceType); // Should set insurance type
-        Assert.Equal(600m, updatedPackage.Insurance.SalePrice); // Should set SP to total premium
+        Assert.Equal(insurancePremium, updatedPackage.Insurance.SalePrice);                  // Should set SP to total premium
 
         // GP = packageBeforeUpdate.GP + insuranceSP = before + 600
-        Assert.Equal(packageBeforeUpdate.GrossProfit + 600m, updatedPackage.GrossProfit); // Should increase GP by insurance sale price
+        Assert.Equal(packageBeforeUpdate.GrossProfit + insurancePremium, updatedPackage.GrossProfit); // Should increase GP by insurance sale price
     }
 }

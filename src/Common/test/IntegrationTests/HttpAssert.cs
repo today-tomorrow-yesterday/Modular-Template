@@ -4,30 +4,43 @@ using Xunit;
 namespace Rtl.Core.IntegrationTests;
 
 // Static helpers for asserting HTTP status codes with descriptive failure messages.
-// Usage: HttpAssert.IsCreated(response);
+// Includes the response body in the failure message so you know WHY it failed,
+// not just that the status code was wrong.
+// Usage: await HttpAssert.IsCreatedAsync(response);
 public static class HttpAssert
 {
-    public static void IsOk(HttpResponseMessage response)
-        => Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    public static Task IsOkAsync(HttpResponseMessage response)
+        => AssertStatusAsync(HttpStatusCode.OK, response);
 
-    public static void IsCreated(HttpResponseMessage response)
-        => Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    public static Task IsCreatedAsync(HttpResponseMessage response)
+        => AssertStatusAsync(HttpStatusCode.Created, response);
 
-    public static void IsNoContent(HttpResponseMessage response)
-        => Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    public static Task IsNoContentAsync(HttpResponseMessage response)
+        => AssertStatusAsync(HttpStatusCode.NoContent, response);
 
-    public static void IsBadRequest(HttpResponseMessage response)
-        => Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    public static Task IsBadRequestAsync(HttpResponseMessage response)
+        => AssertStatusAsync(HttpStatusCode.BadRequest, response);
 
-    public static void IsNotFound(HttpResponseMessage response)
-        => Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    public static Task IsNotFoundAsync(HttpResponseMessage response)
+        => AssertStatusAsync(HttpStatusCode.NotFound, response);
 
-    public static void IsConflict(HttpResponseMessage response)
-        => Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+    public static Task IsConflictAsync(HttpResponseMessage response)
+        => AssertStatusAsync(HttpStatusCode.Conflict, response);
 
-    public static void IsUnauthorized(HttpResponseMessage response)
-        => Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    public static Task IsUnauthorizedAsync(HttpResponseMessage response)
+        => AssertStatusAsync(HttpStatusCode.Unauthorized, response);
 
-    public static void IsForbidden(HttpResponseMessage response)
-        => Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    public static Task IsForbiddenAsync(HttpResponseMessage response)
+        => AssertStatusAsync(HttpStatusCode.Forbidden, response);
+
+    private static async Task AssertStatusAsync(HttpStatusCode expected, HttpResponseMessage response)
+    {
+        if (response.StatusCode != expected)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            Assert.Fail(
+                $"Expected {(int)expected} {expected}, got {(int)response.StatusCode} {response.StatusCode}.\n" +
+                $"Response: {body}");
+        }
+    }
 }

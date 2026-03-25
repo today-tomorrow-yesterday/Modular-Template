@@ -41,6 +41,10 @@ public class IntegrationTestFixture<TEntryPoint> : WebApplicationFactory<TEntryP
 
         builder.UseSetting("Seeding:Enabled", "false");
 
+        // Enable outbox/inbox so event flow tests can trigger them manually
+        builder.UseSetting("Features:Infrastructure:Outbox", "true");
+        builder.UseSetting("Features:Infrastructure:Inbox", "true");
+
         builder.ConfigureTestServices(ConfigureTestServices);
     }
 
@@ -55,7 +59,7 @@ public class IntegrationTestFixture<TEntryPoint> : WebApplicationFactory<TEntryP
         await base.DisposeAsync();
     }
 
-    public async Task ResetDatabaseAsync()
+    public virtual async Task ResetDatabaseAsync()
     {
         if (_respawner is not null)
         {

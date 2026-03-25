@@ -15,6 +15,7 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
     public async Task Land_CustomerLandPayoff()
     {
         // Arrange
+        var payoffAmount = 20_000m;
         await ArrangeSaleWithHomeAsync();
         var packageBeforeUpdate = await GetPackageAsync();
 
@@ -34,7 +35,7 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
             FinancedBy: "Local Bank",
             EstimatedValue: 55_000m,
             SizeInAcres: 2.5m,
-            PayoffAmountFinancing: 20_000m,
+            PayoffAmountFinancing: payoffAmount,
             LandEquity: 35_000m,
             OriginalPurchaseDate: new DateTime(2018, 6, 15, 0, 0, 0, DateTimeKind.Utc),
             OriginalPurchasePrice: 30_000m,
@@ -50,22 +51,22 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
             CommunityMonthlyCost: null));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Land); // Should create land section
-        Assert.Equal(20_000m, updatedPackage.Land.SalePrice); // Should set land sale price to payoff amount
-        Assert.Equal(20_000m, updatedPackage.Land.EstimatedCost); // Should set land estimated cost to payoff amount
-        Assert.True(updatedPackage.Land.ShouldExcludeFromPricing); // Should have been excluded from pricing (land is always excluded)
+        Assert.NotNull(updatedPackage.Land);                                       // Should create land section
+        Assert.Equal(payoffAmount, updatedPackage.Land.SalePrice);                 // Should set land sale price to payoff amount
+        Assert.Equal(payoffAmount, updatedPackage.Land.EstimatedCost);             // Should set land estimated cost to payoff amount
+        Assert.True(updatedPackage.Land.ShouldExcludeFromPricing);                 // Should have been excluded from pricing (land is always excluded)
 
         var landPayoffPc = Assert.Single(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.LandPayoff
                && projectCost.ItemId == ProjectCostItems.LandPayoff);
-        Assert.Equal(20_000m, landPayoffPc.SalePrice); // Should mirror land sale price on land payoff project cost
-        Assert.Equal(20_000m, landPayoffPc.EstimatedCost); // Should mirror land estimated cost on land payoff project cost
-        Assert.True(landPayoffPc.ShouldExcludeFromPricing); // Should have excluded land payoff from pricing
+        Assert.Equal(payoffAmount, landPayoffPc.SalePrice);                        // Should mirror land sale price on land payoff project cost
+        Assert.Equal(payoffAmount, landPayoffPc.EstimatedCost);                    // Should mirror land estimated cost on land payoff project cost
+        Assert.True(landPayoffPc.ShouldExcludeFromPricing);                        // Should have excluded land payoff from pricing
 
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should have flagged tax recalculation
+        Assert.True(updatedPackage.MustRecalculateTaxes);                          // Should have flagged tax recalculation
 
         // GP unchanged — land SP == EC, so net contribution is zero
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
@@ -75,14 +76,15 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
     public async Task Land_LandPurchase()
     {
         // Arrange
+        var purchasePrice = 75_000m;
         await ArrangeSaleWithHomeAsync();
         var packageBeforeUpdate = await GetPackageAsync();
 
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageLandRequest(
-            SalePrice: 75_000m,
-            EstimatedCost: 75_000m,
-            RetailSalePrice: 75_000m,
+            SalePrice: purchasePrice,
+            EstimatedCost: purchasePrice,
+            RetailSalePrice: purchasePrice,
             LandPurchaseType: nameof(LandPurchaseType.CustomerWantsToPurchaseLand),
             TypeOfLandWanted: nameof(TypeOfLandWanted.LandPurchase),
             CustomerLandType: null,
@@ -99,7 +101,7 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
             OriginalPurchaseDate: null,
             OriginalPurchasePrice: null,
             Realtor: "Jane Smith Realty",
-            PurchasePrice: 75_000m,
+            PurchasePrice: purchasePrice,
             PropertyOwnerPhoneNumber: null,
             PropertyLotRent: null,
             CommunityNumber: null,
@@ -110,22 +112,22 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
             CommunityMonthlyCost: null));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Land); // Should have created land section
-        Assert.Equal(75_000m, updatedPackage.Land.SalePrice); // Should have set land sale price to purchase price
-        Assert.Equal(75_000m, updatedPackage.Land.EstimatedCost); // Should have set land estimated cost to purchase price
-        Assert.True(updatedPackage.Land.ShouldExcludeFromPricing); // Should have been excluded from pricing (land is always excluded)
+        Assert.NotNull(updatedPackage.Land);                                       // Should have created land section
+        Assert.Equal(purchasePrice, updatedPackage.Land.SalePrice);                // Should have set land sale price to purchase price
+        Assert.Equal(purchasePrice, updatedPackage.Land.EstimatedCost);            // Should have set land estimated cost to purchase price
+        Assert.True(updatedPackage.Land.ShouldExcludeFromPricing);                 // Should have been excluded from pricing (land is always excluded)
 
         var landPayoffPc = Assert.Single(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.LandPayoff
                && projectCost.ItemId == ProjectCostItems.LandPayoff);
-        Assert.Equal(75_000m, landPayoffPc.SalePrice); // Should have mirrored land sale price
-        Assert.Equal(75_000m, landPayoffPc.EstimatedCost); // Should have mirrored land estimated cost
-        Assert.True(landPayoffPc.ShouldExcludeFromPricing); // Should have excluded land payoff from pricing
+        Assert.Equal(purchasePrice, landPayoffPc.SalePrice);                       // Should have mirrored land sale price
+        Assert.Equal(purchasePrice, landPayoffPc.EstimatedCost);                   // Should have mirrored land estimated cost
+        Assert.True(landPayoffPc.ShouldExcludeFromPricing);                        // Should have excluded land payoff from pricing
 
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should flag taxes for recalculation
+        Assert.True(updatedPackage.MustRecalculateTaxes);                          // Should flag taxes for recalculation
 
         // GP unchanged — land SP == EC, so net contribution is zero
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
@@ -135,24 +137,26 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
     public async Task Land_HomeCenterOwned()
     {
         // Arrange
+        var landSalesPrice = 90_000m;
+        var landCost = 70_000m;
         await ArrangeSaleWithHomeAsync();
         var packageBeforeUpdate = await GetPackageAsync();
 
         // Seed a LandParcelCache entry for HomeCenterOwnedLand lookup
-        await Fixture.SeedLandParcelCacheAsync("LOT-001", 70_000m);
+        await Fixture.SeedLandParcelCacheAsync("LOT-001", landCost);
 
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageLandRequest(
-            SalePrice: 90_000m,
-            EstimatedCost: 70_000m,
-            RetailSalePrice: 90_000m,
+            SalePrice: landSalesPrice,
+            EstimatedCost: landCost,
+            RetailSalePrice: landSalesPrice,
             LandPurchaseType: nameof(LandPurchaseType.CustomerWantsToPurchaseLand),
             TypeOfLandWanted: nameof(TypeOfLandWanted.HomeCenterOwnedLand),
             CustomerLandType: null,
             LandInclusion: null,
             LandStockNumber: "LOT-001",
-            LandSalesPrice: 90_000m,
-            LandCost: 70_000m,
+            LandSalesPrice: landSalesPrice,
+            LandCost: landCost,
             PropertyOwner: null,
             FinancedBy: null,
             EstimatedValue: null,
@@ -173,14 +177,14 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
             CommunityMonthlyCost: null));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Land); // Should create land section
-        Assert.Equal(90_000m, updatedPackage.Land.SalePrice); // Should set land sale price
-        Assert.Equal(70_000m, updatedPackage.Land.EstimatedCost); // Should set land estimated cost (dealer margin)
+        Assert.NotNull(updatedPackage.Land);                                       // Should create land section
+        Assert.Equal(landSalesPrice, updatedPackage.Land.SalePrice);               // Should set land sale price
+        Assert.Equal(landCost, updatedPackage.Land.EstimatedCost);                 // Should set land estimated cost (dealer margin)
 
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should flag taxes for recalculation
+        Assert.True(updatedPackage.MustRecalculateTaxes);                          // Should flag taxes for recalculation
 
         // GP unchanged — land contributes SP - EC but is offset by matching LandPayoff PC
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
@@ -225,17 +229,17 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
             CommunityMonthlyCost: null));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Land); // Should create land section
-        Assert.Equal(0m, updatedPackage.Land.SalePrice); // Should set land sale price to zero
-        Assert.Equal(0m, updatedPackage.Land.EstimatedCost); // Should set land estimated cost to zero
-        Assert.True(updatedPackage.Land.ShouldExcludeFromPricing); // Should exclude PrivateProperty from pricing
+        Assert.NotNull(updatedPackage.Land);                                       // Should create land section
+        Assert.Equal(0m, updatedPackage.Land.SalePrice);                           // Should set land sale price to zero
+        Assert.Equal(0m, updatedPackage.Land.EstimatedCost);                       // Should set land estimated cost to zero
+        Assert.True(updatedPackage.Land.ShouldExcludeFromPricing);                 // Should exclude PrivateProperty from pricing
 
         Assert.DoesNotContain(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.LandPayoff
-               && projectCost.ItemId == ProjectCostItems.LandPayoff); // Should not create LandPayoff PC when no priced type
+               && projectCost.ItemId == ProjectCostItems.LandPayoff);              // Should not create LandPayoff PC when no priced type
 
         // GP unchanged — no land pricing contribution
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit

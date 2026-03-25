@@ -13,25 +13,26 @@ public class UpdatePackageWarrantyTests(SalesIntegrationTestFixture fixture) : S
     public async Task Warranty_Selected()
     {
         // Arrange
+        var warrantyAmount = 1_200m;
         await ArrangeSaleWithHomeAsync();
         var packageBeforeUpdate = await GetPackageAsync();
 
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageWarrantyRequest(
             WarrantySelected: true,
-            WarrantyAmount: 1_200m));
+            WarrantyAmount: warrantyAmount));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                               // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Warranty); // Should create warranty section
-        Assert.Equal(1_200m, updatedPackage.Warranty.SalePrice); // Should set SP to warranty amount
-        Assert.Equal(0m, updatedPackage.Warranty.EstimatedCost); // Should set EC to zero (pure revenue)
+        Assert.NotNull(updatedPackage.Warranty);                                            // Should create warranty section
+        Assert.Equal(warrantyAmount, updatedPackage.Warranty.SalePrice);                    // Should set SP to warranty amount
+        Assert.Equal(0m, updatedPackage.Warranty.EstimatedCost);                            // Should set EC to zero (pure revenue)
 
         // GP = packageBeforeUpdate.GP + warrantySP = before + 1200
-        Assert.Equal(packageBeforeUpdate.GrossProfit + 1_200m, updatedPackage.GrossProfit); // Should increase GP by warranty sale price
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should flag taxes for recalculation
+        Assert.Equal(packageBeforeUpdate.GrossProfit + warrantyAmount, updatedPackage.GrossProfit); // Should increase GP by warranty sale price
+        Assert.True(updatedPackage.MustRecalculateTaxes);                                   // Should flag taxes for recalculation
     }
 
     [Fact]
@@ -47,37 +48,38 @@ public class UpdatePackageWarrantyTests(SalesIntegrationTestFixture fixture) : S
             WarrantyAmount: 0m));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.NotNull(updatedPackage.Warranty); // Should create warranty section even when not selected
-        Assert.Equal(0m, updatedPackage.Warranty.SalePrice); // Should set SP to zero
-        Assert.Equal(0m, updatedPackage.Warranty.EstimatedCost); // Should set EC to zero
+        Assert.NotNull(updatedPackage.Warranty);                                   // Should create warranty section even when not selected
+        Assert.Equal(0m, updatedPackage.Warranty.SalePrice);                       // Should set SP to zero
+        Assert.Equal(0m, updatedPackage.Warranty.EstimatedCost);                   // Should set EC to zero
 
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should flag taxes for recalculation
+        Assert.True(updatedPackage.MustRecalculateTaxes);                          // Should flag taxes for recalculation
     }
 
     [Fact]
     public async Task Warranty_ResaveSameValues()
     {
         // Arrange
+        var warrantyAmount = 1_200m;
         await ArrangeSaleWithHomeAsync();
 
         var request = new UpdatePackageWarrantyRequest(
             WarrantySelected: true,
-            WarrantyAmount: 1_200m);
+            WarrantyAmount: warrantyAmount);
 
         // Act — save same values twice
         var response1 = await Client.PutAsJsonAsync(Endpoint, request);
         var response2 = await Client.PutAsJsonAsync(Endpoint, request);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response1.StatusCode); // Should have returned 200 OK
-        Assert.Equal(HttpStatusCode.OK, response2.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response1.StatusCode);        // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response2.StatusCode);        // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
-        Assert.True(updatedPackage.MustRecalculateTaxes); // Should persist MustRecalculateTaxes from first save
-        Assert.Equal(1_200m, updatedPackage.Warranty!.SalePrice); // Should retain warranty sale price on resave
+        Assert.True(updatedPackage.MustRecalculateTaxes);             // Should persist MustRecalculateTaxes from first save
+        Assert.Equal(warrantyAmount, updatedPackage.Warranty!.SalePrice); // Should retain warranty sale price on resave
     }
 }

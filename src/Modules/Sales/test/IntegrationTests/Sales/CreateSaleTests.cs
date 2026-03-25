@@ -29,10 +29,10 @@ public class CreateSaleTests(SalesIntegrationTestFixture fixture) : SalesIntegra
         var body = await response.Content.ReadFromJsonAsync<ApiEnvelope<CreateSaleResponse>>();
 
         // Assert
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);       // Should have returned 201 Created
-        Assert.NotNull(body?.Data);                                       // Should have returned sale data
-        Assert.NotEqual(Guid.Empty, body.Data.Id);                       // Should have generated a valid sale ID
-        Assert.True(body.Data.SaleNumber > 0);                           // Should have assigned a sale number
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode); // Should have returned 201 Created
+        Assert.NotNull(body?.Data);                                // Should have returned sale data
+        Assert.NotEqual(Guid.Empty, body.Data.Id);                 // Should have generated a valid sale ID
+        Assert.True(body.Data.SaleNumber > 0);                     // Should have assigned a sale number
     }
 
     [Fact]
@@ -46,8 +46,8 @@ public class CreateSaleTests(SalesIntegrationTestFixture fixture) : SalesIntegra
         var body = await response.Content.ReadFromJsonAsync<ApiEnvelope<CreateSaleResponse>>();
 
         // Assert
-        Assert.NotNull(body);                                             // Should have returned a response body
-        Assert.False(body.IsSuccess);                                     // Should have returned a failure for unknown customer
+        Assert.NotNull(body);         // Should have returned a response body
+        Assert.False(body.IsSuccess); // Should have returned a failure for unknown customer
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class CreateSaleTests(SalesIntegrationTestFixture fixture) : SalesIntegra
         var body = await response.Content.ReadFromJsonAsync<ApiEnvelope<CreateSaleResponse>>();
 
         // Assert
-        Assert.NotNull(body);                                             // Should have returned a response body
-        Assert.False(body.IsSuccess);                                     // Should have returned a failure for unknown home center
+        Assert.NotNull(body);         // Should have returned a response body
+        Assert.False(body.IsSuccess); // Should have returned a failure for unknown home center
     }
 }

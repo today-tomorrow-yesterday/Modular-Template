@@ -42,16 +42,16 @@ public class UpdatePackageTradeInsTests(SalesIntegrationTestFixture fixture) : S
         var response = await Client.PutAsJsonAsync(Endpoint, new[] { tradeIn });
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                               // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
         var overAllowancePc = Assert.Single(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.TradeOverAllowance
                && projectCost.ItemId == ProjectCostItems.TradeOverAllowance);
-        Assert.Equal(5_000m, overAllowancePc.EstimatedCost); // Should set EC to over-allowance amount
+        Assert.Equal(tradeIn.TradeAllowance - tradeIn.BookInAmount, overAllowancePc.EstimatedCost); // Should set EC to over-allowance amount
 
         // GP = packageBeforeUpdate.GP - overAllowance = 20200 - 5000 = 15200
-        Assert.Equal(packageBeforeUpdate.GrossProfit - 5_000m, updatedPackage.GrossProfit); // Should reduce GP by over-allowance
+        Assert.Equal(packageBeforeUpdate.GrossProfit - (tradeIn.TradeAllowance - tradeIn.BookInAmount), updatedPackage.GrossProfit); // Should reduce GP by over-allowance
     }
 
     [Fact]
@@ -68,12 +68,12 @@ public class UpdatePackageTradeInsTests(SalesIntegrationTestFixture fixture) : S
         var response = await Client.PutAsJsonAsync(Endpoint, new[] { tradeIn });
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
         Assert.DoesNotContain(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.TradeOverAllowance
-               && projectCost.ItemId == ProjectCostItems.TradeOverAllowance); // Should not create over-allowance PC
+               && projectCost.ItemId == ProjectCostItems.TradeOverAllowance);      // Should not create over-allowance PC
 
         Assert.Equal(packageBeforeUpdate.GrossProfit, updatedPackage.GrossProfit); // Should not change gross profit
     }
@@ -93,14 +93,14 @@ public class UpdatePackageTradeInsTests(SalesIntegrationTestFixture fixture) : S
         var response = await Client.PutAsJsonAsync(Endpoint, new[] { overTrade, evenTrade });
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);    // Should have returned 200 OK
         var updatedPackage = await GetPackageAsync();
 
         var overAllowancePcs = updatedPackage.ProjectCosts
             .Where(projectCost => projectCost.CategoryNumber == ProjectCostCategories.TradeOverAllowance
                       && projectCost.ItemId == ProjectCostItems.TradeOverAllowance)
             .ToArray();
-        Assert.Single(overAllowancePcs); // Should create only one over-allowance PC for the trade that exceeded book value
-        Assert.Equal(3_000m, overAllowancePcs[0].EstimatedCost); // Should set EC to over-allowance amount for that trade
+        Assert.Single(overAllowancePcs);                         // Should create only one over-allowance PC for the trade that exceeded book value
+        Assert.Equal(overTrade.TradeAllowance - overTrade.BookInAmount, overAllowancePcs[0].EstimatedCost); // Should set EC to over-allowance amount for that trade
     }
 }

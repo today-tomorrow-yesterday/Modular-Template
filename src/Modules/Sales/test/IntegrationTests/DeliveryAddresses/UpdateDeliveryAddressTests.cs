@@ -42,16 +42,16 @@ public class UpdateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : S
         var response = await Client.PutAsJsonAsync(Endpoint, request);
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                // Should have returned 200 OK
 
         var getResponse = await Client.GetAsync<ApiEnvelope<DeliveryAddressResponse>>(Endpoint);
-        Assert.NotNull(getResponse?.Data);                                         // Should have returned updated address
-        Assert.Equal("Secondary Residence", getResponse.Data.OccupancyType);                  // Should have updated occupancy type
-        Assert.False(getResponse.Data.IsWithinCityLimits);                         // Should have updated city limits flag
-        Assert.Equal("999 Lake Rd", getResponse.Data.AddressLine1);                // Should have updated address line 1
-        Assert.Equal("Knoxville", getResponse.Data.City);                          // Should have updated city
-        Assert.Equal("Knox", getResponse.Data.County);                             // Should have updated county
-        Assert.Equal("37902", getResponse.Data.PostalCode);                        // Should have updated postal code
+        Assert.NotNull(getResponse?.Data);                                   // Should have returned updated address
+        Assert.Equal("Secondary Residence", getResponse.Data.OccupancyType); // Should have updated occupancy type
+        Assert.False(getResponse.Data.IsWithinCityLimits);                   // Should have updated city limits flag
+        Assert.Equal("999 Lake Rd", getResponse.Data.AddressLine1);          // Should have updated address line 1
+        Assert.Equal("Knoxville", getResponse.Data.City);                    // Should have updated city
+        Assert.Equal("Knox", getResponse.Data.County);                       // Should have updated county
+        Assert.Equal("37902", getResponse.Data.PostalCode);                  // Should have updated postal code
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class UpdateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : S
 
         // Assert
         var updatedPackage = await GetPackageAsync();
-        Assert.True(updatedPackage.MustRecalculateTaxes);                          // Should have flagged tax recalculation after state change
+        Assert.True(updatedPackage.MustRecalculateTaxes); // Should have flagged tax recalculation after state change
     }
 
     [Fact]
@@ -102,8 +102,8 @@ public class UpdateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : S
         await Client.PutAndAssertOkAsync($"/api/v1/packages/{PackageId}/warranty", warrantyRequest);
 
         var packageBeforeUpdate = await GetPackageAsync();
-        Assert.NotNull(packageBeforeUpdate.Insurance);                             // Should have insurance before occupancy change
-        Assert.NotNull(packageBeforeUpdate.Warranty);                              // Should have warranty before occupancy change
+        Assert.NotNull(packageBeforeUpdate.Insurance);        // Should have insurance before occupancy change
+        Assert.NotNull(packageBeforeUpdate.Warranty);         // Should have warranty before occupancy change
 
         // Act — change occupancy to "Rental" (ineligible for insurance and warranty)
         var request = new UpdateDeliveryAddressRequest(
@@ -115,12 +115,12 @@ public class UpdateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : S
             State: "TN",
             PostalCode: "37201");
         var response = await Client.PutAsJsonAsync(Endpoint, request);
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);                      // Should have accepted the occupancy update
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Should have accepted the occupancy update
 
         // Assert
         var updatedPackage = await GetPackageAsync();
-        Assert.Null(updatedPackage.Insurance);                                     // Should have removed insurance for ineligible occupancy
-        Assert.Null(updatedPackage.Warranty);                                      // Should have removed warranty for ineligible occupancy
+        Assert.Null(updatedPackage.Insurance);                // Should have removed insurance for ineligible occupancy
+        Assert.Null(updatedPackage.Warranty);                 // Should have removed warranty for ineligible occupancy
     }
 
     [Fact]
@@ -136,6 +136,6 @@ public class UpdateDeliveryAddressTests(SalesIntegrationTestFixture fixture) : S
         var response = await Client.PutAsJsonAsync(Endpoint, request);
 
         // Assert
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);                // Should have returned 404 when no address exists
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode); // Should have returned 404 when no address exists
     }
 }

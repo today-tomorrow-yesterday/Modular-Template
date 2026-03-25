@@ -106,16 +106,16 @@ public class SaleLifecycleTests(SalesIntegrationTestFixture fixture) : SalesInte
             .ReadFromJsonAsync<ApiEnvelope<PackageUpdatedResponse>>();
         // Gross Profit = (Home Sale Price - Home Estimated Cost), no Wheels & Axles for multi-section
         // Gross Profit = (340000 - 250000) = 90000
-        Assert.Equal(90_000m, homeBody!.Data!.GrossProfit);                        // Should have calculated correct gross profit
+        Assert.Equal(90_000m, homeBody!.Data!.GrossProfit);     // Should have calculated correct gross profit
 
         // -- Step 5: GET package back -- verify persistence -
         var updatedPackage = await Client.GetAsync<ApiEnvelope<PackageDetailResponse>>(
             $"/api/v1/packages/{packageId}");
-        Assert.NotNull(updatedPackage?.Data);                                              // Should have returned the package
-        Assert.Equal("Primary", updatedPackage.Data.Name);                         // Should have saved the package name
-        Assert.NotNull(updatedPackage.Data.Home);                                          // Should have saved the home section
-        Assert.Equal("Clayton", updatedPackage.Data.Home.Make);                    // Should have saved the correct make
-        Assert.Equal("Summit", updatedPackage.Data.Home.Model);                    // Should have saved the correct model
+        Assert.NotNull(updatedPackage?.Data);                   // Should have returned the package
+        Assert.Equal("Primary", updatedPackage.Data.Name);      // Should have saved the package name
+        Assert.NotNull(updatedPackage.Data.Home);               // Should have saved the home section
+        Assert.Equal("Clayton", updatedPackage.Data.Home.Make); // Should have saved the correct make
+        Assert.Equal("Summit", updatedPackage.Data.Home.Model); // Should have saved the correct model
     }
 
     [Fact]
@@ -129,12 +129,12 @@ public class SaleLifecycleTests(SalesIntegrationTestFixture fixture) : SalesInte
 
         // Act
         var first = await Client.PostAsJsonAsync($"/api/v1/sales/{SaleId}/delivery-address", addressRequest);
-        Assert.Equal(HttpStatusCode.Created, first.StatusCode);                    // Should have created first address
+        Assert.Equal(HttpStatusCode.Created, first.StatusCode);   // Should have created first address
 
         var second = await Client.PostAsJsonAsync($"/api/v1/sales/{SaleId}/delivery-address", addressRequest);
 
         // Assert
-        Assert.Equal(HttpStatusCode.Conflict, second.StatusCode);                  // Should have rejected duplicate address
+        Assert.Equal(HttpStatusCode.Conflict, second.StatusCode); // Should have rejected duplicate address
     }
 
     [Fact]
@@ -146,12 +146,12 @@ public class SaleLifecycleTests(SalesIntegrationTestFixture fixture) : SalesInte
         // Act
         var first = await Client.PostAsJsonAsync(
             $"/api/v1/sales/{SaleId}/packages", new CreatePackageRequest("Primary"));
-        Assert.Equal(HttpStatusCode.Created, first.StatusCode);                    // Should have created first package
+        Assert.Equal(HttpStatusCode.Created, first.StatusCode);   // Should have created first package
 
         var second = await Client.PostAsJsonAsync(
             $"/api/v1/sales/{SaleId}/packages", new CreatePackageRequest("Primary"));
 
         // Assert
-        Assert.Equal(HttpStatusCode.Conflict, second.StatusCode);                  // Should have rejected duplicate package name
+        Assert.Equal(HttpStatusCode.Conflict, second.StatusCode); // Should have rejected duplicate package name
     }
 }

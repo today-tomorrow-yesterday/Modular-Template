@@ -15,17 +15,25 @@ public class CumulativeGrossProfitTests(SalesIntegrationTestFixture fixture) : S
     [Fact]
     public async Task FullJourney_GrossProfitAccumulatesCorrectly()
     {
+        // Arrange — key inputs for the journey
+        var homeSalePrice = 80_000m;
+        var homeEstimatedCost = 60_000m;
+        var warrantyAmount = 1_200m;
+        var concessionAmount = 3_000m;
+        var downPaymentAmount = 5_000m;
+
         // ── Step 1: Home + W&A Rental ──────────────────────────────────
         // Arrange + Act
         await ArrangeSaleWithHomeAsync(
-            homeSalePrice: 80_000m,
-            homeEstimatedCost: 60_000m,
+            homeSalePrice: homeSalePrice,
+            homeEstimatedCost: homeEstimatedCost,
             wheelAndAxles: WheelAndAxlesOption.Rent);
 
         // Assert
         var package = await GetPackageAsync();
         // GP = (HomeSP - HomeEC) + (WaSP - WaEC) = (80000 - 60000) + (500 - 300) = 20200
-        Assert.Equal(20_200m, package.GrossProfit); // Should start with home + W&A gross profit
+        var baseGrossProfit = package.GrossProfit;
+        Assert.Equal(20_200m, baseGrossProfit);                          // Should start with home + W&A gross profit
 
         // ── Step 2: Land (PrivateProperty, excluded from pricing) ──────
         // Act
@@ -62,45 +70,45 @@ public class CumulativeGrossProfitTests(SalesIntegrationTestFixture fixture) : S
                 CommunityMonthlyCost: null));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, landResponse.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, landResponse.StatusCode);        // Should have returned 200 OK
         package = await GetPackageAsync();
         // GP unchanged — PrivateProperty is excluded, SP=EC=0
-        Assert.Equal(20_200m, package.GrossProfit); // Should not change GP for excluded land
+        Assert.Equal(baseGrossProfit, package.GrossProfit);              // Should not change GP for excluded land
 
         // ── Step 3: Warranty (selected, $1200) ─────────────────────────
         // Act
         var warrantyResponse = await Client.PutAsJsonAsync(
             $"/api/v1/packages/{PackageId}/warranty",
-            new UpdatePackageWarrantyRequest(WarrantySelected: true, WarrantyAmount: 1_200m));
+            new UpdatePackageWarrantyRequest(WarrantySelected: true, WarrantyAmount: warrantyAmount));
 
         // Assert
-        Assert.Equal(HttpStatusCode.OK, warrantyResponse.StatusCode); // Should have returned 200 OK
+        Assert.Equal(HttpStatusCode.OK, warrantyResponse.StatusCode);    // Should have returned 200 OK
         package = await GetPackageAsync();
         // GP = 20200 + warrantySP(1200) = 21400
-        Assert.Equal(21_400m, package.GrossProfit); // Should increase GP by warranty sale price
+        Assert.Equal(baseGrossProfit + warrantyAmount, package.GrossProfit); // Should increase GP by warranty sale price
 
         // ── Step 4: Concession ($3000) ─────────────────────────────────
         // Act
         var concessionsResponse = await Client.PutAsJsonAsync(
             $"/api/v1/packages/{PackageId}/concessions",
-            new UpdatePackageConcessionsRequest(Amount: 3_000m));
+            new UpdatePackageConcessionsRequest(Amount: concessionAmount));
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, concessionsResponse.StatusCode); // Should have returned 200 OK
         package = await GetPackageAsync();
         // GP = 21400 - concessionEC(3000) = 18400
-        Assert.Equal(18_400m, package.GrossProfit); // Should reduce GP by concession amount
+        Assert.Equal(baseGrossProfit + warrantyAmount - concessionAmount, package.GrossProfit); // Should reduce GP by concession amount
 
         // ── Step 5: Down Payment ($5000, excluded from pricing) ────────
         // Act
         var downPaymentResponse = await Client.PutAsJsonAsync(
             $"/api/v1/packages/{PackageId}/down-payment",
-            new UpdatePackageDownPaymentRequest(Amount: 5_000m));
+            new UpdatePackageDownPaymentRequest(Amount: downPaymentAmount));
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, downPaymentResponse.StatusCode); // Should have returned 200 OK
         package = await GetPackageAsync();
         // GP = 18400 — down payment is excluded from pricing, no GP impact
-        Assert.Equal(18_400m, package.GrossProfit); // Should not change GP for excluded down payment
+        Assert.Equal(baseGrossProfit + warrantyAmount - concessionAmount, package.GrossProfit); // Should not change GP for excluded down payment
     }
 }
