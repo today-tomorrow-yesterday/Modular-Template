@@ -54,6 +54,59 @@ public class SalesIntegrationTestFixture : IntegrationTestFixture<Program>
         }
     }
 
+    // ── Cross-module helpers ───────────────────────────────────────
+
+    // Creates a customer via the Customer module's CRM sync command (no HTTP endpoint exists
+    // for customer creation in the Sales module — customers arrive via integration events).
+    // Returns the customer's PublicId for use in CreateSale requests.
+    public async Task<Guid> CreateCustomerViaCrmSyncAsync(
+        int crmPartyId = 99001,
+        string firstName = "Jane",
+        string lastName = "Doe")
+    {
+        using var scope = Services.CreateScope();
+        var sender = scope.ServiceProvider.GetRequiredService<MediatR.ISender>();
+        var command = new Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncCustomerFromCrmCommand(
+            CrmPartyId: crmPartyId,
+            HomeCenterNumber: TestHomeCenterNumber,
+            LifecycleStage: Modules.Customer.Domain.Customers.Enums.LifecycleStage.Customer,
+            FirstName: firstName,
+            MiddleName: null,
+            LastName: lastName,
+            NameExtension: null,
+            DateOfBirth: new DateOnly(1990, 1, 15),
+            SalesAssignments: [],
+            ContactPoints:
+            [
+                new Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncContactPointDto(
+                    Modules.Customer.Domain.Customers.Enums.ContactPointType.Email, $"{firstName.ToLower()}@test.com", true),
+                new Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncContactPointDto(
+                    Modules.Customer.Domain.Customers.Enums.ContactPointType.Phone, "555-0100", false)
+            ],
+            Identifiers:
+            [
+                new Modules.Customer.Application.Customers.SyncCustomerFromCrm.SyncIdentifierDto(
+                    Modules.Customer.Domain.Customers.Enums.IdentifierType.CrmPartyId, crmPartyId.ToString())
+            ],
+            MailingAddress: null,
+            SalesforceUrl: null,
+            CreatedOn: DateTimeOffset.UtcNow,
+            LastModifiedOn: DateTimeOffset.UtcNow);
+
+        var result = await sender.Send(command);
+        if (result.IsFailure)
+            throw new InvalidOperationException($"CreateCustomerViaCrmSync failed: {result.Error}");
+
+        // Read back the PublicId from the Customer DB
+        var customerDb = scope.ServiceProvider
+            .GetRequiredService<Modules.Customer.Infrastructure.Persistence.CustomerDbContext>();
+        var customer = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+            .FirstAsync(customerDb.Set<Modules.Customer.Domain.Customers.Entities.Customer>(),
+                customer => customer.HomeCenterNumber == TestHomeCenterNumber);
+
+        return customer.PublicId;
+    }
+
     // ── Cache seeding helpers ──────────────────────────────────────
 
     /// <summary>
