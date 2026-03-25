@@ -1,8 +1,8 @@
 using Rtl.Core.Application.Messaging;
 
-namespace Modules.Sales.Application.RetailLocations.UpsertRetailLocation;
+namespace Modules.Sales.Application.RetailLocationCache.UpsertRetailLocationCache;
 
-public sealed record UpsertRetailLocationCommand(
+public sealed record UpsertRetailLocationCacheCommand(
     int HomeCenterNumber,
     string Name,
     string StateCode,

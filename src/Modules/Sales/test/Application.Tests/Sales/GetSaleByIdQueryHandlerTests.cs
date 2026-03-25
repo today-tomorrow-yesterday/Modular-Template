@@ -1,6 +1,6 @@
 using Modules.Sales.Application.Sales.GetSaleById;
 using Modules.Sales.Domain.CustomersCache;
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using System.Reflection;
@@ -259,7 +259,7 @@ public sealed class GetSaleByIdQueryHandlerTests
         SetProperty(sale, nameof(Sale.Customer), customer);
 
         // Set RetailLocation navigation via reflection
-        var retailLocation = RetailLocation.CreateHomeCenter(
+        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
             homeCenterNumber: 42, name: "Test HC", stateCode: "OH", zip: "43004", isActive: true);
         SetProperty(sale, nameof(Sale.RetailLocation), retailLocation);
 

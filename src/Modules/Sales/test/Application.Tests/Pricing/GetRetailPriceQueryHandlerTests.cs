@@ -1,5 +1,5 @@
 using Modules.Sales.Application.Pricing.GetRetailPrice;
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
@@ -56,7 +56,7 @@ public sealed class GetRetailPriceQueryHandlerTests
         var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
         sale.ClearDomainEvents();
 
-        var retailLocation = RetailLocation.CreateHomeCenter(
+        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
             homeCenterNumber: 42, name: "Test HC", stateCode: stateCode, zip: "43004", isActive: true);
         SetProperty(sale, nameof(Sale.RetailLocation), retailLocation);
 

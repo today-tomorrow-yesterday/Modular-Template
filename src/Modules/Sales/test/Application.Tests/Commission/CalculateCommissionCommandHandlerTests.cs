@@ -7,7 +7,7 @@ using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.ProjectCosts;
 using Modules.Sales.Domain.Packages.SalesTeam;
 using Modules.Sales.Domain.Packages.TradeIns;
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
@@ -398,7 +398,7 @@ public sealed class CalculateCommissionCommandHandlerTests
             saleNumber: 12345);
         sale.ClearDomainEvents();
 
-        var retailLocation = RetailLocation.CreateHomeCenter(
+        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
             homeCenterNumber: homeCenterNumber, name: "Test HC", stateCode: "OH", zip: homeCenterZip, isActive: true);
         SetProperty(sale, nameof(Sale.RetailLocation), retailLocation);
 

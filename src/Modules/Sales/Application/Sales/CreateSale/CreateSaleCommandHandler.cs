@@ -1,6 +1,7 @@
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.CustomersCache;
-using Modules.Sales.Domain.RetailLocations;
+using Modules.Sales.Domain.RetailLocationCache;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Application.Persistence;
@@ -10,7 +11,7 @@ namespace Modules.Sales.Application.Sales.CreateSale;
 
 internal sealed class CreateSaleCommandHandler(
     ICustomerCacheRepository customerCacheRepository,
-    IRetailLocationRepository retailLocationRepository,
+    IRetailLocationCacheRepository retailLocationCacheRepository,
     ISaleRepository saleRepository,
     ISaleNumberGenerator saleNumberGenerator,
     IUnitOfWork<ISalesModule> unitOfWork)
@@ -65,20 +66,20 @@ internal sealed class CreateSaleCommandHandler(
             : Result.Failure<CustomerCache>(SaleErrors.CustomerNotFound(customerPublicId));
     }
 
-    private async Task<Result<RetailLocation>> ResolveActiveRetailLocationAsync(
+    private async Task<Result<RetailLocationCacheEntity>> ResolveActiveRetailLocationAsync(
         int homeCenterNumber, CancellationToken cancellationToken)
     {
-        var retailLocation = await retailLocationRepository.GetByHomeCenterNumberAsync(
+        var retailLocation = await retailLocationCacheRepository.GetByHomeCenterNumberAsync(
             homeCenterNumber, cancellationToken);
 
         if (retailLocation is null)
         {
-            return Result.Failure<RetailLocation>(SaleErrors.RetailLocationNotFound(homeCenterNumber));
+            return Result.Failure<RetailLocationCacheEntity>(SaleErrors.RetailLocationNotFound(homeCenterNumber));
         }
 
         if (!retailLocation.IsActive)
         {
-            return Result.Failure<RetailLocation>(SaleErrors.RetailLocationInactive(homeCenterNumber));
+            return Result.Failure<RetailLocationCacheEntity>(SaleErrors.RetailLocationInactive(homeCenterNumber));
         }
 
         return retailLocation;

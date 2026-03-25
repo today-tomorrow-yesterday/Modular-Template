@@ -37,16 +37,15 @@ internal sealed class SalesModuleSeeder : IModuleSeeder
         // Phase 1: Independent entities (no FKs between them)
         // ────────────────────────────────────────
 
-        // RetailLocations (core domain — no cache write scope needed)
-        var retailLocations = RetailLocationFaker.Generate();
-        foreach (var rl in retailLocations) rl.ClearDomainEvents();
-        db.RetailLocations.AddRange(retailLocations);
-        await db.SaveChangesAsync(ct);
-        logger.LogInformation("Seeded {Count} retail locations.", retailLocations.Count);
-
-        // Cache entities need write scope
+        // All cache entities (including RetailLocationCache) need write scope
         using (cacheWriteScope.AllowWrites())
         {
+            // RetailLocationCache (cache entity — needs write scope)
+            var retailLocations = RetailLocationFaker.Generate();
+            db.RetailLocationCache.AddRange(retailLocations);
+            await db.SaveChangesAsync(ct);
+            logger.LogInformation("Seeded {Count} retail locations.", retailLocations.Count);
+
             // CustomerCache (UseIdentityAlwaysColumn — DB generates Id)
             var customerCacheFaker = new CustomerCacheFaker(activeHomeCenterNumbers);
             var customers = customerCacheFaker.Generate(20);

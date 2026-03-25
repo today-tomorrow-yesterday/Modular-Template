@@ -1,4 +1,4 @@
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 
 namespace Modules.Sales.Infrastructure.Seeding.Fakers;
 
@@ -13,10 +13,10 @@ internal static class RetailLocationFaker
         (500, "Tallahassee Home Center", "FL", "32304", false)
     ];
 
-    public static List<RetailLocation> Generate()
+    public static List<RetailLocationCacheEntity> Generate()
     {
         return HomeCenters
-            .Select(hc => RetailLocation.CreateHomeCenter(
+            .Select(hc => RetailLocationCacheEntity.CreateHomeCenter(
                 hc.Number, hc.Name, hc.State, hc.Zip, hc.IsActive))
             .ToList();
     }

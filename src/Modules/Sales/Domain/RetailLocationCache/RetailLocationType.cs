@@ -1,4 +1,4 @@
-namespace Modules.Sales.Domain.RetailLocations;
+namespace Modules.Sales.Domain.RetailLocationCache;
 
 public enum RetailLocationType
 {

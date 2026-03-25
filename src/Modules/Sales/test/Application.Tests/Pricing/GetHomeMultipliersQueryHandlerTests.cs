@@ -1,6 +1,6 @@
 using Modules.Sales.Application.Pricing.GetHomeMultipliers;
 using Modules.Sales.Domain.Cdc;
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using System.Reflection;
@@ -78,7 +78,7 @@ public sealed class GetHomeMultipliersQueryHandlerTests
         var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
         sale.ClearDomainEvents();
 
-        var retailLocation = RetailLocation.CreateHomeCenter(
+        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
             homeCenterNumber: 42, name: "Test HC", stateCode: stateCode, zip: "43004", isActive: true);
         SetProperty(sale, nameof(Sale.RetailLocation), retailLocation);
 

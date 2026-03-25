@@ -5,7 +5,8 @@ using Modules.Sales.Application.Packages.GetPackageById;
 using Modules.Sales.Application.Packages.UpdatePackageHome;
 using Modules.Sales.Domain.CustomersCache;
 using Modules.Sales.Domain.Packages.Home;
-using Modules.Sales.Domain.RetailLocations;
+using Modules.Sales.Domain.RetailLocationCache;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Infrastructure.Persistence;
 using Modules.Sales.Presentation.Endpoints.V1.DeliveryAddress;
 using Modules.Sales.Presentation.Endpoints.V1.Packages;
@@ -68,10 +69,13 @@ public abstract class SalesIntegrationTestBase(SalesTestFactory factory) : IAsyn
         var db = GetService<SalesDbContext>();
         var cacheScope = GetService<ICacheWriteScope>();
 
-        var retailLocation = RetailLocation.CreateHomeCenter(
+        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
             TestHomeCenterNumber, "Test HC", "TN", "37801", isActive: true);
-        db.Set<RetailLocation>().Add(retailLocation);
-        await db.SaveChangesAsync();
+        using (cacheScope.AllowWrites())
+        {
+            db.Set<RetailLocationCacheEntity>().Add(retailLocation);
+            await db.SaveChangesAsync();
+        }
 
         TestCustomerId = Guid.NewGuid();
         using (cacheScope.AllowWrites())

@@ -2,7 +2,7 @@ using Modules.Sales.Domain.DeliveryAddresses;
 using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.CustomersCache;
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales.Events;
 using Rtl.Core.Domain.Entities;
 
@@ -23,7 +23,7 @@ public sealed class Sale : SoftDeletableEntity, IAggregateRoot
     public int SaleNumber { get; private set; }
 
     public CustomerCache Customer { get; private set; } = null!;
-    public RetailLocation RetailLocation { get; private set; } = null!;
+    public RetailLocationCacheEntity RetailLocation { get; private set; } = null!;
     public DeliveryAddress? DeliveryAddress { get; private set; }
     public IReadOnlyCollection<Package> Packages => _packages.AsReadOnly();
     public ICollection<FundingRequestCache> FundingRequests { get; private set; } = [];

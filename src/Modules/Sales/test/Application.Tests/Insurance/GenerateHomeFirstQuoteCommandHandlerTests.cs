@@ -4,7 +4,7 @@ using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.Packages.Insurance;
 using Modules.Sales.Domain.CustomersCache;
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Adapters.ISeries;
@@ -174,7 +174,7 @@ public sealed class GenerateHomeFirstQuoteCommandHandlerTests
             saleNumber: 12345);
         sale.ClearDomainEvents();
 
-        var retailLocation = RetailLocation.CreateHomeCenter(
+        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
             homeCenterNumber: 42, name: "Test HC", stateCode: "OH", zip: "43004", isActive: true);
         SetProperty(sale, nameof(Sale.RetailLocation), retailLocation);
 

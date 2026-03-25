@@ -10,7 +10,7 @@ using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.CustomersCache;
-using Modules.Sales.Domain.RetailLocations;
+using Modules.Sales.Domain.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using Modules.Sales.Infrastructure.EventBus;
 using Modules.Sales.Infrastructure.Persistence;
@@ -66,7 +66,7 @@ public static class SalesModule
         services.AddScoped<ICdcTaxQueries, CdcTaxQueries>();
         services.AddScoped<ICdcPricingQueries, CdcPricingQueries>();
         services.AddScoped<ICdcProjectCostQueries, CdcProjectCostQueries>();
-        services.AddScoped<IRetailLocationRepository, RetailLocationRepository>();
+        services.AddScoped<IRetailLocationCacheRepository, RetailLocationCacheRepository>();
         services.AddScoped<IDeliveryAddressRepository, DeliveryAddressRepository>();
         services.AddScoped<ISaleNumberGenerator, SaleNumberGenerator>();
         services.AddScoped<IUnitOfWork<ISalesModule>>(sp => sp.GetRequiredService<SalesDbContext>());

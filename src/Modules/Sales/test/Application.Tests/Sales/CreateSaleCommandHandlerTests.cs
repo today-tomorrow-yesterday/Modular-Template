@@ -1,7 +1,8 @@
 using Modules.Sales.Application.Sales.CreateSale;
 using Modules.Sales.Domain;
 using Modules.Sales.Domain.CustomersCache;
-using Modules.Sales.Domain.RetailLocations;
+using Modules.Sales.Domain.RetailLocationCache;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using NSubstitute;
 using Rtl.Core.Application.Persistence;
@@ -12,7 +13,7 @@ namespace Modules.Sales.Application.Tests.Sales;
 public sealed class CreateSaleCommandHandlerTests
 {
     private readonly ICustomerCacheRepository _customerCacheRepository = Substitute.For<ICustomerCacheRepository>();
-    private readonly IRetailLocationRepository _retailLocationRepository = Substitute.For<IRetailLocationRepository>();
+    private readonly IRetailLocationCacheRepository _retailLocationCacheRepository = Substitute.For<IRetailLocationCacheRepository>();
     private readonly ISaleRepository _saleRepository = Substitute.For<ISaleRepository>();
     private readonly ISaleNumberGenerator _saleNumberGenerator = Substitute.For<ISaleNumberGenerator>();
     private readonly IUnitOfWork<ISalesModule> _unitOfWork = Substitute.For<IUnitOfWork<ISalesModule>>();
@@ -26,7 +27,7 @@ public sealed class CreateSaleCommandHandlerTests
     {
         _sut = new CreateSaleCommandHandler(
             _customerCacheRepository,
-            _retailLocationRepository,
+            _retailLocationCacheRepository,
             _saleRepository,
             _saleNumberGenerator,
             _unitOfWork);
@@ -52,8 +53,8 @@ public sealed class CreateSaleCommandHandlerTests
     public async Task Returns_failure_when_retail_location_not_found()
     {
         SetupCustomerCache();
-        _retailLocationRepository.GetByHomeCenterNumberAsync(TestHomeCenterNumber, Arg.Any<CancellationToken>())
-            .Returns((RetailLocation?)null);
+        _retailLocationCacheRepository.GetByHomeCenterNumberAsync(TestHomeCenterNumber, Arg.Any<CancellationToken>())
+            .Returns((RetailLocationCacheEntity?)null);
 
         var result = await _sut.Handle(
             new CreateSaleCommand(TestCustomerPublicId, TestHomeCenterNumber), CancellationToken.None);
@@ -168,12 +169,12 @@ public sealed class CreateSaleCommandHandlerTests
             .Returns(customer);
     }
 
-    private RetailLocation SetupRetailLocation(bool isActive)
+    private RetailLocationCacheEntity SetupRetailLocation(bool isActive)
     {
-        var retailLocation = RetailLocation.CreateHomeCenter(
+        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
             TestHomeCenterNumber, "Test HC", "OH", "43004", isActive);
 
-        _retailLocationRepository.GetByHomeCenterNumberAsync(TestHomeCenterNumber, Arg.Any<CancellationToken>())
+        _retailLocationCacheRepository.GetByHomeCenterNumberAsync(TestHomeCenterNumber, Arg.Any<CancellationToken>())
             .Returns(retailLocation);
 
         return retailLocation;

@@ -7,7 +7,8 @@ using Modules.Sales.Domain.FundingCache;
 using Modules.Sales.Domain.InventoryCache;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.CustomersCache;
-using Modules.Sales.Domain.RetailLocations;
+using Modules.Sales.Domain.RetailLocationCache;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Infrastructure.Persistence;
@@ -24,7 +25,7 @@ public sealed class SalesDbContext(DbContextOptions<SalesDbContext> options)
     internal DbSet<Package> Packages => Set<Package>();
     internal DbSet<PackageLine> PackageLines => Set<PackageLine>();
     internal DbSet<DeliveryAddress> DeliveryAddresses => Set<DeliveryAddress>();
-    internal DbSet<RetailLocation> RetailLocations => Set<RetailLocation>();
+    internal DbSet<RetailLocationCacheEntity> RetailLocationCache => Set<RetailLocationCacheEntity>();
 
     // CDC reference data (Pattern A — authoritative)
     internal DbSet<CdcTaxExemption> CdcTaxExemptions => Set<CdcTaxExemption>();

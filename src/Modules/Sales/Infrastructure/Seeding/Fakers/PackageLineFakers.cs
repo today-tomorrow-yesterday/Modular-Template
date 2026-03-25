@@ -11,7 +11,7 @@ using Modules.Sales.Domain.Packages.SalesTeam;
 using Modules.Sales.Domain.Packages.Tax;
 using Modules.Sales.Domain.Packages.TradeIns;
 using Modules.Sales.Domain.Packages.Warranty;
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 
 namespace Modules.Sales.Infrastructure.Seeding.Fakers;
 
@@ -36,7 +36,7 @@ internal static class PackageLineFakers
         LandParcelCache? landParcel = null,
         AuthorizedUserCache? authorizedUser = null,
         DeliveryAddress? deliveryAddress = null,
-        RetailLocation? retailLocation = null)
+        RetailLocationCacheEntity? retailLocation = null)
     {
         var lines = new List<PackageLine>();
 

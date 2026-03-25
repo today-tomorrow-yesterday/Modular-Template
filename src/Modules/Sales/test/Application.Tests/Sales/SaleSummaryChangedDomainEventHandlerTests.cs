@@ -2,7 +2,7 @@ using Modules.Sales.Application.Sales.EventHandlers;
 using Modules.Sales.Domain.Packages;
 using Modules.Sales.Domain.Packages.Home;
 using Modules.Sales.Domain.CustomersCache;
-using Modules.Sales.Domain.RetailLocations;
+using RetailLocationCacheEntity = Modules.Sales.Domain.RetailLocationCache.RetailLocationCache;
 using Modules.Sales.Domain.Sales;
 using Modules.Sales.Domain.Sales.Events;
 using Modules.Sales.IntegrationEvents;
@@ -157,7 +157,7 @@ public sealed class SaleSummaryChangedDomainEventHandlerTests
         SetProperty(sale, nameof(Sale.Customer), customer);
 
         // Set RetailLocation navigation via reflection
-        var retailLocation = RetailLocation.CreateHomeCenter(
+        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
             homeCenterNumber: 42, name: "Test HC", stateCode: "OH", zip: "43004", isActive: true);
         SetProperty(sale, nameof(Sale.RetailLocation), retailLocation);
 
