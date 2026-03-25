@@ -22,7 +22,7 @@ public class CustomerCreatedEventFlowTests(SalesIntegrationTestFixture fixture)
     [Fact]
     public async Task CustomerCreated_EventFlow_SaleCanBeCreatedWithCachedCustomer()
     {
-        // Arrange — create a customer via CRM sync and flush the outbox
+        // Arrange — create a customer via CRM sync and flush the outbox                                  //**********ADD BREAK POINT TO TEST LINE 26
         var customerPublicId = await Fixture.CreateCustomerViaCrmSyncAsync(
             crmPartyId: 99001, firstName: "Jane", lastName: "Doe");
 
