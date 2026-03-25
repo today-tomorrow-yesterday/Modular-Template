@@ -299,11 +299,12 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "retail_locations",
-                schema: "sales",
+                name: "retail_location_cache",
+                schema: "cache",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     location_type = table.Column<string>(type: "text", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     state_code = table.Column<string>(type: "text", nullable: false),
@@ -311,14 +312,11 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     is_active = table.Column<bool>(type: "boolean", nullable: false),
                     ref_home_center_number = table.Column<int>(type: "integer", nullable: true),
                     organization_metadata = table.Column<JsonDocument>(type: "jsonb", nullable: true),
-                    created_by_user_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    modified_by_user_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    modified_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    last_synced_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_retail_locations", x => x.id);
+                    table.PrimaryKey("pk_retail_location_cache", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -452,10 +450,10 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "fk_sales_retail_locations_retail_location_id",
+                        name: "fk_sales_retail_location_cache_retail_location_id",
                         column: x => x.retail_location_id,
-                        principalSchema: "sales",
-                        principalTable: "retail_locations",
+                        principalSchema: "cache",
+                        principalTable: "retail_location_cache",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -940,9 +938,9 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_retail_locations_ref_home_center_number",
-                schema: "sales",
-                table: "retail_locations",
+                name: "ix_retail_location_cache_ref_home_center_number",
+                schema: "cache",
+                table: "retail_location_cache",
                 column: "ref_home_center_number",
                 unique: true,
                 filter: "ref_home_center_number IS NOT NULL");
@@ -1114,8 +1112,8 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                 schema: "cache");
 
             migrationBuilder.DropTable(
-                name: "retail_locations",
-                schema: "sales");
+                name: "retail_location_cache",
+                schema: "cache");
 
             migrationBuilder.DropSequence(
                 name: "sales_hilo_seq",

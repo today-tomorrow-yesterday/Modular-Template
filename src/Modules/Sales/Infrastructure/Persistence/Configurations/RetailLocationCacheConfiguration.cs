@@ -13,7 +13,8 @@ internal sealed class RetailLocationCacheConfiguration : IEntityTypeConfiguratio
         builder.HasKey(r => r.Id);
 
         builder.Property(r => r.Id)
-            .HasColumnName("id");
+            .HasColumnName("id")
+            .UseIdentityAlwaysColumn();
 
         builder.Property(r => r.LocationType)
             .HasColumnName("location_type")

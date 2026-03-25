@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Bogus;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Modules.Sales.Application.Packages.GetPackageById;
 using Modules.Sales.Application.Packages.UpdatePackageHome;
@@ -69,20 +70,15 @@ public abstract class SalesIntegrationTestBase(SalesTestFactory factory) : IAsyn
         var db = GetService<SalesDbContext>();
         var cacheScope = GetService<ICacheWriteScope>();
 
-        var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
-            TestHomeCenterNumber, "Test HC", "TN", "37801", isActive: true);
         using (cacheScope.AllowWrites())
         {
+            var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
+                TestHomeCenterNumber, "Test HC", "TN", "37801", isActive: true);
             db.Set<RetailLocationCacheEntity>().Add(retailLocation);
-            await db.SaveChangesAsync();
-        }
 
-        TestCustomerId = Guid.NewGuid();
-        using (cacheScope.AllowWrites())
-        {
             db.Set<CustomerCache>().Add(new CustomerCache
             {
-                RefPublicId = TestCustomerId,
+                RefPublicId = Guid.NewGuid(),
                 HomeCenterNumber = TestHomeCenterNumber,
                 LifecycleStage = LifecycleStage.Customer,
                 DisplayName = "Test Customer",
@@ -90,8 +86,14 @@ public abstract class SalesIntegrationTestBase(SalesTestFactory factory) : IAsyn
                 LastName = "Customer",
                 LastSyncedAtUtc = DateTime.UtcNow
             });
+
             await db.SaveChangesAsync();
         }
+
+        // Read back the customer ID that was assigned
+        var customer = await db.Set<CustomerCache>()
+            .FirstAsync(c => c.HomeCenterNumber == TestHomeCenterNumber);
+        TestCustomerId = customer.RefPublicId;
     }
 
     // ── Setup helpers ────────────────────────────────────────────────

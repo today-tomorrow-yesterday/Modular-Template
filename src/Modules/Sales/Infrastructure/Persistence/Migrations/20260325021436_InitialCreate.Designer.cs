@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Modules.Sales.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SalesDbContext))]
-    [Migration("20260320162131_InitialCreate")]
+    [Migration("20260325021436_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -1384,39 +1384,27 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("Modules.Sales.Domain.RetailLocations.RetailLocation", b =>
+            modelBuilder.Entity("Modules.Sales.Domain.RetailLocationCache.RetailLocationCache", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "sales_hilo_seq", "sales");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at_utc");
-
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by_user_id");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
 
+                    b.Property<DateTime>("LastSyncedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_synced_at_utc");
+
                     b.Property<string>("LocationType")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("location_type");
-
-                    b.Property<DateTime?>("ModifiedAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("modified_at_utc");
-
-                    b.Property<Guid?>("ModifiedByUserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("modified_by_user_id");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1442,14 +1430,14 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                         .HasColumnName("zip");
 
                     b.HasKey("Id")
-                        .HasName("pk_retail_locations");
+                        .HasName("pk_retail_location_cache");
 
                     b.HasIndex("RefHomeCenterNumber")
                         .IsUnique()
-                        .HasDatabaseName("ix_retail_locations_ref_home_center_number")
+                        .HasDatabaseName("ix_retail_location_cache_ref_home_center_number")
                         .HasFilter("ref_home_center_number IS NOT NULL");
 
-                    b.ToTable("retail_locations", "sales");
+                    b.ToTable("retail_location_cache", "cache");
                 });
 
             modelBuilder.Entity("Modules.Sales.Domain.Sales.Sale", b =>
@@ -2005,12 +1993,12 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_sales_customers_cache_customer_id");
 
-                    b.HasOne("Modules.Sales.Domain.RetailLocations.RetailLocation", "RetailLocation")
+                    b.HasOne("Modules.Sales.Domain.RetailLocationCache.RetailLocationCache", "RetailLocation")
                         .WithMany("Sales")
                         .HasForeignKey("RetailLocationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_sales_retail_locations_retail_location_id");
+                        .HasConstraintName("fk_sales_retail_location_cache_retail_location_id");
 
                     b.Navigation("Customer");
 
@@ -2054,7 +2042,7 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     b.Navigation("Lines");
                 });
 
-            modelBuilder.Entity("Modules.Sales.Domain.RetailLocations.RetailLocation", b =>
+            modelBuilder.Entity("Modules.Sales.Domain.RetailLocationCache.RetailLocationCache", b =>
                 {
                     b.Navigation("Sales");
                 });
