@@ -139,7 +139,7 @@ public class UpdatePackageLandTests(SalesIntegrationTestFixture fixture) : Sales
         var packageBeforeUpdate = await GetPackageAsync();
 
         // Seed a LandParcelCache entry for HomeCenterOwnedLand lookup
-        await SeedLandParcelCacheAsync("LOT-001", 70_000m);
+        await Fixture.SeedLandParcelCacheAsync("LOT-001", 70_000m);
 
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, new UpdatePackageLandRequest(

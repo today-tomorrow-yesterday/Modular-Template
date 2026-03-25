@@ -12,14 +12,24 @@ public static class SalesHttpHelpers
     public static async Task<T?> GetAsync<T>(this HttpClient client, string url)
     {
         var response = await client.GetAsync(url);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(
+                $"GET {url} failed: {response.StatusCode} — {errorBody}");
+        }
         return await response.Content.ReadFromJsonAsync<T>();
     }
 
     public static async Task<T?> PostAsync<T>(this HttpClient client, string url, object body)
     {
         var response = await client.PostAsJsonAsync(url, body);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(
+                $"POST {url} failed: {response.StatusCode} — {errorBody}");
+        }
         return await response.Content.ReadFromJsonAsync<T>();
     }
 
@@ -39,7 +49,12 @@ public static class SalesHttpHelpers
     public static async Task<T?> PutAsync<T>(this HttpClient client, string url, object body)
     {
         var response = await client.PutAsJsonAsync(url, body);
-        response.EnsureSuccessStatusCode();
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorBody = await response.Content.ReadAsStringAsync();
+            throw new InvalidOperationException(
+                $"PUT {url} failed: {response.StatusCode} — {errorBody}");
+        }
         return await response.Content.ReadFromJsonAsync<T>();
     }
 

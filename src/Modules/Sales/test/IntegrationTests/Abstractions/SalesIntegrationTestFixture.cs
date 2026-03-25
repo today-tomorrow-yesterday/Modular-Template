@@ -17,6 +17,27 @@ public class SalesIntegrationTestFixture : IntegrationTestFixture<Program>
 
     public Guid TestCustomerId { get; private set; }
 
+    // Seeds a LandParcelCache entry for tests that need HomeCenterOwnedLand lookup.
+    public async Task SeedLandParcelCacheAsync(string stockNumber, decimal landCost)
+    {
+        using var scope = Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SalesDbContext>();
+        var cacheWriteScope = scope.ServiceProvider.GetRequiredService<ICacheWriteScope>();
+
+        using (cacheWriteScope.AllowWrites())
+        {
+            db.Set<Modules.Sales.Domain.InventoryCache.LandParcelCache>().Add(new Modules.Sales.Domain.InventoryCache.LandParcelCache
+            {
+                RefLandParcelId = Random.Shared.Next(9000, 99999),
+                RefHomeCenterNumber = TestHomeCenterNumber,
+                RefStockNumber = stockNumber,
+                LandCost = landCost,
+                LastSyncedAtUtc = DateTime.UtcNow
+            });
+            await db.SaveChangesAsync();
+        }
+    }
+
     protected override void ConfigureTestServices(IServiceCollection services)
     {
         services.AddSingleton<IiSeriesAdapter, FakeiSeriesAdapter>();

@@ -1,6 +1,5 @@
 using System.Net.Http.Json;
 using Bogus;
-using Microsoft.Extensions.DependencyInjection;
 using Modules.Sales.Application.Packages.GetPackageById;
 using Modules.Sales.Application.Packages.UpdatePackageHome;
 using Modules.Sales.Domain.Packages.Home;
@@ -157,25 +156,4 @@ public abstract class SalesIntegrationTestBase(SalesIntegrationTestFixture fixtu
     // GET the current package detail using the stored PackageId.
     protected async Task<PackageDetailResponse> GetPackageAsync()
         => await Client.GetPackageAsync(PackageId);
-
-    // Seeds a LandParcelCache entry for tests that need HomeCenterOwnedLand lookup.
-    protected async Task SeedLandParcelCacheAsync(string stockNumber, decimal landCost)
-    {
-        using var scope = Fixture.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<Modules.Sales.Infrastructure.Persistence.SalesDbContext>();
-        var cacheWriteScope = scope.ServiceProvider.GetRequiredService<Rtl.Core.Application.Caching.ICacheWriteScope>();
-
-        using (cacheWriteScope.AllowWrites())
-        {
-            db.Set<Modules.Sales.Domain.InventoryCache.LandParcelCache>().Add(new Modules.Sales.Domain.InventoryCache.LandParcelCache
-            {
-                RefLandParcelId = 9001,
-                RefHomeCenterNumber = TestHomeCenterNumber,
-                RefStockNumber = stockNumber,
-                LandCost = landCost,
-                LastSyncedAtUtc = DateTime.UtcNow
-            });
-            await db.SaveChangesAsync();
-        }
-    }
 }
