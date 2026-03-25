@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Npgsql;
 using Respawn;
+using Respawn.Graph;
 
 namespace Rtl.Core.IntegrationTests.DatabaseProviders;
 
 public sealed class PostgreSqlTestDatabaseProvider : ITestDatabaseProvider
 {
-    private const string ConnectionString = "Host=localhost;Database=rtlcore_test;Username=postgres;Password=postgres";
+    private const string ConnectionString = "Host=localhost;Database=sales_dev;Username=postgres;Password=postgres";
     private const string CacheConnectionString = "localhost:6379";
 
     private Respawner? _respawner;
@@ -39,8 +40,8 @@ public sealed class PostgreSqlTestDatabaseProvider : ITestDatabaseProvider
         _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.Postgres,
-            SchemasToInclude = ["sample", "orders", "sales"],
-            TablesToIgnore = ["__EFMigrationsHistory"]
+            SchemasToInclude = ["sample", "orders", "sales", "packages", "cache"],
+            TablesToIgnore = [new Table("migrations", "__EFMigrationsHistory")]
         });
     }
 
