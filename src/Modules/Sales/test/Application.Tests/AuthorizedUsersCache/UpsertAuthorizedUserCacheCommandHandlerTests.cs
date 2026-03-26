@@ -26,7 +26,7 @@ public sealed class UpsertAuthorizedUserCacheCommandHandlerTests
     {
         var cache = new AuthorizedUserCache
         {
-            RefUserId = 1,
+            RefUserId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeee01"),
             FederatedId = "fed-001",
             EmployeeNumber = 12345,
             FirstName = "Alice",
@@ -48,7 +48,7 @@ public sealed class UpsertAuthorizedUserCacheCommandHandlerTests
     {
         var cache = new AuthorizedUserCache
         {
-            RefUserId = 1,
+            RefUserId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeee01"),
             FederatedId = "fed-001",
             DisplayName = "Test"
         };

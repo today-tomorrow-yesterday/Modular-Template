@@ -37,7 +37,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
     [Fact]
     public async Task Returns_conflict_when_delivery_address_already_exists()
     {
-        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         var existingAddress = Domain.DeliveryAddresses.DeliveryAddress.Create(
@@ -59,7 +59,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
     [Fact]
     public async Task Successful_creation_returns_public_id()
     {
-        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         _saleRepository.GetByPublicIdWithDeliveryAddressAsync(sale.PublicId, Arg.Any<CancellationToken>())
@@ -76,7 +76,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
     [Fact]
     public async Task Calls_delivery_address_repository_add()
     {
-        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         _saleRepository.GetByPublicIdWithDeliveryAddressAsync(sale.PublicId, Arg.Any<CancellationToken>())
@@ -92,7 +92,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
     [Fact]
     public async Task Calls_save_changes()
     {
-        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         _saleRepository.GetByPublicIdWithDeliveryAddressAsync(sale.PublicId, Arg.Any<CancellationToken>())
@@ -108,7 +108,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
     [Fact]
     public async Task Created_address_has_correct_sale_id_and_fields()
     {
-        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 12345);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         _saleRepository.GetByPublicIdWithDeliveryAddressAsync(sale.PublicId, Arg.Any<CancellationToken>())

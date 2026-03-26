@@ -4,8 +4,6 @@ namespace Modules.Sales.Infrastructure.Seeding.Fakers;
 
 internal static class SaleFaker
 {
-    private static int _saleNumber = 1000;
-
     public static List<Sale> Generate(int count, int[] customerIds, int[] retailLocationIds, Bogus.Faker faker)
     {
         var sales = new List<Sale>(count);
@@ -15,8 +13,7 @@ internal static class SaleFaker
             var sale = Sale.Create(
                 customerId: faker.PickRandom(customerIds),
                 retailLocationId: faker.PickRandom(retailLocationIds),
-                saleType: faker.PickRandom(SaleType.B2C, SaleType.B2C, SaleType.B2C, SaleType.B2B), // 75% B2C
-                saleNumber: ++_saleNumber);
+                saleType: faker.PickRandom(SaleType.B2C, SaleType.B2C, SaleType.B2C, SaleType.B2B)); // 75% B2C
 
             // Advance some sales beyond Inquiry — roughly equal thirds
             switch (i % 3)

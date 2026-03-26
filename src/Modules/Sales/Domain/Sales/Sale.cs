@@ -31,8 +31,7 @@ public sealed class Sale : SoftDeletableEntity, IAggregateRoot
     public static Sale Create(
         int customerId,
         int retailLocationId,
-        SaleType saleType,
-        int saleNumber)
+        SaleType saleType)
     {
         var sale = new Sale
         {
@@ -40,8 +39,7 @@ public sealed class Sale : SoftDeletableEntity, IAggregateRoot
             CustomerId = customerId,
             RetailLocationId = retailLocationId,
             SaleType = saleType,
-            SaleStatus = SaleStatus.Inquiry,
-            SaleNumber = saleNumber
+            SaleStatus = SaleStatus.Inquiry
         };
 
         sale.Raise(new SaleSummaryChangedDomainEvent { SaleId = sale.Id });

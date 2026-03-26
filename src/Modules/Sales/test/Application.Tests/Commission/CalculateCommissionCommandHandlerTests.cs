@@ -394,8 +394,7 @@ public sealed class CalculateCommissionCommandHandlerTests
         var sale = Sale.Create(
             customerId: 1,
             retailLocationId: 1,
-            saleType: SaleType.B2C,
-            saleNumber: 12345);
+            saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(
@@ -523,7 +522,7 @@ public sealed class CalculateCommissionCommandHandlerTests
     private static AuthorizedUserCache CreateAuthorizedUser(int id, int employeeNumber) => new()
     {
         Id = id,
-        RefUserId = id,
+        RefUserId = Guid.NewGuid(),
         FederatedId = $"fed-{id}",
         EmployeeNumber = employeeNumber,
         FirstName = "Test",

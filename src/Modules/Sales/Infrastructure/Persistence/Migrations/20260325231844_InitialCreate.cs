@@ -63,7 +63,7 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false),
-                    ref_user_id = table.Column<int>(type: "integer", nullable: false),
+                    ref_user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     federated_id = table.Column<string>(type: "text", nullable: false),
                     employee_number = table.Column<int>(type: "integer", nullable: false),
                     first_name = table.Column<string>(type: "text", nullable: false),
@@ -430,7 +430,8 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                     retail_location_id = table.Column<int>(type: "integer", nullable: false),
                     sale_type = table.Column<string>(type: "text", nullable: false),
                     sale_status = table.Column<string>(type: "text", nullable: false),
-                    sale_number = table.Column<int>(type: "integer", nullable: false),
+                    sale_number = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     created_by_user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     modified_by_user_id = table.Column<Guid>(type: "uuid", nullable: true),

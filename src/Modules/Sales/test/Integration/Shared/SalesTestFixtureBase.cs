@@ -63,7 +63,7 @@ public abstract class SalesTestFixtureBase : IntegrationTestFixture<Program>
                 new AuthorizedUserCache
                 {
                     Id = TestAuthorizedUserId1,
-                    RefUserId = TestAuthorizedUserId1,
+                    RefUserId = Guid.NewGuid(),
                     FederatedId = "fed-001",
                     EmployeeNumber = 1001,
                     FirstName = "Alice",
@@ -78,7 +78,7 @@ public abstract class SalesTestFixtureBase : IntegrationTestFixture<Program>
                 new AuthorizedUserCache
                 {
                     Id = TestAuthorizedUserId2,
-                    RefUserId = TestAuthorizedUserId2,
+                    RefUserId = Guid.NewGuid(),
                     FederatedId = "fed-002",
                     EmployeeNumber = 1002,
                     FirstName = "Bob",

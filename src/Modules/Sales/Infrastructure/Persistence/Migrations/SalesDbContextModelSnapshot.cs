@@ -78,8 +78,8 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("last_synced_at_utc");
 
-                    b.Property<int>("RefUserId")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("RefUserId")
+                        .HasColumnType("uuid")
                         .HasColumnName("ref_user_id");
 
                     b.HasKey("Id")
@@ -1491,8 +1491,11 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                         .HasColumnName("retail_location_id");
 
                     b.Property<int>("SaleNumber")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("sale_number");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("SaleNumber"));
 
                     b.Property<string>("SaleStatus")
                         .IsRequired()

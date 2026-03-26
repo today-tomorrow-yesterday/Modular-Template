@@ -40,7 +40,7 @@ internal sealed class SaleConfiguration : IEntityTypeConfiguration<Sale>
 
         builder.Property(s => s.SaleNumber)
             .HasColumnName("sale_number")
-            .IsRequired();
+            .UseIdentityAlwaysColumn();
 
         builder.Property(s => s.IsDeleted)
             .HasColumnName("is_deleted")

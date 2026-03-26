@@ -143,8 +143,7 @@ public sealed class SaleSummaryChangedDomainEventHandlerTests
         var sale = Sale.Create(
             customerId: 1,
             retailLocationId: 1,
-            saleType: SaleType.B2C,
-            saleNumber: 12345);
+            saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         // Set Customer navigation via reflection

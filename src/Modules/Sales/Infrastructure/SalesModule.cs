@@ -68,7 +68,7 @@ public static class SalesModule
         services.AddScoped<ICdcProjectCostQueries, CdcProjectCostQueries>();
         services.AddScoped<IRetailLocationCacheRepository, RetailLocationCacheRepository>();
         services.AddScoped<IDeliveryAddressRepository, DeliveryAddressRepository>();
-        services.AddScoped<ISaleNumberGenerator, SaleNumberGenerator>();
+
         services.AddScoped<IUnitOfWork<ISalesModule>>(sp => sp.GetRequiredService<SalesDbContext>());
 
         return services;

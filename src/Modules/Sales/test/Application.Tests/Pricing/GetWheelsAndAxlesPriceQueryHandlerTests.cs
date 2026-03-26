@@ -33,7 +33,7 @@ public sealed class GetWheelsAndAxlesPriceQueryHandlerTests
     [Fact]
     public async Task Returns_success_with_price()
     {
-        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         _saleRepository.GetByPublicIdAsync(sale.PublicId, Arg.Any<CancellationToken>())

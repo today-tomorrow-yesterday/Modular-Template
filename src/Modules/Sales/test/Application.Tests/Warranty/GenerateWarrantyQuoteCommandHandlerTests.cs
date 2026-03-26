@@ -241,8 +241,7 @@ public sealed class GenerateWarrantyQuoteCommandHandlerTests
         var sale = Sale.Create(
             customerId: 1,
             retailLocationId: 1,
-            saleType: SaleType.B2C,
-            saleNumber: 12345);
+            saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         // Set RetailLocation via reflection (normally populated by EF Core Include)

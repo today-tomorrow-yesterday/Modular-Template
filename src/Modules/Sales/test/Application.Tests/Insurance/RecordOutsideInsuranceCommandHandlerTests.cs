@@ -75,8 +75,7 @@ public sealed class RecordOutsideInsuranceCommandHandlerTests
         var sale = Sale.Create(
             customerId: 1,
             retailLocationId: 1,
-            saleType: SaleType.B2C,
-            saleNumber: 12345);
+            saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         var retailLocation = RetailLocationCacheEntity.CreateHomeCenter(

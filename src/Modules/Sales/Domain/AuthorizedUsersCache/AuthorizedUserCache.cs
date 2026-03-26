@@ -12,7 +12,7 @@ public sealed class AuthorizedUserCache : ICacheProjection
 {
     public int Id { get; set; }
 
-    public int RefUserId { get; set; } // CDC upsert key
+    public Guid RefUserId { get; set; } // Organization User PublicId — upsert key
 
     [SensitiveData] public string FederatedId { get; set; } = string.Empty;
 

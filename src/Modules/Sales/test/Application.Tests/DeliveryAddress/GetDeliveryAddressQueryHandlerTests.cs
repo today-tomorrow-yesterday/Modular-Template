@@ -31,7 +31,7 @@ public sealed class GetDeliveryAddressQueryHandlerTests
     [Fact]
     public async Task Returns_failure_when_delivery_address_is_null()
     {
-        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C);
         sale.ClearDomainEvents();
         // DeliveryAddress is null by default
 
@@ -48,7 +48,7 @@ public sealed class GetDeliveryAddressQueryHandlerTests
     [Fact]
     public async Task Returns_success_when_delivery_address_exists()
     {
-        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C, saleNumber: 100);
+        var sale = Sale.Create(customerId: 1, retailLocationId: 1, saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         var address = Domain.DeliveryAddresses.DeliveryAddress.Create(

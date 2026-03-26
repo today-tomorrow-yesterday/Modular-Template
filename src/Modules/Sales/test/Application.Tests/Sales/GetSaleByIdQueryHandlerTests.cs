@@ -44,7 +44,8 @@ public sealed class GetSaleByIdQueryHandlerTests
 
         Assert.True(result.IsSuccess);
         Assert.Equal(sale.PublicId, result.Value.Id);
-        Assert.Equal(12345, result.Value.SaleNumber);
+        // SaleNumber is DB-generated (identity column), so it's 0 in unit tests
+        Assert.Equal(0, result.Value.SaleNumber);
     }
 
     [Fact]
@@ -229,8 +230,7 @@ public sealed class GetSaleByIdQueryHandlerTests
         var sale = Sale.Create(
             customerId: 1,
             retailLocationId: 1,
-            saleType: SaleType.B2C,
-            saleNumber: 12345);
+            saleType: SaleType.B2C);
         sale.ClearDomainEvents();
 
         // Build flat customer cache

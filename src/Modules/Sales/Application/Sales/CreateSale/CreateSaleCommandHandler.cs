@@ -13,7 +13,6 @@ internal sealed class CreateSaleCommandHandler(
     ICustomerCacheRepository customerCacheRepository,
     IRetailLocationCacheRepository retailLocationCacheRepository,
     ISaleRepository saleRepository,
-    ISaleNumberGenerator saleNumberGenerator,
     IUnitOfWork<ISalesModule> unitOfWork)
     : ICommandHandler<CreateSaleCommand, CreateSaleResult>
 {
@@ -42,11 +41,8 @@ internal sealed class CreateSaleCommandHandler(
             return Result.Failure<CreateSaleResult>(locationResult.Error);
         }
 
-        // Step 3: Generate next sale number
-        var saleNumber = await saleNumberGenerator.GenerateNextAsync(cancellationToken);
-
-        // Step 4: Create sale aggregate (raises SaleSummaryChangedDomainEvent)
-        var sale = Sale.Create(customerResult.Value.Id, locationResult.Value.Id, request.SaleType, saleNumber);
+        // Step 3: Create sale aggregate (SaleNumber is DB-generated identity)
+        var sale = Sale.Create(customerResult.Value.Id, locationResult.Value.Id, request.SaleType);
 
         // Step 5: Persist
         saleRepository.Add(sale);

@@ -33,7 +33,7 @@ internal sealed class UserAccessGrantedIntegrationEventHandler(
 
     private static AuthorizedUserCache MapToCache(UserAccessGrantedIntegrationEvent e) => new()
     {
-        RefUserId = e.UserId,
+        RefUserId = e.PublicId,
         FederatedId = e.FederatedId,
         EmployeeNumber = e.EmployeeNumber,
         FirstName = e.FirstName,

@@ -6,19 +6,19 @@ namespace Modules.Sales.Infrastructure.Seeding.Fakers;
 internal sealed class AuthorizedUserCacheFaker : Faker<AuthorizedUserCache>
 {
     private int _id;
-    private int _refUserId;
+    private int _refUserIndex;
     private int _employeeNumber;
     private int _hcIndex;
 
     public AuthorizedUserCacheFaker(int[] homeCenterNumbers)
     {
         _id = 0;
-        _refUserId = 0;
+        _refUserIndex = 0;
         _employeeNumber = 1000;
         _hcIndex = 0;
 
         RuleFor(u => u.Id, _ => ++_id);
-        RuleFor(u => u.RefUserId, _ => ++_refUserId);
+        RuleFor(u => u.RefUserId, f => SeedConstants.DeterministicGuid("authorized-user", ++_refUserIndex));
         RuleFor(u => u.FederatedId, f => f.Random.Uuid().ToString());
         RuleFor(u => u.EmployeeNumber, _ => ++_employeeNumber);
         RuleFor(u => u.FirstName, f => f.Name.FirstName());

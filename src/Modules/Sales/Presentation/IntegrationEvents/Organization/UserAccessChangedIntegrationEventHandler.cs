@@ -35,7 +35,7 @@ internal sealed class UserAccessChangedIntegrationEventHandler(
 
     private static AuthorizedUserCache MapToCache(UserAccessChangedIntegrationEvent e) => new()
     {
-        RefUserId = e.UserId,
+        RefUserId = e.PublicId,
         FederatedId = e.FederatedId,
         EmployeeNumber = e.EmployeeNumber,
         FirstName = e.FirstName,

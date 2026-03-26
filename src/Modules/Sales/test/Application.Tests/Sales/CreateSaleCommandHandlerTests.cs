@@ -15,7 +15,6 @@ public sealed class CreateSaleCommandHandlerTests
     private readonly ICustomerCacheRepository _customerCacheRepository = Substitute.For<ICustomerCacheRepository>();
     private readonly IRetailLocationCacheRepository _retailLocationCacheRepository = Substitute.For<IRetailLocationCacheRepository>();
     private readonly ISaleRepository _saleRepository = Substitute.For<ISaleRepository>();
-    private readonly ISaleNumberGenerator _saleNumberGenerator = Substitute.For<ISaleNumberGenerator>();
     private readonly IUnitOfWork<ISalesModule> _unitOfWork = Substitute.For<IUnitOfWork<ISalesModule>>();
     private readonly CreateSaleCommandHandler _sut;
 
@@ -29,11 +28,7 @@ public sealed class CreateSaleCommandHandlerTests
             _customerCacheRepository,
             _retailLocationCacheRepository,
             _saleRepository,
-            _saleNumberGenerator,
             _unitOfWork);
-
-        _saleNumberGenerator.GenerateNextAsync(Arg.Any<CancellationToken>())
-            .Returns(TestSaleNumber);
     }
 
     [Fact]
@@ -87,7 +82,8 @@ public sealed class CreateSaleCommandHandlerTests
 
         Assert.True(result.IsSuccess);
         Assert.NotEqual(Guid.Empty, result.Value.PublicId);
-        Assert.Equal(TestSaleNumber, result.Value.SaleNumber);
+        // SaleNumber is DB-generated (identity column), so it's 0 in unit tests
+        Assert.Equal(0, result.Value.SaleNumber);
     }
 
     [Fact]
@@ -126,8 +122,7 @@ public sealed class CreateSaleCommandHandlerTests
         _saleRepository.Received(1).Add(Arg.Is<Sale>(s =>
             s.CustomerId == 7 &&
             s.RetailLocationId == retailLocation.Id &&
-            s.SaleType == SaleType.B2C &&
-            s.SaleNumber == TestSaleNumber));
+            s.SaleType == SaleType.B2C));
     }
 
     [Fact]
