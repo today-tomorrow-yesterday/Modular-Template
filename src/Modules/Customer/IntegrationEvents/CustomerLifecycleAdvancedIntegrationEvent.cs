@@ -7,5 +7,5 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record CustomerLifecycleAdvancedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid CustomerId,
+    Guid PublicCustomerId,
     string NewLifecycleStage) : IntegrationEvent(Id, OccurredOnUtc);

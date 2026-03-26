@@ -18,8 +18,8 @@ internal sealed class CustomerCreatedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerCreated: CustomerId={CustomerId}",
-            integrationEvent.CustomerId);
+            "Processing CustomerCreated: PublicCustomerId={PublicCustomerId}",
+            integrationEvent.PublicCustomerId);
 
         var displayName = $"{integrationEvent.FirstName} {integrationEvent.LastName}".Trim();
 
@@ -38,7 +38,7 @@ internal sealed class CustomerCreatedIntegrationEventHandler(
 
         var customerCache = new CustomerCache
         {
-            RefPublicId = integrationEvent.CustomerId,
+            RefPublicId = integrationEvent.PublicCustomerId,
             LifecycleStage = Enum.Parse<LifecycleStage>(integrationEvent.LifecycleStage),
             HomeCenterNumber = integrationEvent.HomeCenterNumber,
             DisplayName = displayName,

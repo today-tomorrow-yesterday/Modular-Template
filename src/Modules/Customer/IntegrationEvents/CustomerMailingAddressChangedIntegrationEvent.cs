@@ -7,5 +7,5 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record CustomerMailingAddressChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid CustomerId,
+    Guid PublicCustomerId,
     MailingAddressDto? MailingAddress) : IntegrationEvent(Id, OccurredOnUtc);

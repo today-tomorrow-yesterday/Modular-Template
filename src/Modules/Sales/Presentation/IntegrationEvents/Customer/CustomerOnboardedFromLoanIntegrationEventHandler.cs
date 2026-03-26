@@ -18,8 +18,8 @@ internal sealed class CustomerOnboardedFromLoanIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerOnboardedFromLoan: CustomerId={CustomerId}",
-            integrationEvent.CustomerId);
+            "Processing CustomerOnboardedFromLoan: PublicCustomerId={PublicCustomerId}",
+            integrationEvent.PublicCustomerId);
 
         var displayName = $"{integrationEvent.FirstName} {integrationEvent.LastName}".Trim();
 
@@ -30,7 +30,7 @@ internal sealed class CustomerOnboardedFromLoanIntegrationEventHandler(
 
         var customerCache = new CustomerCache
         {
-            RefPublicId = integrationEvent.CustomerId,
+            RefPublicId = integrationEvent.PublicCustomerId,
             LifecycleStage = LifecycleStage.Customer,
             HomeCenterNumber = integrationEvent.HomeCenterNumber,
             DisplayName = displayName,

@@ -7,7 +7,7 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record CustomerNameChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid CustomerId,
+    Guid PublicCustomerId,
     string? FirstName,
     string? MiddleName,
     string? LastName,

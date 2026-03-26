@@ -89,7 +89,7 @@ public class CustomerUpdatedProducerTests(EventProducerTestFixture fixture) : Ev
         var evt = Spy.GetSingle<CustomerNameChangedIntegrationEvent>();
         Assert.Equal("Robert", evt.FirstName);
         Assert.Equal("Updated", evt.LastName);
-        Assert.NotEqual(Guid.Empty, evt.CustomerId);
+        Assert.NotEqual(Guid.Empty, evt.PublicCustomerId);
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class CustomerUpdatedProducerTests(EventProducerTestFixture fixture) : Ev
         Assert.True(Spy.HasEvent<CustomerHomeCenterChangedIntegrationEvent>());
         var evt = Spy.GetSingle<CustomerHomeCenterChangedIntegrationEvent>();
         Assert.Equal(200, evt.NewHomeCenterNumber);
-        Assert.NotEqual(Guid.Empty, evt.CustomerId);
+        Assert.NotEqual(Guid.Empty, evt.PublicCustomerId);
     }
 
     [Fact]

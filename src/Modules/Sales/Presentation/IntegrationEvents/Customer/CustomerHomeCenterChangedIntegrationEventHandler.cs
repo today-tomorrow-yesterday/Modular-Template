@@ -17,13 +17,13 @@ internal sealed class CustomerHomeCenterChangedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerHomeCenterChanged: CustomerId={CustomerId}, NewHC={NewHomeCenterNumber}",
-            integrationEvent.CustomerId,
+            "Processing CustomerHomeCenterChanged: PublicCustomerId={PublicCustomerId}, NewHC={NewHomeCenterNumber}",
+            integrationEvent.PublicCustomerId,
             integrationEvent.NewHomeCenterNumber);
 
         await sender.Send(
             new UpdateCustomerCacheHomeCenterCommand(
-                integrationEvent.CustomerId,
+                integrationEvent.PublicCustomerId,
                 integrationEvent.NewHomeCenterNumber),
             cancellationToken);
     }

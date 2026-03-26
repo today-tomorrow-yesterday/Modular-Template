@@ -17,8 +17,8 @@ internal sealed class CustomerSalesAssignmentsChangedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerSalesAssignmentsChanged: CustomerId={CustomerId}",
-            integrationEvent.CustomerId);
+            "Processing CustomerSalesAssignmentsChanged: PublicCustomerId={PublicCustomerId}",
+            integrationEvent.PublicCustomerId);
 
         var primary = integrationEvent.SalesAssignments
             .FirstOrDefault(sa => sa.Role == "Primary");
@@ -27,7 +27,7 @@ internal sealed class CustomerSalesAssignmentsChangedIntegrationEventHandler(
 
         await sender.Send(
             new UpdateCustomerCacheSalesAssignmentsCommand(
-                integrationEvent.CustomerId,
+                integrationEvent.PublicCustomerId,
                 primary?.FederatedId,
                 primary?.FirstName,
                 primary?.LastName,

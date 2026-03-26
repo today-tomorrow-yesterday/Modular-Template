@@ -7,7 +7,7 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record CustomerCreatedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid CustomerId,
+    Guid PublicCustomerId,
     string LifecycleStage,
     int HomeCenterNumber,
     string? FirstName,

@@ -7,5 +7,5 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record CustomerSalesAssignmentsChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid CustomerId,
+    Guid PublicCustomerId,
     SalesAssignmentDto[] SalesAssignments) : IntegrationEvent(Id, OccurredOnUtc);

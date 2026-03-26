@@ -7,7 +7,7 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record CustomerCoBuyerChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid CustomerId,
+    Guid PublicCustomerId,
     Guid? CoBuyerPublicId,
     string? CoBuyerFirstName,
     string? CoBuyerLastName) : IntegrationEvent(Id, OccurredOnUtc);

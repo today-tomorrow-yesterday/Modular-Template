@@ -18,13 +18,13 @@ internal sealed class CustomerLifecycleAdvancedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerLifecycleAdvanced: CustomerId={CustomerId}, NewStage={NewStage}",
-            integrationEvent.CustomerId,
+            "Processing CustomerLifecycleAdvanced: PublicCustomerId={PublicCustomerId}, NewStage={NewStage}",
+            integrationEvent.PublicCustomerId,
             integrationEvent.NewLifecycleStage);
 
         await sender.Send(
             new UpdateCustomerCacheLifecycleCommand(
-                integrationEvent.CustomerId,
+                integrationEvent.PublicCustomerId,
                 Enum.Parse<LifecycleStage>(integrationEvent.NewLifecycleStage)),
             cancellationToken);
     }

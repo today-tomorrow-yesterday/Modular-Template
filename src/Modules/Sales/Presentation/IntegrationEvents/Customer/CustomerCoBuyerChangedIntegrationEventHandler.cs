@@ -17,13 +17,13 @@ internal sealed class CustomerCoBuyerChangedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerCoBuyerChanged: CustomerId={CustomerId}, CoBuyerPublicId={CoBuyerPublicId}",
-            integrationEvent.CustomerId,
+            "Processing CustomerCoBuyerChanged: PublicCustomerId={PublicCustomerId}, CoBuyerPublicId={CoBuyerPublicId}",
+            integrationEvent.PublicCustomerId,
             integrationEvent.CoBuyerPublicId);
 
         await sender.Send(
             new UpdateCustomerCacheCoBuyerCommand(
-                integrationEvent.CustomerId,
+                integrationEvent.PublicCustomerId,
                 integrationEvent.CoBuyerFirstName,
                 integrationEvent.CoBuyerLastName),
             cancellationToken);

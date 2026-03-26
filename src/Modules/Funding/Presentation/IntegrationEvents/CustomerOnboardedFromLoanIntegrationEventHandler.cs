@@ -25,13 +25,13 @@ internal sealed class CustomerOnboardedFromLoanIntegrationEventHandler(
             .FirstOrDefault(i => i.Type == "LoanId")?.Value;
 
         logger.LogInformation(
-            "Processing CustomerOnboardedFromLoan: CustomerId={CustomerId}, LoanId={LoanId}",
-            integrationEvent.CustomerId,
+            "Processing CustomerOnboardedFromLoan: PublicCustomerId={PublicCustomerId}, LoanId={LoanId}",
+            integrationEvent.PublicCustomerId,
             loanId);
 
         var customerCache = new CustomerCache
         {
-            RefPublicId = integrationEvent.CustomerId,
+            RefPublicId = integrationEvent.PublicCustomerId,
             LoanId = loanId,
             FirstName = integrationEvent.FirstName ?? string.Empty,
             LastName = integrationEvent.LastName ?? string.Empty,

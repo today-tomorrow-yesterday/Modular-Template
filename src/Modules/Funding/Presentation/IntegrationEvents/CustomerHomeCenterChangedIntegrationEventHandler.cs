@@ -21,12 +21,12 @@ internal sealed class CustomerHomeCenterChangedIntegrationEventHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         logger.LogInformation(
-            "Processing CustomerHomeCenterChanged: CustomerId={CustomerId}, NewHC={NewHomeCenterNumber}",
-            integrationEvent.CustomerId,
+            "Processing CustomerHomeCenterChanged: PublicCustomerId={PublicCustomerId}, NewHC={NewHomeCenterNumber}",
+            integrationEvent.PublicCustomerId,
             integrationEvent.NewHomeCenterNumber);
 
         await customerCacheWriter.UpdateHomeCenterAsync(
-            integrationEvent.CustomerId,
+            integrationEvent.PublicCustomerId,
             integrationEvent.NewHomeCenterNumber,
             dateTimeProvider.UtcNow,
             cancellationToken);

@@ -17,8 +17,8 @@ internal sealed class CustomerContactPointsChangedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerContactPointsChanged: CustomerId={CustomerId}",
-            integrationEvent.CustomerId);
+            "Processing CustomerContactPointsChanged: PublicCustomerId={PublicCustomerId}",
+            integrationEvent.PublicCustomerId);
 
         var email = integrationEvent.ContactPoints
             .FirstOrDefault(cp => cp.Type == "Email")?.Value;
@@ -27,7 +27,7 @@ internal sealed class CustomerContactPointsChangedIntegrationEventHandler(
 
         await sender.Send(
             new UpdateCustomerCacheContactPointsCommand(
-                integrationEvent.CustomerId,
+                integrationEvent.PublicCustomerId,
                 email,
                 phone),
             cancellationToken);

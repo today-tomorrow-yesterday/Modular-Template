@@ -21,11 +21,11 @@ internal sealed class CustomerNameChangedIntegrationEventHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         logger.LogInformation(
-            "Processing CustomerNameChanged: CustomerId={CustomerId}",
-            integrationEvent.CustomerId);
+            "Processing CustomerNameChanged: PublicCustomerId={PublicCustomerId}",
+            integrationEvent.PublicCustomerId);
 
         await customerCacheWriter.UpdateNameAsync(
-            integrationEvent.CustomerId,
+            integrationEvent.PublicCustomerId,
             integrationEvent.FirstName ?? string.Empty,
             integrationEvent.LastName ?? string.Empty,
             dateTimeProvider.UtcNow,

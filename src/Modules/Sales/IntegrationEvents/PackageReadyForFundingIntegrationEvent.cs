@@ -9,7 +9,7 @@ public sealed record PackageReadyForFundingIntegrationEvent(
     DateTime OccurredOnUtc,
     Guid SalePublicId,
     Guid PackagePublicId,
-    Guid? CustomerPublicId,
+    Guid? PublicCustomerId,
     int RequestTypeId,
     decimal RequestAmount,
     int? HomeCenterNumber,

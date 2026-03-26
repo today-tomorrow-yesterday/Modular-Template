@@ -17,12 +17,12 @@ internal sealed class CustomerMailingAddressChangedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerMailingAddressChanged: CustomerId={CustomerId}",
-            integrationEvent.CustomerId);
+            "Processing CustomerMailingAddressChanged: PublicCustomerId={PublicCustomerId}",
+            integrationEvent.PublicCustomerId);
 
         await sender.Send(
             new UpdateCustomerCacheMailingAddressCommand(
-                integrationEvent.CustomerId),
+                integrationEvent.PublicCustomerId),
             cancellationToken);
     }
 }

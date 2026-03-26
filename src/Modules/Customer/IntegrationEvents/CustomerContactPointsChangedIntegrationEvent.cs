@@ -7,5 +7,5 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record CustomerContactPointsChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid CustomerId,
+    Guid PublicCustomerId,
     ContactPointDto[] ContactPoints) : IntegrationEvent(Id, OccurredOnUtc);

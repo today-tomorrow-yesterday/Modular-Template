@@ -59,7 +59,7 @@ public class CustomerCreatedProducerTests(EventProducerTestFixture fixture) : Ev
         Assert.Equal("Producer", evt.LastName);
         Assert.Equal(100, evt.HomeCenterNumber);
         Assert.Equal("Lead", evt.LifecycleStage);
-        Assert.NotEqual(Guid.Empty, evt.CustomerId);
+        Assert.NotEqual(Guid.Empty, evt.PublicCustomerId);
 
         // Verify contact points made it through
         Assert.Contains(evt.ContactPoints, cp => cp.Type == "Email" && cp.Value == "alice@test.com");

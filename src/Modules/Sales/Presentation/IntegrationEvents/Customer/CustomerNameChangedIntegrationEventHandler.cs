@@ -17,14 +17,14 @@ internal sealed class CustomerNameChangedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing CustomerNameChanged: CustomerId={CustomerId}",
-            integrationEvent.CustomerId);
+            "Processing CustomerNameChanged: PublicCustomerId={PublicCustomerId}",
+            integrationEvent.PublicCustomerId);
 
         var displayName = $"{integrationEvent.FirstName} {integrationEvent.LastName}".Trim();
 
         await sender.Send(
             new UpdateCustomerCacheNameCommand(
-                integrationEvent.CustomerId,
+                integrationEvent.PublicCustomerId,
                 displayName,
                 integrationEvent.FirstName,
                 integrationEvent.MiddleName,

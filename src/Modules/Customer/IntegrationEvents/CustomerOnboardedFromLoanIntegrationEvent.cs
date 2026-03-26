@@ -9,7 +9,7 @@ namespace Modules.Customer.IntegrationEvents;
 public sealed record CustomerOnboardedFromLoanIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    Guid CustomerId,
+    Guid PublicCustomerId,
     int HomeCenterNumber,
     string? FirstName,
     string? MiddleName,
