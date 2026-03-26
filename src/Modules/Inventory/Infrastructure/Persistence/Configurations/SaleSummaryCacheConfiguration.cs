@@ -21,7 +21,7 @@ internal sealed class SaleSummaryCacheConfiguration : IEntityTypeConfiguration<S
             .HasMaxLength(50)
             .IsRequired();
 
-        builder.Property(s => s.SaleId).HasColumnName("sale_id");
+        builder.Property(s => s.SalePublicId).HasColumnName("sale_public_id");
         builder.Property(s => s.CustomerName).HasColumnName("customer_name").HasMaxLength(300);
         builder.Property(s => s.ReceivedInDate).HasColumnName("received_in_date");
         builder.Property(s => s.OriginalRetailPrice).HasColumnName("original_retail_price");

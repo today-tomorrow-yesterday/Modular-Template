@@ -10,10 +10,8 @@ public sealed record PackageReadyForFundingDomainEvent : DomainEvent
     public Guid SalePublicId { get; init; }
     public int PackageId { get; init; }
     public Guid PackagePublicId { get; init; }
-    public int CustomerId { get; init; }
     public int HomeCenterNumber { get; init; }
     public string RetailLocationType { get; init; } = string.Empty;
-    public int RetailLocationId { get; init; }
     public string? StockNumber { get; init; }
     public decimal RequestAmount { get; init; }
 }

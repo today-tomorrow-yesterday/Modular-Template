@@ -39,7 +39,7 @@ public sealed record OnLotAncillaryDataResponse(
     DateTime? PackageReceivedDate);
 
 public sealed record OnLotSaleSummaryResponse(
-    int? SaleId,
+    Guid? SalePublicId,
     string? CustomerName,
     DateTime? ReceivedInDate,
     decimal? OriginalRetailPrice,

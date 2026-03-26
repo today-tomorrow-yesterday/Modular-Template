@@ -72,7 +72,7 @@ internal sealed class GetOnLotInventoryQueryHandler(
                 home.LandStockNumber,
                 lc is not null ? new OnLotLandCostsResponse(lc.AddToTotal, lc.FurnitureTotal) : null,
                 ad is not null ? new OnLotAncillaryDataResponse(ad.CustomerName, ad.PackageReceivedDate) : null,
-                ss is not null ? new OnLotSaleSummaryResponse(ss.SaleId, ss.CustomerName, ss.ReceivedInDate, ss.OriginalRetailPrice, ss.CurrentRetailPrice) : null);
+                ss is not null ? new OnLotSaleSummaryResponse(ss.SalePublicId, ss.CustomerName, ss.ReceivedInDate, ss.OriginalRetailPrice, ss.CurrentRetailPrice) : null);
         }).ToList();
 
         return Result.Success<IReadOnlyCollection<OnLotInventoryResponse>>(responses);

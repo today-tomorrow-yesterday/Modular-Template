@@ -8,7 +8,7 @@ public sealed record SaleSummaryChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
     string? StockNumber,
-    int? SaleId,
+    Guid? SalePublicId,
     string? CustomerName,
     DateTime? ReceivedInDate,
     decimal? OriginalRetailPrice,

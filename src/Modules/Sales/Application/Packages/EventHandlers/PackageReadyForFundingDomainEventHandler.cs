@@ -32,8 +32,8 @@ internal sealed class PackageReadyForFundingDomainEventHandler(
         var integrationEvent = new PackageReadyForFundingIntegrationEvent(
             Guid.CreateVersion7(),
             domainEvent.OccurredOnUtc,
-            SaleId: sale.Id,
-            PackageId: package.Id,
+            SalePublicId: sale.PublicId,
+            PackagePublicId: package.PublicId,
             CustomerPublicId: sale.Customer.RefPublicId,
             RequestTypeId: 0, // Derived by Funding based on deal type (cash vs loan)
             RequestAmount: domainEvent.RequestAmount,

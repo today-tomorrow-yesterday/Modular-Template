@@ -24,7 +24,7 @@ internal sealed class SaleSummaryChangedIntegrationEventHandler(
         var cache = new SaleSummaryCache
         {
             RefStockNumber = integrationEvent.StockNumber ?? string.Empty,
-            SaleId = integrationEvent.SaleId,
+            SalePublicId = integrationEvent.SalePublicId,
             CustomerName = integrationEvent.CustomerName,
             ReceivedInDate = integrationEvent.ReceivedInDate,
             OriginalRetailPrice = integrationEvent.OriginalRetailPrice,

@@ -9,7 +9,7 @@ public sealed class SaleSummaryCache : ICacheProjection
 
     public string RefStockNumber { get; set; } = string.Empty;
 
-    public int? SaleId { get; set; }
+    public Guid? SalePublicId { get; set; }
 
     [SensitiveData] public string? CustomerName { get; set; }
 

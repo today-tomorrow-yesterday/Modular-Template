@@ -26,7 +26,7 @@ public sealed class UpsertSaleSummaryCacheCommandHandlerTests
         var now = new DateTime(2026, 1, 15, 12, 0, 0, DateTimeKind.Utc);
         _dateTimeProvider.UtcNow.Returns(now);
 
-        var cache = new SaleSummaryCache { Id = 1, RefStockNumber = "STK-1", SaleId = 42 };
+        var cache = new SaleSummaryCache { Id = 1, RefStockNumber = "STK-1", SalePublicId = Guid.NewGuid() };
         var command = new UpsertSaleSummaryCacheCommand(cache);
 
         var result = await _sut.Handle(command, CancellationToken.None);

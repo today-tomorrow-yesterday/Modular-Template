@@ -30,7 +30,7 @@ internal sealed class SaleSummaryCacheRepository(InventoryDbContext dbContext)
         else
         {
             existing.RefStockNumber = cache.RefStockNumber;
-            existing.SaleId = cache.SaleId;
+            existing.SalePublicId = cache.SalePublicId;
             existing.CustomerName = cache.CustomerName;
             existing.ReceivedInDate = cache.ReceivedInDate;
             existing.OriginalRetailPrice = cache.OriginalRetailPrice;

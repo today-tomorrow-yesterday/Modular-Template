@@ -405,9 +405,9 @@ namespace Modules.Inventory.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("ref_stock_number");
 
-                    b.Property<int?>("SaleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sale_id");
+                    b.Property<Guid?>("SalePublicId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("sale_public_id");
 
                     b.HasKey("Id")
                         .HasName("pk_sale_summaries_cache");

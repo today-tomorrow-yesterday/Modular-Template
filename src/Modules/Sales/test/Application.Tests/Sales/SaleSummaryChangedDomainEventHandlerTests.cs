@@ -53,7 +53,7 @@ public sealed class SaleSummaryChangedDomainEventHandlerTests
         await _eventBus.Received(1).PublishAsync(
             Arg.Is<SaleSummaryChangedIntegrationEvent>(e =>
                 e.StockNumber == "STK-12345" &&
-                e.SaleId == sale.Id),
+                e.SalePublicId == sale.PublicId),
             Arg.Any<CancellationToken>());
     }
 

@@ -7,8 +7,8 @@ namespace Modules.Sales.IntegrationEvents;
 public sealed record PackageReadyForFundingIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int SaleId,
-    int PackageId,
+    Guid SalePublicId,
+    Guid PackagePublicId,
     Guid? CustomerPublicId,
     int RequestTypeId,
     decimal RequestAmount,
