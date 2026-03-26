@@ -101,7 +101,7 @@ internal sealed class UpdateDeliveryAddressCommandHandler(
             addressStyle: null,
             addressType: null,
             request.AddressLine1,
-            addressLine2: null,
+            request.AddressLine2,
             addressLine3: null,
             request.City,
             request.County,

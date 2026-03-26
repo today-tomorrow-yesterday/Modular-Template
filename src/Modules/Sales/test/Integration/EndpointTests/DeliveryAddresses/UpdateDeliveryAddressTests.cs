@@ -33,6 +33,7 @@ public class UpdateDeliveryAddressTests(SalesEndpointTestFixture fixture) : Sale
             OccupancyType: "Secondary Residence",
             IsWithinCityLimits: false,
             AddressLine1: "999 Lake Rd",
+            AddressLine2: null,
             City: "Knoxville",
             County: "Knox",
             State: "TN",
@@ -64,6 +65,7 @@ public class UpdateDeliveryAddressTests(SalesEndpointTestFixture fixture) : Sale
             OccupancyType: "Primary Residence",
             IsWithinCityLimits: true,
             AddressLine1: "123 Test St",
+            AddressLine2: null,
             City: "Atlanta",
             County: "Fulton",
             State: "GA",
@@ -121,6 +123,7 @@ public class UpdateDeliveryAddressTests(SalesEndpointTestFixture fixture) : Sale
             OccupancyType: "Rental",
             IsWithinCityLimits: true,
             AddressLine1: "123 Test St",
+            AddressLine2: null,
             City: "Nashville",
             County: "Davidson",
             State: "TN",
@@ -141,7 +144,7 @@ public class UpdateDeliveryAddressTests(SalesEndpointTestFixture fixture) : Sale
         await ArrangeSaleAsync();
 
         var request = new UpdateDeliveryAddressRequest(
-            "Primary Residence", true, "123 Main St", "Maryville", "Blount", "TN", "37801");
+            "Primary Residence", true, "123 Main St", null, "Maryville", "Blount", "TN", "37801");
 
         // Act
         var response = await Client.PutAsJsonAsync(Endpoint, request);

@@ -27,7 +27,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
             .Returns((Sale?)null);
 
         var result = await _sut.Handle(
-            new CreateDeliveryAddressCommand(publicId, "Primary Residence", true, "123 Main", "Columbus", "Franklin", "OH", "43004"),
+            new CreateDeliveryAddressCommand(publicId, "Primary Residence", true, "123 Main", null, "Columbus", "Franklin", "OH", "43004"),
             CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -49,7 +49,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
             .Returns(sale);
 
         var result = await _sut.Handle(
-            new CreateDeliveryAddressCommand(sale.PublicId, "Primary Residence", true, "123 Main", "Columbus", "Franklin", "OH", "43004"),
+            new CreateDeliveryAddressCommand(sale.PublicId, "Primary Residence", true, "123 Main", null, "Columbus", "Franklin", "OH", "43004"),
             CancellationToken.None);
 
         Assert.True(result.IsFailure);
@@ -66,7 +66,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
             .Returns(sale);
 
         var result = await _sut.Handle(
-            new CreateDeliveryAddressCommand(sale.PublicId, "Primary Residence", true, "123 Main", "Columbus", "Franklin", "OH", "43004"),
+            new CreateDeliveryAddressCommand(sale.PublicId, "Primary Residence", true, "123 Main", null, "Columbus", "Franklin", "OH", "43004"),
             CancellationToken.None);
 
         Assert.True(result.IsSuccess);
@@ -83,7 +83,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
             .Returns(sale);
 
         await _sut.Handle(
-            new CreateDeliveryAddressCommand(sale.PublicId, "Primary Residence", true, "123 Main", "Columbus", "Franklin", "OH", "43004"),
+            new CreateDeliveryAddressCommand(sale.PublicId, "Primary Residence", true, "123 Main", null, "Columbus", "Franklin", "OH", "43004"),
             CancellationToken.None);
 
         _deliveryAddressRepository.Received(1).Add(Arg.Any<Domain.DeliveryAddresses.DeliveryAddress>());
@@ -99,7 +99,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
             .Returns(sale);
 
         await _sut.Handle(
-            new CreateDeliveryAddressCommand(sale.PublicId, "Primary Residence", true, "123 Main", "Columbus", "Franklin", "OH", "43004"),
+            new CreateDeliveryAddressCommand(sale.PublicId, "Primary Residence", true, "123 Main", null, "Columbus", "Franklin", "OH", "43004"),
             CancellationToken.None);
 
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
@@ -119,7 +119,7 @@ public sealed class CreateDeliveryAddressCommandHandlerTests
             .Do(ci => capturedAddress = ci.Arg<Domain.DeliveryAddresses.DeliveryAddress>());
 
         await _sut.Handle(
-            new CreateDeliveryAddressCommand(sale.PublicId, "Rental", false, "789 Elm", "Westerville", "Delaware", "OH", "43081"),
+            new CreateDeliveryAddressCommand(sale.PublicId, "Rental", false, "789 Elm", null, "Westerville", "Delaware", "OH", "43081"),
             CancellationToken.None);
 
         Assert.NotNull(capturedAddress);

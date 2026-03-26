@@ -31,6 +31,7 @@ internal sealed class GetDeliveryAddressQueryHandler(
             address.OccupancyType,
             address.IsWithinCityLimits,
             address.AddressLine1,
+            address.AddressLine2,
             address.City,
             address.County,
             address.State,

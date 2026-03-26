@@ -98,7 +98,7 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
 
         var command = new UpdateDeliveryAddressCommand(
             sale.PublicId, "Primary Residence", true,
-            "999 New St", "Columbus", "Franklin", "OH", "43004");
+            "999 New St", null, "Columbus", "Franklin", "OH", "43004");
 
         await _sut.Handle(command, CancellationToken.None);
 
@@ -120,7 +120,7 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
         // Change state from OH to TX
         var command = new UpdateDeliveryAddressCommand(
             sale.PublicId, "Primary Residence", true,
-            "999 New St", "Columbus", "Franklin", "TX", "43004");
+            "999 New St", null, "Columbus", "Franklin", "TX", "43004");
 
         await _sut.Handle(command, CancellationToken.None);
 
@@ -144,7 +144,7 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
         // Change occupancy to Rental (insurance-ineligible)
         var command = new UpdateDeliveryAddressCommand(
             sale.PublicId, "Rental", true,
-            "999 New St", "Columbus", "Franklin", "OH", "43004");
+            "999 New St", null, "Columbus", "Franklin", "OH", "43004");
 
         await _sut.Handle(command, CancellationToken.None);
 
@@ -167,7 +167,7 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
         // Change city from Columbus to Dublin (location change)
         var command = new UpdateDeliveryAddressCommand(
             sale.PublicId, "Primary Residence", true,
-            "999 New St", "Dublin", "Franklin", "OH", "43017");
+            "999 New St", null, "Dublin", "Franklin", "OH", "43017");
 
         await _sut.Handle(command, CancellationToken.None);
 
@@ -183,7 +183,7 @@ public sealed class UpdateDeliveryAddressCommandHandlerTests
 
     private static UpdateDeliveryAddressCommand CreateCommand(Guid salePublicId) =>
         new(salePublicId, "Secondary Residence", false,
-            "999 New St", "Dublin", "Franklin", "OH", "43017");
+            "999 New St", null, "Dublin", "Franklin", "OH", "43017");
 
     private static Sale CreateSaleWithDeliveryAddress()
     {

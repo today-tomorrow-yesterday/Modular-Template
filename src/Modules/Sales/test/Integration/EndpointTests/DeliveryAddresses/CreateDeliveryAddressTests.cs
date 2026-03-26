@@ -29,6 +29,7 @@ public class CreateDeliveryAddressTests(SalesEndpointTestFixture fixture) : Sale
             OccupancyType: "Primary Residence",
             IsWithinCityLimits: true,
             AddressLine1: "5000 Clayton Rd",
+            AddressLine2: null,
             City: "Maryville",
             County: "Blount",
             State: "TN",
@@ -51,7 +52,7 @@ public class CreateDeliveryAddressTests(SalesEndpointTestFixture fixture) : Sale
         await ArrangeSaleAsync();
 
         var request = new CreateDeliveryAddressRequest(
-            "Primary Residence", true, "123 Main St", "Maryville", "Blount", "TN", "37801");
+            "Primary Residence", true, "123 Main St", null, "Maryville", "Blount", "TN", "37801");
 
         var first = await Client.PostAsJsonAsync(Endpoint, request);
         Assert.Equal(HttpStatusCode.Created, first.StatusCode);   // Should have created the first address
@@ -69,7 +70,7 @@ public class CreateDeliveryAddressTests(SalesEndpointTestFixture fixture) : Sale
         // Arrange
         var unknownSaleId = Guid.NewGuid();
         var request = new CreateDeliveryAddressRequest(
-            "Primary Residence", true, "123 Main St", "Maryville", "Blount", "TN", "37801");
+            "Primary Residence", true, "123 Main St", null, "Maryville", "Blount", "TN", "37801");
 
         // Act
         var response = await Client.PostAsJsonAsync(
@@ -89,6 +90,7 @@ public class CreateDeliveryAddressTests(SalesEndpointTestFixture fixture) : Sale
             OccupancyType: "Primary Residence",
             IsWithinCityLimits: true,
             AddressLine1: "5000 Clayton Rd",
+            AddressLine2: null,
             City: "Maryville",
             County: "Blount",
             State: "TN",

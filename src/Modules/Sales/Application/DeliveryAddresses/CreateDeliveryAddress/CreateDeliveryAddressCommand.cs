@@ -7,6 +7,7 @@ public sealed record CreateDeliveryAddressCommand(
     string? OccupancyType,
     bool IsWithinCityLimits,
     string? AddressLine1,
+    string? AddressLine2,
     string? City,
     string? County,
     string? State,

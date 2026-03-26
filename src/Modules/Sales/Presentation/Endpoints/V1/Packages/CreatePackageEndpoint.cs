@@ -45,12 +45,13 @@ internal sealed class CreatePackageEndpoint : IEndpoint
     {
         public const string Request = """
         {
+            "saleId": "00000000-0000-0000-0000-000000000000",
             "name": "Primary"
         }
         """;
     }
 }
 
-public sealed record CreatePackageRequest(string Name);
+public sealed record CreatePackageRequest(Guid SaleId, string Name);
 
 public sealed record CreatePackageResponse(Guid Id);

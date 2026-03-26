@@ -77,6 +77,7 @@ public abstract class SalesEndpointTestBase(SalesEndpointTestFixture fixture) : 
                 OccupancyType: "Primary Residence",
                 IsWithinCityLimits: true,
                 AddressLine1: "123 Test St",
+                AddressLine2: null,
                 City: "Nashville",
                 County: "Davidson",
                 State: "TN",
@@ -92,7 +93,7 @@ public abstract class SalesEndpointTestBase(SalesEndpointTestFixture fixture) : 
 
         var body = await Client.PostAsync<ApiEnvelope<CreatePackageResponse>>(
             $"/api/v1/sales/{SaleId}/packages",
-            new CreatePackageRequest(packageName));
+            new CreatePackageRequest(SaleId, packageName));
 
         PackageId = body!.Data!.Id;
     }

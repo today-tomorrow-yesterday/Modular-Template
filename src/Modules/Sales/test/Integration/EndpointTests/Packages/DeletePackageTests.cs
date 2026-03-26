@@ -20,7 +20,7 @@ public class DeletePackageTests(SalesEndpointTestFixture fixture) : SalesEndpoin
 
         var secondBody = await Client.PostAsync<ApiEnvelope<CreatePackageResponse>>(
             $"/api/v1/sales/{SaleId}/packages",
-            new CreatePackageRequest("Secondary"));
+            new CreatePackageRequest(SaleId, "Secondary"));
         var secondPackageId = secondBody!.Data!.Id;
 
         // Act — delete the non-primary package

@@ -23,7 +23,7 @@ public class SetPackageAsPrimaryTests(SalesEndpointTestFixture fixture) : SalesE
 
         var secondBody = await Client.PostAsync<ApiEnvelope<CreatePackageResponse>>(
             $"/api/v1/sales/{SaleId}/packages",
-            new CreatePackageRequest("Second"));
+            new CreatePackageRequest(SaleId, "Second"));
         var secondPackageId = secondBody!.Data!.Id;
 
         // Act — set the second package as primary

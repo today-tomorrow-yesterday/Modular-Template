@@ -34,6 +34,7 @@ public class SaleLifecycleTests(SalesEndpointTestFixture fixture) : SalesEndpoin
             OccupancyType: "Primary Residence",
             IsWithinCityLimits: true,
             AddressLine1: "5000 Clayton Rd",
+            AddressLine2: null,
             City: "Maryville",
             County: "Blount",
             State: "TN",
@@ -46,7 +47,7 @@ public class SaleLifecycleTests(SalesEndpointTestFixture fixture) : SalesEndpoin
         // -- Step 3: Create a package ----------------
         var packageResponse = await Client.PostAsync<ApiEnvelope<CreatePackageResponse>>(
             $"/api/v1/sales/{SaleId}/packages",
-            new CreatePackageRequest("Primary"));
+            new CreatePackageRequest(SaleId, "Primary"));
         var packageId = packageResponse!.Data!.Id;
         Assert.NotEqual(Guid.Empty, packageId);
 
@@ -125,7 +126,7 @@ public class SaleLifecycleTests(SalesEndpointTestFixture fixture) : SalesEndpoin
         await ArrangeSaleAsync();
 
         var addressRequest = new CreateDeliveryAddressRequest(
-            "Primary Residence", true, "123 Main St", "Maryville", "Blount", "TN", "37801");
+            "Primary Residence", true, "123 Main St", null, "Maryville", "Blount", "TN", "37801");
 
         // Act
         var first = await Client.PostAsJsonAsync($"/api/v1/sales/{SaleId}/delivery-address", addressRequest);
@@ -145,11 +146,11 @@ public class SaleLifecycleTests(SalesEndpointTestFixture fixture) : SalesEndpoin
 
         // Act
         var first = await Client.PostAsJsonAsync(
-            $"/api/v1/sales/{SaleId}/packages", new CreatePackageRequest("Primary"));
+            $"/api/v1/sales/{SaleId}/packages", new CreatePackageRequest(SaleId, "Primary"));
         Assert.Equal(HttpStatusCode.Created, first.StatusCode);   // Should have created first package
 
         var second = await Client.PostAsJsonAsync(
-            $"/api/v1/sales/{SaleId}/packages", new CreatePackageRequest("Primary"));
+            $"/api/v1/sales/{SaleId}/packages", new CreatePackageRequest(SaleId, "Primary"));
 
         // Assert
         Assert.Equal(HttpStatusCode.Conflict, second.StatusCode); // Should have rejected duplicate package name
