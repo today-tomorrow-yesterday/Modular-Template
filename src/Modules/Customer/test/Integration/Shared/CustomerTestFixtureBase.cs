@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Rtl.Core.IntegrationTests;
 
 namespace Modules.Customer.Integration.Shared;
@@ -8,16 +9,17 @@ namespace Modules.Customer.Integration.Shared;
 // - Respawn truncates the customers schema
 // - No reference data seeding needed — Customer entities are created via commands during tests
 //
-// The StubVmfLosAdapter is already registered in DI by CustomerModule, so no fake override is needed.
-// Test constants (TestHomeCenterNumber) are available for any test that needs to reference seeded data.
+// Connection string comes from the app's config pipeline:
+//   Modules:Customer:ConnectionStrings:Database -> ConnectionStrings:Database fallback
 public abstract class CustomerTestFixtureBase : IntegrationTestFixture<Program>
 {
     public const int TestHomeCenterNumber = 100;
 
-    // ── Fixture configuration ──────────────────────────────────────
-
-    protected override string GetConnectionString()
-        => "Host=localhost;Database=customer_dev;Username=postgres;Password=postgres";
+    protected override string ResolveConnectionString(IConfiguration configuration)
+        => configuration["Modules:Customer:ConnectionStrings:Database"]
+           ?? configuration.GetConnectionString("Database")
+           ?? throw new InvalidOperationException(
+               "No Customer database connection string found in configuration.");
 
     protected override string[] GetSchemasToInclude()
         => ["customers"];

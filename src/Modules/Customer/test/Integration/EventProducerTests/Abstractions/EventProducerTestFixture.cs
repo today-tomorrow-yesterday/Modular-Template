@@ -42,7 +42,7 @@ public class EventProducerTestFixture : CustomerTestFixtureBase
         await scheduler.TriggerJob(jobKey);
 
         // Poll until the outbox is empty (max 5 seconds)
-        await using var conn = new NpgsqlConnection(GetConnectionString());
+        await using var conn = new NpgsqlConnection(ResolvedConnectionString);
         await conn.OpenAsync();
         for (var i = 0; i < 50; i++)
         {

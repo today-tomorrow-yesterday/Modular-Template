@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Modules.Customer.Application.Customers.SyncCustomerFromCrm;
 using Modules.Customer.Domain.Customers.Enums;
@@ -19,8 +20,13 @@ namespace Modules.Sales.EventConsumerTests.Customer;
 /// </summary>
 public static class CustomerEventHelpers
 {
-    private const string CustomerDbConnectionString =
-        "Host=localhost;Database=customer_dev;Username=postgres;Password=postgres";
+    private static string GetCustomerConnectionString(EventConsumerTestFixture fixture)
+    {
+        var config = fixture.Services.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>();
+        return config["Modules:Customer:ConnectionStrings:Database"]
+               ?? config.GetConnectionString("Database")
+               ?? throw new InvalidOperationException("No Customer database connection string found in configuration.");
+    }
 
     /// <summary>
     /// Creates a customer via CRM sync.
@@ -136,7 +142,7 @@ public static class CustomerEventHelpers
         await scheduler.TriggerJob(jobKey);
 
         // Poll until the outbox is empty (max 5 seconds)
-        await using var conn = new NpgsqlConnection(CustomerDbConnectionString);
+        await using var conn = new NpgsqlConnection(GetCustomerConnectionString(fixture));
         await conn.OpenAsync();
         for (var i = 0; i < 50; i++)
         {

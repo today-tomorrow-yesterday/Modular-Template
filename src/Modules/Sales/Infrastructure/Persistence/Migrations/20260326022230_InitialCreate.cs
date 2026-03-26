@@ -1011,6 +1011,9 @@ namespace Modules.Sales.Infrastructure.Persistence.Migrations
                 table: "tax_question_text",
                 column: "question_number",
                 unique: true);
+
+            // Sale number sequence — used by SaleNumberGenerator for atomic sale number assignment
+            migrationBuilder.Sql("CREATE SEQUENCE IF NOT EXISTS sales.sale_number_seq START WITH 100001;");
         }
 
         /// <inheritdoc />

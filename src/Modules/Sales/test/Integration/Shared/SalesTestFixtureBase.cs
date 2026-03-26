@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Modules.Sales.Domain.AuthorizedUsersCache;
 using Modules.Sales.Domain.CustomersCache;
@@ -27,6 +28,12 @@ public abstract class SalesTestFixtureBase : IntegrationTestFixture<Program>
     public Guid TestCustomerId { get; private set; }
 
     // ── Fixture configuration ──────────────────────────────────────
+
+    protected override string ResolveConnectionString(IConfiguration configuration)
+        => configuration["Modules:Sales:ConnectionStrings:Database"]
+           ?? configuration.GetConnectionString("Database")
+           ?? throw new InvalidOperationException(
+               "No Sales database connection string found in configuration.");
 
     protected override void ConfigureTestServices(IServiceCollection services)
     {
