@@ -386,17 +386,17 @@ internal sealed class CalculateTaxesCommandHandler(
     // T-002: Legacy maps trade-in type names to single-char iSeries codes via a lookup table.
     // The naive tt[0] approach gives wrong codes for "Modular Home" ('M' instead of 'D')
     // and "Motorcycle" ('M' instead of 'C').
-    private static char? MapTradeInTypeCode(string? tradeType) => tradeType switch
+    private static TradeInTypeCode? MapTradeInTypeCode(string? tradeType) => tradeType switch
     {
-        "Single Wide" => 'S',
-        "Double Wide" => 'D',
-        "Modular Home" => 'D',
-        "Motorcycle" => 'C',
-        "Boat" => 'B',
-        "Motor Vehicle" => 'V',
-        "Travel Trailer" => 'T',
-        "5th Wheel" or "Fifth Wheel" => 'F',
-        _ when tradeType is { Length: > 0 } => tradeType[0],
+        "Single Wide" => TradeInTypeCode.SingleWide,
+        "Double Wide" => TradeInTypeCode.DoubleWide,
+        "Modular Home" => TradeInTypeCode.ModularHome,
+        "Motorcycle" => TradeInTypeCode.Motorcycle,
+        "Boat" => TradeInTypeCode.Boat,
+        "Motor Vehicle" => TradeInTypeCode.MotorVehicle,
+        "Travel Trailer" => TradeInTypeCode.TravelTrailer,
+        "5th Wheel" or "Fifth Wheel" => TradeInTypeCode.FifthWheel,
+        _ when tradeType is { Length: > 0 } => TradeInTypeCode.Other,
         _ => null
     };
 }

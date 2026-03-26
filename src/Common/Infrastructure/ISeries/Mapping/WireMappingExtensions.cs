@@ -107,7 +107,7 @@ internal static class WireMappingExtensions
         TransportType = r.HomeCondition.ToChar(),
         TradeInAllowance = r.TradeAllowance,
         TradeInOverAllowance = r.BookInAmount,
-        TradeInType = r.TradeInType ?? ' ',
+        TradeInType = r.TradeInType.ToWireChar(),
         PreviouslyTitledInState = r.PreviouslyTitled,
         IsTaxExempt = r.IsTaxExempt,
         PointOfDeliveryCity = r.City,
@@ -273,5 +273,19 @@ internal static class WireMappingExtensions
         "5th Wheel" or "Fifth Wheel" => 'F',
         _ when tradeType is { Length: > 0 } => tradeType[0],
         _ => null
+    };
+
+    internal static char ToWireChar(this TradeInTypeCode? code) => code switch
+    {
+        TradeInTypeCode.SingleWide => 'S',
+        TradeInTypeCode.DoubleWide => 'D',
+        TradeInTypeCode.ModularHome => 'D',
+        TradeInTypeCode.Motorcycle => 'C',
+        TradeInTypeCode.Boat => 'B',
+        TradeInTypeCode.MotorVehicle => 'V',
+        TradeInTypeCode.TravelTrailer => 'T',
+        TradeInTypeCode.FifthWheel => 'F',
+        TradeInTypeCode.Other => ' ',
+        _ => ' '
     };
 }

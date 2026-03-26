@@ -261,17 +261,17 @@ internal sealed class CalculateCommissionCommandHandler(
         _ => HomeCondition.New
     };
 
-    private static char? MapTradeInTypeCode(string? tradeType) => tradeType switch
+    private static TradeInTypeCode? MapTradeInTypeCode(string? tradeType) => tradeType switch
     {
-        "Single Wide" => 'S',
-        "Double Wide" => 'D',
-        "Modular Home" => 'D',
-        "Motorcycle" => 'C',
-        "Boat" => 'B',
-        "Motor Vehicle" => 'V',
-        "Travel Trailer" => 'T',
-        "5th Wheel" or "Fifth Wheel" => 'F',
-        _ when tradeType is { Length: > 0 } => tradeType[0],
+        "Single Wide" => TradeInTypeCode.SingleWide,
+        "Double Wide" => TradeInTypeCode.DoubleWide,
+        "Modular Home" => TradeInTypeCode.ModularHome,
+        "Motorcycle" => TradeInTypeCode.Motorcycle,
+        "Boat" => TradeInTypeCode.Boat,
+        "Motor Vehicle" => TradeInTypeCode.MotorVehicle,
+        "Travel Trailer" => TradeInTypeCode.TravelTrailer,
+        "5th Wheel" or "Fifth Wheel" => TradeInTypeCode.FifthWheel,
+        _ when tradeType is { Length: > 0 } => TradeInTypeCode.Other,
         _ => null
     };
 }

@@ -20,7 +20,7 @@ public sealed class AllowanceUpdateRequest
     // Trade-in
     public decimal TradeAllowance { get; init; }
     public decimal BookInAmount { get; init; }
-    public char? TradeInType { get; init; }
+    public TradeInTypeCode? TradeInType { get; init; }
 
     // Tax config
     public string PreviouslyTitled { get; init; } = string.Empty;
