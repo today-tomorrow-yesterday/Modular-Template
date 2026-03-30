@@ -58,6 +58,7 @@ public class UpdatePackageLandTests(SalesEndpointTestFixture fixture) : SalesEnd
         Assert.Equal(payoffAmount, updatedPackage.Land.SalePrice);                 // Should set land sale price to payoff amount
         Assert.Equal(payoffAmount, updatedPackage.Land.EstimatedCost);             // Should set land estimated cost to payoff amount
         Assert.True(updatedPackage.Land.ShouldExcludeFromPricing);                 // Should have been excluded from pricing (land is always excluded)
+        Assert.False(updatedPackage.Land.IsProductRemovedFromInventory);           // Should default to false
 
         var landPayoffPc = Assert.Single(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.LandPayoff

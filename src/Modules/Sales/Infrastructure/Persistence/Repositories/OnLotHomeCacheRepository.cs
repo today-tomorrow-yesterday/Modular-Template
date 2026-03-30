@@ -25,14 +25,14 @@ internal sealed class OnLotHomeCacheRepository(SalesDbContext dbContext)
         await DbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task RemoveByRefIdAsync(int refOnLotHomeId, CancellationToken cancellationToken = default)
+    public async Task MarkAsRemovedByRefIdAsync(int refOnLotHomeId, CancellationToken cancellationToken = default)
     {
         var existing = await DbSet
             .FirstOrDefaultAsync(h => h.RefOnLotHomeId == refOnLotHomeId, cancellationToken);
 
         if (existing is not null)
         {
-            DbSet.Remove(existing);
+            existing.MarkAsRemovedFromInventory();
             await DbContext.SaveChangesAsync(cancellationToken);
         }
     }

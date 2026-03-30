@@ -48,6 +48,11 @@ internal sealed class OnLotHomeCacheConfiguration : IEntityTypeConfiguration<OnL
             .HasColumnName("last_synced_at_utc")
             .IsRequired();
 
+        builder.Property(c => c.IsRemovedFromInventory)
+            .HasColumnName("is_removed_from_inventory")
+            .HasDefaultValue(false)
+            .IsRequired();
+
         // Unique constraints
         builder.HasIndex(h => h.RefOnLotHomeId)
             .IsUnique()

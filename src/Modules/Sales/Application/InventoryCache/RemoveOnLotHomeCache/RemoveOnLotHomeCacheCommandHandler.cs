@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Modules.Sales.Domain.InventoryCache;
+using Modules.Sales.Domain.Packages;
+using Modules.Sales.Domain.Packages.Home;
 using Rtl.Core.Application.Caching;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Domain.Results;
@@ -32,6 +34,7 @@ internal sealed class RemoveOnLotHomeCacheCommandHandler(
     ICacheWriteScope cacheWriteScope,
     IOnLotHomeCacheWriter cacheWriter,
     IInventoryCacheQueries cacheQueries,
+    IPackageRepository packageRepository,
     ILogger<RemoveOnLotHomeCacheCommandHandler> logger)
     : ICommandHandler<RemoveOnLotHomeCacheCommand>
 {
@@ -54,12 +57,19 @@ internal sealed class RemoveOnLotHomeCacheCommandHandler(
                 affectedLines.Count,
                 string.Join(", ", affectedLines.Select(l => $"Sale={l.SaleId}/Pkg={l.PackageId}/Line={l.PackageLineId}")));
 
-            // TODO: For each affected package, dispatch a command to flag the HomeLine
-            // as "product no longer in inventory." The salesperson should see a warning
-            // and can either select a different home or convert to manual entry.
+            foreach (var affected in affectedLines)
+            {
+                var package = await packageRepository.GetByIdWithTrackingAsync(affected.PackageId, cancellationToken);
+                if (package is null) continue;
+
+                var homeLine = package.Lines.OfType<HomeLine>().FirstOrDefault(l => l.Id == affected.PackageLineId);
+                if (homeLine is null) continue;
+
+                package.MarkLineProductUnavailable(homeLine, "Home", homeLine.Details?.StockNumber);
+            }
         }
 
-        await cacheWriter.RemoveByRefIdAsync(request.RefOnLotHomeId, cancellationToken);
+        await cacheWriter.MarkAsRemovedByRefIdAsync(request.RefOnLotHomeId, cancellationToken);
 
         return Result.Success();
     }

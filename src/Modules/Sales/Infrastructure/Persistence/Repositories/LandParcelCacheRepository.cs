@@ -25,14 +25,14 @@ internal sealed class LandParcelCacheRepository(SalesDbContext dbContext)
         await DbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task RemoveByRefIdAsync(int refLandParcelId, CancellationToken cancellationToken = default)
+    public async Task MarkAsRemovedByRefIdAsync(int refLandParcelId, CancellationToken cancellationToken = default)
     {
         var existing = await DbSet
             .FirstOrDefaultAsync(l => l.RefLandParcelId == refLandParcelId, cancellationToken);
 
         if (existing is not null)
         {
-            DbSet.Remove(existing);
+            existing.MarkAsRemovedFromInventory();
             await DbContext.SaveChangesAsync(cancellationToken);
         }
     }

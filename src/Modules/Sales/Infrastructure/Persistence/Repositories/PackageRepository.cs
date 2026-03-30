@@ -17,6 +17,10 @@ internal sealed class PackageRepository(SalesDbContext dbContext)
     public override async Task<IReadOnlyCollection<Package>> GetAllAsync(int? limit = 100, CancellationToken cancellationToken = default)
         => await DbSet.AsNoTracking().Include(p => p.Lines).ToListAsync(cancellationToken);
 
+    public async Task<Package?> GetByIdWithTrackingAsync(int id, CancellationToken cancellationToken = default)
+        => await DbSet.Include(p => p.Lines)
+                      .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+
     public async Task<Package?> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken = default)
     {
         return await DbSet

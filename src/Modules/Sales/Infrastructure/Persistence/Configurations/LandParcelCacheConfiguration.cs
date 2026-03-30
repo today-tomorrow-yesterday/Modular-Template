@@ -41,6 +41,11 @@ internal sealed class LandParcelCacheConfiguration : IEntityTypeConfiguration<La
             .HasColumnName("last_synced_at_utc")
             .IsRequired();
 
+        builder.Property(c => c.IsRemovedFromInventory)
+            .HasColumnName("is_removed_from_inventory")
+            .HasDefaultValue(false)
+            .IsRequired();
+
         // Unique constraints
         builder.HasIndex(l => l.RefLandParcelId)
             .IsUnique()

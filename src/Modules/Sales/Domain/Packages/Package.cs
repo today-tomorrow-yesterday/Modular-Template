@@ -158,6 +158,25 @@ public sealed class Package : AuditableEntity, IAggregateRoot
         return count;
     }
 
+    // --- Product unavailability ---
+
+    // Marks a package line's inventory product as removed and raises a domain event.
+    // Called when Inventory removes a home or land parcel from its catalog.
+    public void MarkLineProductUnavailable(PackageLine line, string productType, string? stockNumber)
+    {
+        line.IsProductRemovedFromInventory = true;
+
+        Raise(new ProductRemovedFromInventoryDomainEvent
+        {
+            PackageId = Id,
+            PackagePublicId = PublicId,
+            SaleId = SaleId,
+            PackageLineId = line.Id,
+            ProductType = productType,
+            StockNumber = stockNumber
+        });
+    }
+
     // --- Gross profit ---
     // Auto-called by all line mutations. Kept public for backward compat — idempotent, harmless to call again.
 

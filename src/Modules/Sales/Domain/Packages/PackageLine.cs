@@ -24,6 +24,7 @@ public abstract class PackageLine : AuditableEntity
     [SensitiveData] public decimal RetailSalePrice { get; protected set; } // SalePrice <= RetailSalePrice
     public Responsibility? Responsibility { get; protected set; }
     public virtual bool ShouldExcludeFromPricing { get; protected set; }
+    public bool IsProductRemovedFromInventory { get; internal set; }
     public int SortOrder { get; protected set; }
 
     public Package Package { get; private set; } = null!;

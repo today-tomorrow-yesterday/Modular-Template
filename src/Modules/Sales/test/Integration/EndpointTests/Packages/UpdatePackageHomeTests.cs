@@ -20,6 +20,9 @@ public class UpdatePackageHomeTests(SalesEndpointTestFixture fixture) : SalesEnd
         // Assert
         var updatedPackage = await GetPackageAsync();
 
+        Assert.NotNull(updatedPackage.Home);
+        Assert.False(updatedPackage.Home!.IsProductRemovedFromInventory);                              // Should default to false
+
         var waPc = Assert.Single(updatedPackage.ProjectCosts,
             projectCost => projectCost.CategoryNumber == ProjectCostCategories.WheelsAndAxles);
         Assert.Equal(ProjectCostItems.WaRental, waPc.ItemId);                                        // Should use WaRental item for rental

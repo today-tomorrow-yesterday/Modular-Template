@@ -54,6 +54,11 @@ internal sealed class PackageLineConfiguration : IEntityTypeConfiguration<Packag
         builder.Property(l => l.ShouldExcludeFromPricing)
             .HasColumnName("should_exclude_from_pricing");
 
+        builder.Property(pl => pl.IsProductRemovedFromInventory)
+            .HasColumnName("is_product_removed_from_inventory")
+            .HasDefaultValue(false)
+            .IsRequired();
+
         builder.ConfigureAuditProperties();
 
         builder.HasIndex(l => l.PackageId)

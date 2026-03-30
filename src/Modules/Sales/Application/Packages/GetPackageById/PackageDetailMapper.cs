@@ -68,6 +68,7 @@ internal static class PackageDetailMapper
             RetailSalePrice: line.RetailSalePrice,
             Responsibility: line.Responsibility?.ToString(),
             ShouldExcludeFromPricing: line.ShouldExcludeFromPricing,
+            IsProductRemovedFromInventory: line.IsProductRemovedFromInventory,
             HomeType: d?.HomeType.ToString(),
             HomeSourceType: d?.HomeSourceType.ToString(),
             StockNumber: d?.StockNumber,
@@ -119,6 +120,7 @@ internal static class PackageDetailMapper
         if (d is null) return new LandSectionResponse(
             line.SalePrice, line.EstimatedCost, line.RetailSalePrice,
             line.Responsibility?.ToString(), line.ShouldExcludeFromPricing,
+            line.IsProductRemovedFromInventory,
             string.Empty, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null,
             null, null, null, null, null, null, null, null, null);
@@ -129,6 +131,7 @@ internal static class PackageDetailMapper
             RetailSalePrice: line.RetailSalePrice,
             Responsibility: line.Responsibility?.ToString(),
             ShouldExcludeFromPricing: line.ShouldExcludeFromPricing,
+            IsProductRemovedFromInventory: line.IsProductRemovedFromInventory,
             LandPurchaseType: d.LandPurchaseType.ToString(),
             CustomerLandType: d.CustomerLandType?.ToString(),
             LandInclusion: d.LandInclusion?.ToString(),

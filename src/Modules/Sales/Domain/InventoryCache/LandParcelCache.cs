@@ -34,6 +34,13 @@ public sealed class LandParcelCache : Entity, ICacheProjection
 
     public DateTime LastSyncedAtUtc { get; set; }
 
+    public bool IsRemovedFromInventory { get; private set; }
+
+    public void MarkAsRemovedFromInventory()
+    {
+        IsRemovedFromInventory = true;
+    }
+
     // Applies incoming data and raises domain events for significant changes.
     // Called by the repository during upsert on existing tracked entities only.
     public void ApplyChangesFrom(LandParcelCache incoming)
