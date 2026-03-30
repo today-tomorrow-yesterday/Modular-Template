@@ -24,7 +24,7 @@ public sealed class OnboardCustomerFromLoanCommandHandlerTests
     [Fact]
     public async Task Returns_existing_PublicId_when_LoanId_already_onboarded()
     {
-        var existing = Domain.Customers.Entities.Customer.SyncFromCrm(1, 100, LifecycleStage.Customer,
+        var existing = Domain.Customers.Entities.Customer.SyncFromCrm(crmCustomerId: 1, 100, LifecycleStage.Customer,
             CustomerName.Create("John", null, "Doe"), null, [], null, null, null, null);
         _customerRepository.GetByIdentifierAsync(IdentifierType.LoanId, "LOAN-1", Arg.Any<CancellationToken>())
             .Returns(existing);
@@ -55,10 +55,10 @@ public sealed class OnboardCustomerFromLoanCommandHandlerTests
         _customerRepository.GetByIdentifierAsync(Arg.Any<IdentifierType>(), Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns((Domain.Customers.Entities.Customer?)null);
 
-        var existingCustomer = Domain.Customers.Entities.Customer.SyncFromCrm(42, 100, LifecycleStage.Opportunity,
+        var existingCustomer = Domain.Customers.Entities.Customer.SyncFromCrm(crmCustomerId: 42, 100, LifecycleStage.Opportunity,
             CustomerName.Create("Existing", null, "Person"), null, [], null, null, null, null);
         _customerRepository.GetForUpdateByIdentifierAsync(
-            IdentifierType.CrmPartyId, "42", Arg.Any<CancellationToken>())
+            IdentifierType.CrmCustomerId, "42", Arg.Any<CancellationToken>())
             .Returns(existingCustomer);
 
         _vmfLosAdapter.GetBorrowerByLoanIdAsync("LOAN-1", Arg.Any<CancellationToken>())

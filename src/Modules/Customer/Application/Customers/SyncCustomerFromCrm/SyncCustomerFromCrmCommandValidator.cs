@@ -6,9 +6,9 @@ internal sealed class SyncCustomerFromCrmCommandValidator : AbstractValidator<Sy
 {
     public SyncCustomerFromCrmCommandValidator()
     {
-        RuleFor(x => x.CrmPartyId)
+        RuleFor(x => x.CrmCustomerId)
             .GreaterThan(0)
-            .WithMessage("CrmPartyId is required");
+            .WithMessage("CrmCustomerId is required");
 
         RuleFor(x => x.HomeCenterNumber)
             .GreaterThan(0)

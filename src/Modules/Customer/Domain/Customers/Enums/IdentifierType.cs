@@ -6,5 +6,5 @@ public enum IdentifierType
     SalesforceLeadId,
     SalesforceOpportunityId,
     LoanId,
-    CrmPartyId
+    CrmCustomerId
 }

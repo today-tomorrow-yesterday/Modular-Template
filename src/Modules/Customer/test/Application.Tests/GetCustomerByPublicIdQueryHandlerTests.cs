@@ -35,7 +35,7 @@ public sealed class GetCustomerByPublicIdQueryHandlerTests
     public async Task Returns_success_with_mapped_response_when_customer_found()
     {
         var customer = Domain.Customers.Entities.Customer.SyncFromCrm(
-            crmPartyId: 1,
+            crmCustomerId: 1,
             homeCenterNumber: 100,
             lifecycleStage: LifecycleStage.Customer,
             name: CustomerName.Create("John", null, "Doe"),

@@ -20,7 +20,7 @@ public class CustomerCreatedProducerTests(EventProducerTestFixture fixture) : Ev
         var sender = scope.ServiceProvider.GetRequiredService<ISender>();
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: 77001,
+            CrmCustomerId: 77001,
             HomeCenterNumber: 100,
             LifecycleStage: LifecycleStage.Lead,
             FirstName: "Alice",
@@ -36,7 +36,7 @@ public class CustomerCreatedProducerTests(EventProducerTestFixture fixture) : Ev
             ],
             Identifiers:
             [
-                new SyncIdentifierDto(IdentifierType.CrmPartyId, "77001"),
+                new SyncIdentifierDto(IdentifierType.CrmCustomerId, "77001"),
                 new SyncIdentifierDto(IdentifierType.SalesforceAccountId, "SF-ALICE-001")
             ],
             MailingAddress: new SyncMailingAddressDto("100 Main St", null, "Nashville", "Davidson", "TN", "US", "37201"),

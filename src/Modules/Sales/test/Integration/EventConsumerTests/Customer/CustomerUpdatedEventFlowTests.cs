@@ -20,19 +20,19 @@ namespace Modules.Sales.EventConsumerTests.Customer;
 public class CustomerUpdatedEventFlowTests(EventConsumerTestFixture fixture)
     : EventConsumerTestBase(fixture)
 {
-    private const int CrmPartyId = 88001;
+    private const int CrmCustomerId = 88001;
 
     [Fact]
     public async Task CustomerNameChanged_UpdatesCachedDisplayName()
     {
         // Arrange — create customer, flush
         await CustomerEventHelpers.CreateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, firstName: "Jane", lastName: "Doe");
+            Fixture, crmCustomerId: CrmCustomerId, firstName: "Jane", lastName: "Doe");
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         // Act — update the name
         await CustomerEventHelpers.UpdateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, firstName: "Janet", lastName: "Smith");
+            Fixture, crmCustomerId: CrmCustomerId, firstName: "Janet", lastName: "Smith");
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         // Assert
@@ -47,13 +47,13 @@ public class CustomerUpdatedEventFlowTests(EventConsumerTestFixture fixture)
     {
         // Arrange
         await CustomerEventHelpers.CreateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, firstName: "Jane", lastName: "Doe");
+            Fixture, crmCustomerId: CrmCustomerId, firstName: "Jane", lastName: "Doe");
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         // Act — update contact points
         await CustomerEventHelpers.UpdateCustomerViaCrmSyncAsync(
             Fixture,
-            crmPartyId: CrmPartyId,
+            crmCustomerId: CrmCustomerId,
             contactPoints:
             [
                 new SyncContactPointDto(ContactPointType.Email, "new-email@test.com", true),
@@ -73,13 +73,13 @@ public class CustomerUpdatedEventFlowTests(EventConsumerTestFixture fixture)
     {
         // Arrange
         await CustomerEventHelpers.CreateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, firstName: "Jane", lastName: "Doe");
+            Fixture, crmCustomerId: CrmCustomerId, firstName: "Jane", lastName: "Doe");
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         // Act — update with mailing address
         await CustomerEventHelpers.UpdateCustomerViaCrmSyncAsync(
             Fixture,
-            crmPartyId: CrmPartyId,
+            crmCustomerId: CrmCustomerId,
             mailingAddress: new SyncMailingAddressDto(
                 "456 Oak Ave", null, "Knoxville", "Knox", "TN", "US", "37902"));
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
@@ -95,11 +95,11 @@ public class CustomerUpdatedEventFlowTests(EventConsumerTestFixture fixture)
     {
         // Arrange — create, flush, update name, flush
         await CustomerEventHelpers.CreateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, firstName: "Jane", lastName: "Doe");
+            Fixture, crmCustomerId: CrmCustomerId, firstName: "Jane", lastName: "Doe");
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         await CustomerEventHelpers.UpdateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, firstName: "Updated", lastName: "Customer");
+            Fixture, crmCustomerId: CrmCustomerId, firstName: "Updated", lastName: "Customer");
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         // Act — create a sale using the updated customer
@@ -121,12 +121,12 @@ public class CustomerUpdatedEventFlowTests(EventConsumerTestFixture fixture)
     {
         // Arrange
         await CustomerEventHelpers.CreateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, firstName: "Jane", lastName: "Doe");
+            Fixture, crmCustomerId: CrmCustomerId, firstName: "Jane", lastName: "Doe");
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         // Act — update home center from 100 to 200
         await CustomerEventHelpers.UpdateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, homeCenterNumber: 200);
+            Fixture, crmCustomerId: CrmCustomerId, homeCenterNumber: 200);
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         // Assert — cache should reflect the new home center
@@ -140,13 +140,13 @@ public class CustomerUpdatedEventFlowTests(EventConsumerTestFixture fixture)
     {
         // Arrange
         await CustomerEventHelpers.CreateCustomerViaCrmSyncAsync(
-            Fixture, crmPartyId: CrmPartyId, firstName: "Jane", lastName: "Doe");
+            Fixture, crmCustomerId: CrmCustomerId, firstName: "Jane", lastName: "Doe");
         await CustomerEventHelpers.PublishEventsFromOutboxAsync(Fixture);
 
         // Act — update with a primary sales assignment
         await CustomerEventHelpers.UpdateCustomerViaCrmSyncAsync(
             Fixture,
-            crmPartyId: CrmPartyId,
+            crmCustomerId: CrmCustomerId,
             salesAssignments:
             [
                 new SyncSalesAssignmentDto(

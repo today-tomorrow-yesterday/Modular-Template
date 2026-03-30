@@ -65,7 +65,7 @@ public sealed class Customer : Entity, IAggregateRoot
     }
 
     public static Customer SyncFromCrm(
-        int crmPartyId,
+        int crmCustomerId,
         int homeCenterNumber,
         LifecycleStage lifecycleStage,
         CustomerName? name,
@@ -90,7 +90,7 @@ public sealed class Customer : Entity, IAggregateRoot
             LastSyncedAtUtc = DateTime.UtcNow
         };
 
-        customer.AddIdentifierInternal(IdentifierType.CrmPartyId, crmPartyId.ToString());
+        customer.AddIdentifierInternal(IdentifierType.CrmCustomerId, crmCustomerId.ToString());
 
         foreach (var (salesPersonId, role) in salesAssignments)
         {

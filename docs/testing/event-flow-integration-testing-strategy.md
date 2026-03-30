@@ -179,7 +179,7 @@ These are the cache tables that the Sales module's package tests already depend 
 
 ```csharp
 new SyncCustomerFromCrmCommand(
-    CrmPartyId: 42,
+    CrmCustomerId: 42,
     HomeCenterNumber: 100,
     LifecycleStage: LifecycleStage.Lead,  // Customer module's enum
     FirstName: "John",
@@ -193,7 +193,7 @@ new SyncCustomerFromCrmCommand(
         new SyncContactPointDto(ContactPointType.Phone, "555-1234", IsPrimary: false)
     ],
     Identifiers: [
-        new SyncIdentifierDto(IdentifierType.CrmPartyId, "42")
+        new SyncIdentifierDto(IdentifierType.CrmCustomerId, "42")
     ],
     MailingAddress: null,
     SalesforceUrl: null,

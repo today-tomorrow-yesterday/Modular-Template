@@ -35,7 +35,7 @@ public static class CustomerEventHelpers
     /// </summary>
     public static async Task CreateCustomerViaCrmSyncAsync(
         EventConsumerTestFixture fixture,
-        int crmPartyId = 99001,
+        int crmCustomerId = 99001,
         string firstName = "Jane",
         string lastName = "Doe")
     {
@@ -43,7 +43,7 @@ public static class CustomerEventHelpers
         var sender = scope.ServiceProvider.GetRequiredService<ISender>();
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: crmPartyId,
+            CrmCustomerId: crmCustomerId,
             HomeCenterNumber: EventConsumerTestFixture.TestHomeCenterNumber,
             LifecycleStage: LifecycleStage.Customer,
             FirstName: firstName,
@@ -59,7 +59,7 @@ public static class CustomerEventHelpers
             ],
             Identifiers:
             [
-                new SyncIdentifierDto(IdentifierType.CrmPartyId, crmPartyId.ToString())
+                new SyncIdentifierDto(IdentifierType.CrmCustomerId, crmCustomerId.ToString())
             ],
             MailingAddress: null,
             SalesforceUrl: null,
@@ -75,7 +75,7 @@ public static class CustomerEventHelpers
 
     /// <summary>
     /// Updates an existing customer via CRM sync (same command, conditional domain events).
-    /// The CrmPartyId must match a previously created customer.
+    /// The CrmCustomerId must match a previously created customer.
     ///
     /// Conditionally triggers (based on what changed):
     ///   - CustomerNameChangedDomainEvent → CustomerNameChangedIntegrationEvent
@@ -86,7 +86,7 @@ public static class CustomerEventHelpers
     /// </summary>
     public static async Task UpdateCustomerViaCrmSyncAsync(
         EventConsumerTestFixture fixture,
-        int crmPartyId,
+        int crmCustomerId,
         int? homeCenterNumber = null,
         string? firstName = null,
         string? lastName = null,
@@ -101,7 +101,7 @@ public static class CustomerEventHelpers
         var fn = firstName ?? "Jane";
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: crmPartyId,
+            CrmCustomerId: crmCustomerId,
             HomeCenterNumber: hc,
             LifecycleStage: LifecycleStage.Customer,
             FirstName: fn,
@@ -117,7 +117,7 @@ public static class CustomerEventHelpers
             ],
             Identifiers:
             [
-                new SyncIdentifierDto(IdentifierType.CrmPartyId, crmPartyId.ToString())
+                new SyncIdentifierDto(IdentifierType.CrmCustomerId, crmCustomerId.ToString())
             ],
             MailingAddress: mailingAddress,
             SalesforceUrl: null,

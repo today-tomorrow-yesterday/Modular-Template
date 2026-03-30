@@ -30,11 +30,11 @@ public sealed class SyncCustomerFromCrmCommandHandlerTests
     public async Task Creates_new_Customer_with_contact_points_and_identifiers()
     {
         _customerRepository.GetForUpdateByIdentifierAsync(
-            IdentifierType.CrmPartyId, "42", Arg.Any<CancellationToken>()).Returns((Domain.Customers.Entities.Customer?)null);
+            IdentifierType.CrmCustomerId, "42", Arg.Any<CancellationToken>()).Returns((Domain.Customers.Entities.Customer?)null);
         _salesPersonRepository.GetByIdAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns((SalesPerson?)null);
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: 42,
+            CrmCustomerId: 42,
             HomeCenterNumber: 100,
             LifecycleStage: LifecycleStage.Lead,
             FirstName: "John",
@@ -53,7 +53,7 @@ public sealed class SyncCustomerFromCrmCommandHandlerTests
         var result = await _sut.Handle(command, CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        // CrmPartyId added by factory + 1 explicit identifier + 1 contact point
+        // CrmCustomerId added by factory + 1 explicit identifier + 1 contact point
         _customerRepository.Received(1).Add(Arg.Is<Domain.Customers.Entities.Customer>(c =>
             c.ContactPoints.Count == 1 &&
             c.Identifiers.Count == 2));
@@ -68,10 +68,10 @@ public sealed class SyncCustomerFromCrmCommandHandlerTests
         existing.ClearDomainEvents();
 
         _customerRepository.GetForUpdateByIdentifierAsync(
-            IdentifierType.CrmPartyId, "42", Arg.Any<CancellationToken>()).Returns(existing);
+            IdentifierType.CrmCustomerId, "42", Arg.Any<CancellationToken>()).Returns(existing);
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: 42,
+            CrmCustomerId: 42,
             HomeCenterNumber: 200, // Changed
             LifecycleStage: LifecycleStage.Lead,
             FirstName: "John",
@@ -102,14 +102,14 @@ public sealed class SyncCustomerFromCrmCommandHandlerTests
     public async Task Upserts_SalesPersons_before_creating_Customer()
     {
         _customerRepository.GetForUpdateByIdentifierAsync(
-            IdentifierType.CrmPartyId, "42", Arg.Any<CancellationToken>()).Returns((Domain.Customers.Entities.Customer?)null);
+            IdentifierType.CrmCustomerId, "42", Arg.Any<CancellationToken>()).Returns((Domain.Customers.Entities.Customer?)null);
 
         var existingSp = SalesPerson.Assign("SP-1", "old@test.com", "olduser", "Old", "Name", null, "FED-1");
         _salesPersonRepository.GetByIdAsync("SP-1", Arg.Any<CancellationToken>()).Returns(existingSp);
         _salesPersonRepository.GetByIdAsync("SP-2", Arg.Any<CancellationToken>()).Returns((SalesPerson?)null);
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: 42,
+            CrmCustomerId: 42,
             HomeCenterNumber: 100,
             LifecycleStage: LifecycleStage.Lead,
             FirstName: "John",

@@ -27,7 +27,7 @@ public class GetCustomerByIdTests(CustomerEndpointTestFixture fixture) : Custome
         var sender = scope.ServiceProvider.GetRequiredService<ISender>();
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: 99001,
+            CrmCustomerId: 99001,
             HomeCenterNumber: TestHomeCenterNumber,
             LifecycleStage: LifecycleStage.Customer,
             FirstName: "Jane",
@@ -43,7 +43,7 @@ public class GetCustomerByIdTests(CustomerEndpointTestFixture fixture) : Custome
             ],
             Identifiers:
             [
-                new SyncIdentifierDto(IdentifierType.CrmPartyId, "99001")
+                new SyncIdentifierDto(IdentifierType.CrmCustomerId, "99001")
             ],
             MailingAddress: null,
             SalesforceUrl: null,

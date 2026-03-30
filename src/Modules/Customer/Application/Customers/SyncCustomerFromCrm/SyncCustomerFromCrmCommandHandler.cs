@@ -21,9 +21,9 @@ internal sealed class SyncCustomerFromCrmCommandHandler(
     {
         await UpsertSalesPersonsAsync(request, cancellationToken);
 
-        var crmPartyIdValue = request.CrmPartyId.ToString();
+        var crmCustomerIdValue = request.CrmCustomerId.ToString();
         var existing = await customerRepository.GetForUpdateByIdentifierAsync(
-            IdentifierType.CrmPartyId, crmPartyIdValue, cancellationToken);
+            IdentifierType.CrmCustomerId, crmCustomerIdValue, cancellationToken);
 
         if (existing is not null)
         {
@@ -88,7 +88,7 @@ internal sealed class SyncCustomerFromCrmCommandHandler(
             .ToArray();
 
         var customer = Domain.Customers.Entities.Customer.SyncFromCrm(
-            request.CrmPartyId,
+            request.CrmCustomerId,
             request.HomeCenterNumber,
             request.LifecycleStage,
             request.FirstName is not null

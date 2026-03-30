@@ -45,7 +45,7 @@ internal sealed partial class OnboardCustomerFromLoanCommandHandler(
         if (vmfResponse!.ProspectorId is > 0)
         {
             var existingByProspector = await customerRepository.GetForUpdateByIdentifierAsync(
-                IdentifierType.CrmPartyId,
+                IdentifierType.CrmCustomerId,
                 vmfResponse.ProspectorId.Value.ToString(),
                 cancellationToken);
 

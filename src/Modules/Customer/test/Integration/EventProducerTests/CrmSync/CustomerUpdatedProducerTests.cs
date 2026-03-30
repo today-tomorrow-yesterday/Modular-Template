@@ -12,7 +12,7 @@ namespace Modules.Customer.EventProducerTests.CrmSync;
 // Each test creates a customer, flushes, clears spy, updates a field, flushes, asserts specific event
 public class CustomerUpdatedProducerTests(EventProducerTestFixture fixture) : EventProducerTestBase(fixture)
 {
-    private const int CrmPartyId = 78001;
+    private const int CrmCustomerId = 78001;
 
     private async Task CreateBaseCustomerAsync()
     {
@@ -20,7 +20,7 @@ public class CustomerUpdatedProducerTests(EventProducerTestFixture fixture) : Ev
         var sender = scope.ServiceProvider.GetRequiredService<ISender>();
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: CrmPartyId,
+            CrmCustomerId: CrmCustomerId,
             HomeCenterNumber: 100,
             LifecycleStage: LifecycleStage.Customer,
             FirstName: "Bob",
@@ -30,7 +30,7 @@ public class CustomerUpdatedProducerTests(EventProducerTestFixture fixture) : Ev
             DateOfBirth: null,
             SalesAssignments: [],
             ContactPoints: [new SyncContactPointDto(ContactPointType.Email, "bob@test.com", true)],
-            Identifiers: [new SyncIdentifierDto(IdentifierType.CrmPartyId, CrmPartyId.ToString())],
+            Identifiers: [new SyncIdentifierDto(IdentifierType.CrmCustomerId, CrmCustomerId.ToString())],
             MailingAddress: null,
             SalesforceUrl: null,
             CreatedOn: DateTimeOffset.UtcNow,
@@ -56,7 +56,7 @@ public class CustomerUpdatedProducerTests(EventProducerTestFixture fixture) : Ev
         var sender = scope.ServiceProvider.GetRequiredService<ISender>();
 
         var command = new SyncCustomerFromCrmCommand(
-            CrmPartyId: CrmPartyId,
+            CrmCustomerId: CrmCustomerId,
             HomeCenterNumber: homeCenterNumber ?? 100,
             LifecycleStage: LifecycleStage.Customer,
             FirstName: firstName ?? "Bob",
@@ -66,7 +66,7 @@ public class CustomerUpdatedProducerTests(EventProducerTestFixture fixture) : Ev
             DateOfBirth: null,
             SalesAssignments: salesAssignments ?? [],
             ContactPoints: contactPoints ?? [new SyncContactPointDto(ContactPointType.Email, "bob@test.com", true)],
-            Identifiers: [new SyncIdentifierDto(IdentifierType.CrmPartyId, CrmPartyId.ToString())],
+            Identifiers: [new SyncIdentifierDto(IdentifierType.CrmCustomerId, CrmCustomerId.ToString())],
             MailingAddress: useDefaultMailingAddress ? null : mailingAddress,
             SalesforceUrl: null,
             CreatedOn: DateTimeOffset.UtcNow,

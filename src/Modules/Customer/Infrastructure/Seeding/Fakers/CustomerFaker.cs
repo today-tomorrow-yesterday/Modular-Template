@@ -59,7 +59,7 @@ internal static class CustomerFaker
                 : null;
 
             var customer = Domain.Customers.Entities.Customer.SyncFromCrm(
-                crmPartyId: i,
+                crmCustomerId: i,
                 homeCenterNumber: homeCenterNumber,
                 lifecycleStage: stage,
                 name: CustomerName.Create(firstName, middleName, lastName, nameExtension),

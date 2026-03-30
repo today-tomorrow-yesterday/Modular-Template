@@ -5,7 +5,7 @@ namespace Modules.Customer.Application.Customers.SyncCustomerFromCrm;
 
 // CDC sync command — flattened (no PartyType, no PersonData/OrganizationData wrappers).
 public sealed record SyncCustomerFromCrmCommand(
-    int CrmPartyId,
+    int CrmCustomerId,
     int HomeCenterNumber,
     LifecycleStage LifecycleStage,
     string? FirstName,
