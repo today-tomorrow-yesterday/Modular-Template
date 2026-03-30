@@ -19,8 +19,8 @@ internal sealed class UserAccessGrantedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing UserAccessGranted: UserId={UserId}, Employee={EmployeeNumber}, HCs={HomeCenterCount}",
-            integrationEvent.UserId,
+            "Processing UserAccessGranted: PublicUserId={PublicUserId}, Employee={EmployeeNumber}, HCs={HomeCenterCount}",
+            integrationEvent.PublicUserId,
             integrationEvent.EmployeeNumber,
             integrationEvent.AuthorizedHomeCenters.Count);
 
@@ -33,7 +33,7 @@ internal sealed class UserAccessGrantedIntegrationEventHandler(
 
     private static AuthorizedUserCache MapToCache(UserAccessGrantedIntegrationEvent e) => new()
     {
-        RefUserId = e.PublicId,
+        RefUserId = e.PublicUserId,
         FederatedId = e.FederatedId,
         EmployeeNumber = e.EmployeeNumber,
         FirstName = e.FirstName,

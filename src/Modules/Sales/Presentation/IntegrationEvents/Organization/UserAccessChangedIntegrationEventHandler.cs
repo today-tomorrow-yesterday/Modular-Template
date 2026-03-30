@@ -19,8 +19,8 @@ internal sealed class UserAccessChangedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing UserAccessChanged: UserId={UserId}, Employee={EmployeeNumber}, HCs={HomeCenterCount}, Active={IsActive}, Retired={IsRetired}",
-            integrationEvent.UserId,
+            "Processing UserAccessChanged: PublicUserId={PublicUserId}, Employee={EmployeeNumber}, HCs={HomeCenterCount}, Active={IsActive}, Retired={IsRetired}",
+            integrationEvent.PublicUserId,
             integrationEvent.EmployeeNumber,
             integrationEvent.AuthorizedHomeCenters.Count,
             integrationEvent.IsActive,
@@ -35,7 +35,7 @@ internal sealed class UserAccessChangedIntegrationEventHandler(
 
     private static AuthorizedUserCache MapToCache(UserAccessChangedIntegrationEvent e) => new()
     {
-        RefUserId = e.PublicId,
+        RefUserId = e.PublicUserId,
         FederatedId = e.FederatedId,
         EmployeeNumber = e.EmployeeNumber,
         FirstName = e.FirstName,

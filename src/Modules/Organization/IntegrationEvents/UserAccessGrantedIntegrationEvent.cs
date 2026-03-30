@@ -8,8 +8,7 @@ namespace Modules.Organization.IntegrationEvents;
 public sealed record UserAccessGrantedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int UserId,
-    Guid PublicId,
+    Guid PublicUserId,
     string FederatedId,
     string FirstName,
     string LastName,

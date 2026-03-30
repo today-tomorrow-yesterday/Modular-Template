@@ -8,8 +8,7 @@ namespace Modules.Organization.IntegrationEvents;
 public sealed record HomeCenterChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int HomeCenterId,
-    Guid PublicId,
+    Guid PublicHomeCenterId,
     int HomeCenterNumber,
     string LotName,
     string StateCode,

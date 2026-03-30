@@ -9,7 +9,6 @@ namespace Modules.Sales.IntegrationEvents;
 public sealed record DeliveryAddressCreatedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int SaleId,
     Guid SalePublicId,
     Guid? PublicCustomerId,
     string? OccupancyType,

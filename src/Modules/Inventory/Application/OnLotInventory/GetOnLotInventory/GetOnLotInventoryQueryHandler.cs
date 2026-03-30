@@ -49,7 +49,7 @@ internal sealed class GetOnLotInventoryQueryHandler(
             saleSummaryByStock.TryGetValue(home.RefStockNumber, out var ss);
 
             return new OnLotInventoryResponse(
-                home.Id,
+                home.PublicId,
                 home.RefHomeCenterNumber,
                 home.RefStockNumber,
                 home.StockType,

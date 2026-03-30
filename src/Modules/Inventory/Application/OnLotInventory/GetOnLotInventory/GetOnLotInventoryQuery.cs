@@ -5,7 +5,7 @@ namespace Modules.Inventory.Application.OnLotInventory.GetOnLotInventory;
 public sealed record GetOnLotInventoryQuery(int HomeCenterNumber) : IQuery<IReadOnlyCollection<OnLotInventoryResponse>>;
 
 public sealed record OnLotInventoryResponse(
-    int Id,
+    Guid PublicId,
     int HomeCenterNumber,
     string StockNumber,
     string? StockType,

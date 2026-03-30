@@ -21,7 +21,7 @@ internal sealed class GetLandInventoryQueryHandler(
         var filtered = parcels
             .Where(p => p.StockType is not null && AllowedStockTypes.Contains(p.StockType))
             .Select(p => new LandInventoryResponse(
-                p.Id,
+                p.PublicId,
                 p.RefHomeCenterNumber,
                 p.RefStockNumber,
                 p.StockType,

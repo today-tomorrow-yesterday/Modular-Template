@@ -28,7 +28,6 @@ internal sealed class DeliveryAddressCreatedDomainEventHandler(
             new DeliveryAddressCreatedIntegrationEvent(
                 Guid.CreateVersion7(),
                 domainEvent.OccurredOnUtc,
-                deliveryAddress.SaleId,
                 deliveryAddress.Sale.PublicId,
                 deliveryAddress.Sale.Customer?.RefPublicId,
                 deliveryAddress.OccupancyType,

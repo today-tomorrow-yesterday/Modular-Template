@@ -44,6 +44,6 @@ public sealed class GetLandInventoryQueryHandlerTests
 
         Assert.True(result.IsSuccess);
         Assert.Single(result.Value);
-        Assert.Equal(1, result.Value.First().Id);
+        Assert.Equal(allowed.PublicId, result.Value.First().PublicId);
     }
 }

@@ -5,7 +5,7 @@ namespace Modules.Inventory.Application.LandInventory.GetLandInventory;
 public sealed record GetLandInventoryQuery(int HomeCenterNumber) : IQuery<IReadOnlyCollection<LandInventoryResponse>>;
 
 public sealed record LandInventoryResponse(
-    int Id,
+    Guid PublicId,
     int HomeCenterNumber,
     string StockNumber,
     string? StockType,
