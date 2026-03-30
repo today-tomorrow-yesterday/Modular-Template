@@ -28,7 +28,7 @@ internal sealed class LandParcelAppraisalRevisedDomainEventHandler(
             new LandParcelAppraisalRevisedIntegrationEvent(
                 Guid.CreateVersion7(),
                 dateTimeProvider.UtcNow,
-                parcel.Id,
+                parcel.PublicId,
                 parcel.RefHomeCenterNumber,
                 parcel.RefStockNumber,
                 parcel.StockType,

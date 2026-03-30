@@ -17,7 +17,7 @@ public enum HomeCondition
 // Extends Entity for domain event support (price change detection).
 public sealed class OnLotHomeCache : Entity, ICacheProjection
 {
-    public int RefOnLotHomeId { get; set; }
+    public Guid RefPublicId { get; set; }
 
     public int RefHomeCenterNumber { get; set; }
 

@@ -18,6 +18,10 @@ internal sealed class OnLotHomeConfiguration : IEntityTypeConfiguration<OnLotHom
             .HasColumnName("id")
             .ValueGeneratedNever();
 
+        builder.Property(h => h.PublicId)
+            .HasColumnName("public_id")
+            .IsRequired();
+
         builder.Property(h => h.RefHomeCenterNumber)
             .HasColumnName("ref_home_center_number")
             .IsRequired();
@@ -49,6 +53,10 @@ internal sealed class OnLotHomeConfiguration : IEntityTypeConfiguration<OnLotHom
         builder.Property(h => h.LastSyncedAtUtc)
             .HasColumnName("last_synced_at_utc")
             .IsRequired();
+
+        builder.HasIndex(h => h.PublicId)
+            .IsUnique()
+            .HasDatabaseName("ix_on_lot_homes_public_id");
 
         builder.HasIndex(h => new { h.RefHomeCenterNumber, h.RefStockNumber })
             .IsUnique()

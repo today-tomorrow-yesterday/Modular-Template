@@ -24,13 +24,13 @@ public interface IInventoryCacheQueries
         int landParcelCacheId,
         CancellationToken cancellationToken = default);
 
-    // Same as above but by Inventory's ref ID (used during removal before cache row is deleted)
-    Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForHomeByRefIdAsync(
-        int refOnLotHomeId,
+    // Same as above but by Inventory's public ID (used during removal before cache row is deleted)
+    Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForHomeByPublicIdAsync(
+        Guid publicOnLotHomeId,
         CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForLandByRefIdAsync(
-        int refLandParcelId,
+    Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForLandByPublicIdAsync(
+        Guid publicLandParcelId,
         CancellationToken cancellationToken = default);
 }
 

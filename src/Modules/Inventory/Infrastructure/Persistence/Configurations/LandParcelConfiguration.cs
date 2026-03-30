@@ -18,6 +18,10 @@ internal sealed class LandParcelConfiguration : IEntityTypeConfiguration<LandPar
             .HasColumnName("id")
             .ValueGeneratedNever();
 
+        builder.Property(l => l.PublicId)
+            .HasColumnName("public_id")
+            .IsRequired();
+
         builder.Property(l => l.RefHomeCenterNumber)
             .HasColumnName("ref_home_center_number")
             .IsRequired();
@@ -45,6 +49,10 @@ internal sealed class LandParcelConfiguration : IEntityTypeConfiguration<LandPar
         builder.Property(l => l.LastSyncedAtUtc)
             .HasColumnName("last_synced_at_utc")
             .IsRequired();
+
+        builder.HasIndex(l => l.PublicId)
+            .IsUnique()
+            .HasDatabaseName("ix_land_parcels_public_id");
 
         builder.HasIndex(l => new { l.RefHomeCenterNumber, l.RefStockNumber })
             .IsUnique()

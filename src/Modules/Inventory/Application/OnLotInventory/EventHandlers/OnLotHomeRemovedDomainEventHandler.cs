@@ -19,9 +19,7 @@ internal sealed class OnLotHomeRemovedDomainEventHandler(
             new OnLotHomeRemovedFromInventoryIntegrationEvent(
                 Guid.CreateVersion7(),
                 dateTimeProvider.UtcNow,
-                domainEvent.EntityId,
-                domainEvent.HomeCenterNumber,
-                domainEvent.StockNumber),
+                domainEvent.PublicId),
             cancellationToken);
     }
 }

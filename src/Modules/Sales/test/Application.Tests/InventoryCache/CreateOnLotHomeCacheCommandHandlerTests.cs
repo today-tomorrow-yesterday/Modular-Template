@@ -24,7 +24,7 @@ public sealed class CreateOnLotHomeCacheCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_upserts_cache()
     {
-        var cache = new OnLotHomeCache { RefOnLotHomeId = 1, RefStockNumber = "OH-200" };
+        var cache = new OnLotHomeCache { RefPublicId = Guid.NewGuid(), RefStockNumber = "OH-200" };
 
         var result = await _sut.Handle(
             new CreateOnLotHomeCacheCommand(cache), CancellationToken.None);
@@ -36,7 +36,7 @@ public sealed class CreateOnLotHomeCacheCommandHandlerTests
     [Fact]
     public async Task Sets_LastSyncedAtUtc_from_date_time_provider()
     {
-        var cache = new OnLotHomeCache { RefOnLotHomeId = 1 };
+        var cache = new OnLotHomeCache { RefPublicId = Guid.NewGuid() };
 
         await _sut.Handle(new CreateOnLotHomeCacheCommand(cache), CancellationToken.None);
 

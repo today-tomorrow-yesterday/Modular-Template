@@ -16,8 +16,8 @@ internal sealed class LandParcelCacheConfiguration : IEntityTypeConfiguration<La
             .HasColumnName("id")
             .UseIdentityAlwaysColumn();
 
-        builder.Property(l => l.RefLandParcelId)
-            .HasColumnName("ref_land_parcel_id")
+        builder.Property(l => l.RefPublicId)
+            .HasColumnName("ref_public_land_parcel_id")
             .IsRequired();
 
         builder.Property(l => l.RefHomeCenterNumber)
@@ -47,9 +47,9 @@ internal sealed class LandParcelCacheConfiguration : IEntityTypeConfiguration<La
             .IsRequired();
 
         // Unique constraints
-        builder.HasIndex(l => l.RefLandParcelId)
+        builder.HasIndex(l => l.RefPublicId)
             .IsUnique()
-            .HasDatabaseName("ix_land_parcels_cache_ref_land_parcel_id");
+            .HasDatabaseName("ix_land_parcels_cache_ref_public_land_parcel_id");
 
         builder.HasIndex(l => new { l.RefHomeCenterNumber, l.RefStockNumber })
             .IsUnique()

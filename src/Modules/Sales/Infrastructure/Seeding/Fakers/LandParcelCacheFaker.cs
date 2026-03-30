@@ -5,17 +5,15 @@ namespace Modules.Sales.Infrastructure.Seeding.Fakers;
 
 internal sealed class LandParcelCacheFaker : Faker<LandParcelCache>
 {
-    private int _refLandParcelId;
     private int _stockSequence;
     private int _hcIndex;
 
     public LandParcelCacheFaker(int[] homeCenterNumbers)
     {
-        _refLandParcelId = 0;
         _stockSequence = 100;
         _hcIndex = 0;
 
-        RuleFor(l => l.RefLandParcelId, _ => ++_refLandParcelId);
+        RuleFor(l => l.RefPublicId, _ => Guid.CreateVersion7());
         // Round-robin home center assignment — deterministic regardless of Bogus seed.
         // Parcel 1 → HC 100, Parcel 2 → HC 200, Parcel 3 → HC 300, ...
         RuleFor(l => l.RefHomeCenterNumber, _ => homeCenterNumbers[_hcIndex++ % homeCenterNumbers.Length]);

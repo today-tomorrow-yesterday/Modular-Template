@@ -8,6 +8,8 @@ public sealed class LandParcel : Entity, IAggregateRoot
 {
     private LandParcel() { }
 
+    public Guid PublicId { get; private set; }
+
     public int RefHomeCenterNumber { get; private set; }
 
     public string RefStockNumber { get; private set; } = string.Empty;
@@ -65,6 +67,7 @@ public sealed class LandParcel : Entity, IAggregateRoot
         var parcel = new LandParcel
         {
             Id = id,
+            PublicId = Guid.CreateVersion7(),
             RefHomeCenterNumber = refHomeCenterNumber,
             RefStockNumber = refStockNumber,
             StockType = stockType,
@@ -157,6 +160,6 @@ public sealed class LandParcel : Entity, IAggregateRoot
 
     public void MarkRemoved()
     {
-        Raise(new LandParcelRemovedDomainEvent(RefHomeCenterNumber, RefStockNumber) { EntityId = Id });
+        Raise(new LandParcelRemovedDomainEvent(PublicId) { EntityId = Id });
     }
 }

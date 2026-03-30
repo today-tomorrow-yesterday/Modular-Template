@@ -24,7 +24,7 @@ public sealed class ReviseOnLotHomeCacheDetailsCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_upserts_cache()
     {
-        var cache = new OnLotHomeCache { RefOnLotHomeId = 1, Model = "Patriot" };
+        var cache = new OnLotHomeCache { RefPublicId = Guid.NewGuid(), Model = "Patriot" };
 
         var result = await _sut.Handle(
             new ReviseOnLotHomeCacheDetailsCommand(cache), CancellationToken.None);

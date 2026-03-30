@@ -18,8 +18,8 @@ internal sealed class OnLotHomeAddedToInventoryIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing OnLotHomeAddedToInventory: OnLotHomeId={OnLotHomeId}, HC={HomeCenterNumber}, Stock={StockNumber}",
-            integrationEvent.OnLotHomeId,
+            "Processing OnLotHomeAddedToInventory: PublicOnLotHomeId={PublicOnLotHomeId}, HC={HomeCenterNumber}, Stock={StockNumber}",
+            integrationEvent.PublicOnLotHomeId,
             integrationEvent.HomeCenterNumber,
             integrationEvent.StockNumber);
 
@@ -30,7 +30,7 @@ internal sealed class OnLotHomeAddedToInventoryIntegrationEventHandler(
 
     private static OnLotHomeCache MapToCache(OnLotHomeAddedToInventoryIntegrationEvent e) => new()
     {
-        RefOnLotHomeId = e.OnLotHomeId,
+        RefPublicId = e.PublicOnLotHomeId,
         RefHomeCenterNumber = e.HomeCenterNumber,
         RefStockNumber = e.StockNumber,
         StockType = e.StockType,

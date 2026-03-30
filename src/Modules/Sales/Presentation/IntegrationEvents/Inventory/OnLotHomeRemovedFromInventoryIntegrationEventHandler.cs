@@ -17,16 +17,11 @@ internal sealed class OnLotHomeRemovedFromInventoryIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogWarning(
-            "Processing OnLotHomeRemovedFromInventory: OnLotHomeId={OnLotHomeId}, HC={HomeCenterNumber}, Stock={StockNumber}",
-            integrationEvent.OnLotHomeId,
-            integrationEvent.HomeCenterNumber,
-            integrationEvent.StockNumber);
+            "Processing OnLotHomeRemovedFromInventory: PublicOnLotHomeId={PublicOnLotHomeId}",
+            integrationEvent.PublicOnLotHomeId);
 
         await sender.Send(
-            new RemoveOnLotHomeCacheCommand(
-                integrationEvent.OnLotHomeId,
-                integrationEvent.HomeCenterNumber,
-                integrationEvent.StockNumber),
+            new RemoveOnLotHomeCacheCommand(integrationEvent.PublicOnLotHomeId),
             cancellationToken);
     }
 }

@@ -11,7 +11,7 @@ internal sealed class OnLotHomeCacheRepository(SalesDbContext dbContext)
     public async Task UpsertAsync(OnLotHomeCache cache, CancellationToken cancellationToken = default)
     {
         var existing = await DbSet
-            .FirstOrDefaultAsync(h => h.RefOnLotHomeId == cache.RefOnLotHomeId, cancellationToken);
+            .FirstOrDefaultAsync(h => h.RefPublicId == cache.RefPublicId, cancellationToken);
 
         if (existing is null)
         {
@@ -25,10 +25,10 @@ internal sealed class OnLotHomeCacheRepository(SalesDbContext dbContext)
         await DbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task MarkAsRemovedByRefIdAsync(int refOnLotHomeId, CancellationToken cancellationToken = default)
+    public async Task MarkAsRemovedByPublicIdAsync(Guid publicOnLotHomeId, CancellationToken cancellationToken = default)
     {
         var existing = await DbSet
-            .FirstOrDefaultAsync(h => h.RefOnLotHomeId == refOnLotHomeId, cancellationToken);
+            .FirstOrDefaultAsync(h => h.RefPublicId == publicOnLotHomeId, cancellationToken);
 
         if (existing is not null)
         {

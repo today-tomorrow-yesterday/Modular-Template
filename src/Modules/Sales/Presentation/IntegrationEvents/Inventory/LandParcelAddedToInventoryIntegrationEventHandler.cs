@@ -18,8 +18,8 @@ internal sealed class LandParcelAddedToInventoryIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing LandParcelAddedToInventory: LandParcelId={LandParcelId}, HC={HomeCenterNumber}, Stock={StockNumber}",
-            integrationEvent.LandParcelId,
+            "Processing LandParcelAddedToInventory: PublicLandParcelId={PublicLandParcelId}, HC={HomeCenterNumber}, Stock={StockNumber}",
+            integrationEvent.PublicLandParcelId,
             integrationEvent.HomeCenterNumber,
             integrationEvent.StockNumber);
 
@@ -30,7 +30,7 @@ internal sealed class LandParcelAddedToInventoryIntegrationEventHandler(
 
     private static LandParcelCache MapToCache(LandParcelAddedToInventoryIntegrationEvent e) => new()
     {
-        RefLandParcelId = e.LandParcelId,
+        RefPublicId = e.PublicLandParcelId,
         RefHomeCenterNumber = e.HomeCenterNumber,
         RefStockNumber = e.StockNumber,
         StockType = e.StockType,

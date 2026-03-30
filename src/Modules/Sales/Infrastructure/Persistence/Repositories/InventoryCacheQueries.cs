@@ -53,13 +53,13 @@ internal sealed class InventoryCacheQueries(SalesDbContext dbContext) : IInvento
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForHomeByRefIdAsync(
-        int refOnLotHomeId,
+    public async Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForHomeByPublicIdAsync(
+        Guid publicOnLotHomeId,
         CancellationToken cancellationToken = default)
     {
-        // Join through cache table to find affected package lines by Inventory's ref ID
+        // Join through cache table to find affected package lines by Inventory's public ID
         return await dbContext.Set<OnLotHomeCache>()
-            .Where(c => c.RefOnLotHomeId == refOnLotHomeId)
+            .Where(c => c.RefPublicId == publicOnLotHomeId)
             .Join(
                 dbContext.PackageLines.OfType<HomeLine>(),
                 cache => cache.Id,
@@ -69,12 +69,12 @@ internal sealed class InventoryCacheQueries(SalesDbContext dbContext) : IInvento
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForLandByRefIdAsync(
-        int refLandParcelId,
+    public async Task<IReadOnlyCollection<AffectedPackageLine>> GetPackageLinesForLandByPublicIdAsync(
+        Guid publicLandParcelId,
         CancellationToken cancellationToken = default)
     {
         return await dbContext.Set<LandParcelCache>()
-            .Where(c => c.RefLandParcelId == refLandParcelId)
+            .Where(c => c.RefPublicId == publicLandParcelId)
             .Join(
                 dbContext.PackageLines.OfType<LandLine>(),
                 cache => cache.Id,

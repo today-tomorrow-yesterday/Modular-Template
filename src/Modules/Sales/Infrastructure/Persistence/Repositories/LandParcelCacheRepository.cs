@@ -11,7 +11,7 @@ internal sealed class LandParcelCacheRepository(SalesDbContext dbContext)
     public async Task UpsertAsync(LandParcelCache cache, CancellationToken cancellationToken = default)
     {
         var existing = await DbSet
-            .FirstOrDefaultAsync(l => l.RefLandParcelId == cache.RefLandParcelId, cancellationToken);
+            .FirstOrDefaultAsync(l => l.RefPublicId == cache.RefPublicId, cancellationToken);
 
         if (existing is null)
         {
@@ -25,10 +25,10 @@ internal sealed class LandParcelCacheRepository(SalesDbContext dbContext)
         await DbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task MarkAsRemovedByRefIdAsync(int refLandParcelId, CancellationToken cancellationToken = default)
+    public async Task MarkAsRemovedByPublicIdAsync(Guid publicLandParcelId, CancellationToken cancellationToken = default)
     {
         var existing = await DbSet
-            .FirstOrDefaultAsync(l => l.RefLandParcelId == refLandParcelId, cancellationToken);
+            .FirstOrDefaultAsync(l => l.RefPublicId == publicLandParcelId, cancellationToken);
 
         if (existing is not null)
         {

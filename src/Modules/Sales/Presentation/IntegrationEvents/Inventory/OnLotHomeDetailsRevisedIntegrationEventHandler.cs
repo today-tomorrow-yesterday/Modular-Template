@@ -18,8 +18,8 @@ internal sealed class OnLotHomeDetailsRevisedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing OnLotHomeDetailsRevised: OnLotHomeId={OnLotHomeId}, Stock={StockNumber}",
-            integrationEvent.OnLotHomeId,
+            "Processing OnLotHomeDetailsRevised: PublicOnLotHomeId={PublicOnLotHomeId}, Stock={StockNumber}",
+            integrationEvent.PublicOnLotHomeId,
             integrationEvent.StockNumber);
 
         await sender.Send(
@@ -29,7 +29,7 @@ internal sealed class OnLotHomeDetailsRevisedIntegrationEventHandler(
 
     private static OnLotHomeCache MapToCache(OnLotHomeDetailsRevisedIntegrationEvent e) => new()
     {
-        RefOnLotHomeId = e.OnLotHomeId,
+        RefPublicId = e.PublicOnLotHomeId,
         RefHomeCenterNumber = e.HomeCenterNumber,
         RefStockNumber = e.StockNumber,
         StockType = e.StockType,

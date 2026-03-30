@@ -8,6 +8,4 @@ namespace Modules.Inventory.IntegrationEvents;
 public sealed record OnLotHomeRemovedFromInventoryIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int OnLotHomeId,
-    int HomeCenterNumber,
-    string StockNumber) : IntegrationEvent(Id, OccurredOnUtc);
+    Guid PublicOnLotHomeId) : IntegrationEvent(Id, OccurredOnUtc);

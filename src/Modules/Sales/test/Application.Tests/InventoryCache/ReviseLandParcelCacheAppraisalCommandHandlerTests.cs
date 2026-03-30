@@ -24,7 +24,7 @@ public sealed class ReviseLandParcelCacheAppraisalCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_upserts_cache()
     {
-        var cache = new LandParcelCache { RefLandParcelId = 1, Appraisal = 150_000m };
+        var cache = new LandParcelCache { RefPublicId = Guid.NewGuid(), Appraisal = 150_000m };
 
         var result = await _sut.Handle(
             new ReviseLandParcelCacheAppraisalCommand(cache), CancellationToken.None);

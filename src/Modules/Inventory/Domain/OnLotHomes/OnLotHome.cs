@@ -8,6 +8,8 @@ public sealed class OnLotHome : Entity, IAggregateRoot
 {
     private OnLotHome() { }
 
+    public Guid PublicId { get; private set; }
+
     public int RefHomeCenterNumber { get; private set; }
 
     public string RefStockNumber { get; private set; } = string.Empty;
@@ -77,6 +79,7 @@ public sealed class OnLotHome : Entity, IAggregateRoot
         var home = new OnLotHome
         {
             Id = id,
+            PublicId = Guid.CreateVersion7(),
             RefHomeCenterNumber = refHomeCenterNumber,
             RefStockNumber = refStockNumber,
             StockType = stockType,
@@ -185,6 +188,6 @@ public sealed class OnLotHome : Entity, IAggregateRoot
 
     public void MarkRemoved()
     {
-        Raise(new OnLotHomeRemovedDomainEvent(RefHomeCenterNumber, RefStockNumber) { EntityId = Id });
+        Raise(new OnLotHomeRemovedDomainEvent(PublicId) { EntityId = Id });
     }
 }

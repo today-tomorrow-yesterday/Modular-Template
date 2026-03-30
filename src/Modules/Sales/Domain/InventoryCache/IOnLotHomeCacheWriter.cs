@@ -4,5 +4,5 @@ public interface IOnLotHomeCacheWriter
 {
     Task UpsertAsync(OnLotHomeCache cache, CancellationToken cancellationToken = default);
 
-    Task MarkAsRemovedByRefIdAsync(int refOnLotHomeId, CancellationToken cancellationToken = default);
+    Task MarkAsRemovedByPublicIdAsync(Guid publicOnLotHomeId, CancellationToken cancellationToken = default);
 }

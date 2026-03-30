@@ -7,7 +7,7 @@ namespace Modules.Inventory.IntegrationEvents;
 public sealed record OnLotHomeAddedToInventoryIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int OnLotHomeId,
+    Guid PublicOnLotHomeId,
     int HomeCenterNumber,
     string StockNumber,
     string? StockType,

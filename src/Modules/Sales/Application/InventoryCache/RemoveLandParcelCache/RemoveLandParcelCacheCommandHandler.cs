@@ -42,16 +42,15 @@ internal sealed class RemoveLandParcelCacheCommandHandler(
     {
         using var _ = cacheWriteScope.AllowWrites();
 
-        var affectedLines = await cacheQueries.GetPackageLinesForLandByRefIdAsync(
-            request.RefLandParcelId,
+        var affectedLines = await cacheQueries.GetPackageLinesForLandByPublicIdAsync(
+            request.PublicLandParcelId,
             cancellationToken);
 
         if (affectedLines.Count > 0)
         {
             logger.LogWarning(
-                "LandParcel {StockNumber} (HC={HomeCenterNumber}) removed from inventory — {Count} package line(s) will lose product reference: {Affected}",
-                request.StockNumber,
-                request.HomeCenterNumber,
+                "LandParcel {PublicLandParcelId} removed from inventory — {Count} package line(s) will lose product reference: {Affected}",
+                request.PublicLandParcelId,
                 affectedLines.Count,
                 string.Join(", ", affectedLines.Select(l => $"Sale={l.SaleId}/Pkg={l.PackageId}/Line={l.PackageLineId}")));
 
@@ -67,7 +66,7 @@ internal sealed class RemoveLandParcelCacheCommandHandler(
             }
         }
 
-        await cacheWriter.MarkAsRemovedByRefIdAsync(request.RefLandParcelId, cancellationToken);
+        await cacheWriter.MarkAsRemovedByPublicIdAsync(request.PublicLandParcelId, cancellationToken);
 
         return Result.Success();
     }

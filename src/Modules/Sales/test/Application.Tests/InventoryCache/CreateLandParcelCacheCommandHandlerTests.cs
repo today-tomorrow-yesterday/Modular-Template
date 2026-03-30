@@ -24,7 +24,7 @@ public sealed class CreateLandParcelCacheCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_upserts_cache()
     {
-        var cache = new LandParcelCache { RefLandParcelId = 1, RefStockNumber = "LP-100" };
+        var cache = new LandParcelCache { RefPublicId = Guid.NewGuid(), RefStockNumber = "LP-100" };
 
         var result = await _sut.Handle(
             new CreateLandParcelCacheCommand(cache), CancellationToken.None);
@@ -36,7 +36,7 @@ public sealed class CreateLandParcelCacheCommandHandlerTests
     [Fact]
     public async Task Sets_LastSyncedAtUtc_from_date_time_provider()
     {
-        var cache = new LandParcelCache { RefLandParcelId = 1 };
+        var cache = new LandParcelCache { RefPublicId = Guid.NewGuid() };
 
         await _sut.Handle(new CreateLandParcelCacheCommand(cache), CancellationToken.None);
 

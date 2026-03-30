@@ -16,8 +16,8 @@ internal sealed class OnLotHomeCacheConfiguration : IEntityTypeConfiguration<OnL
             .HasColumnName("id")
             .UseIdentityAlwaysColumn();
 
-        builder.Property(h => h.RefOnLotHomeId)
-            .HasColumnName("ref_on_lot_home_id")
+        builder.Property(h => h.RefPublicId)
+            .HasColumnName("ref_public_on_lot_home_id")
             .IsRequired();
 
         builder.Property(h => h.RefHomeCenterNumber)
@@ -54,9 +54,9 @@ internal sealed class OnLotHomeCacheConfiguration : IEntityTypeConfiguration<OnL
             .IsRequired();
 
         // Unique constraints
-        builder.HasIndex(h => h.RefOnLotHomeId)
+        builder.HasIndex(h => h.RefPublicId)
             .IsUnique()
-            .HasDatabaseName("ix_on_lot_homes_cache_ref_on_lot_home_id");
+            .HasDatabaseName("ix_on_lot_homes_cache_ref_public_on_lot_home_id");
 
         builder.HasIndex(h => new { h.RefHomeCenterNumber, h.RefStockNumber })
             .IsUnique()

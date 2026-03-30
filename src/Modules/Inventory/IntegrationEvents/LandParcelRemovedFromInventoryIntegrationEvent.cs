@@ -8,6 +8,4 @@ namespace Modules.Inventory.IntegrationEvents;
 public sealed record LandParcelRemovedFromInventoryIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int LandParcelId,
-    int HomeCenterNumber,
-    string StockNumber) : IntegrationEvent(Id, OccurredOnUtc);
+    Guid PublicLandParcelId) : IntegrationEvent(Id, OccurredOnUtc);

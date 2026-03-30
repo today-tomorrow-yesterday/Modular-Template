@@ -28,7 +28,7 @@ internal sealed class OnLotHomeAddedDomainEventHandler(
             new OnLotHomeAddedToInventoryIntegrationEvent(
                 Guid.CreateVersion7(),
                 dateTimeProvider.UtcNow,
-                home.Id,
+                home.PublicId,
                 home.RefHomeCenterNumber,
                 home.RefStockNumber,
                 home.StockType,

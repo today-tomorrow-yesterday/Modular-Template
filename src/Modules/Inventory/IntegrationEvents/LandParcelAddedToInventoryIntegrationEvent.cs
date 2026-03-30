@@ -7,7 +7,7 @@ namespace Modules.Inventory.IntegrationEvents;
 public sealed record LandParcelAddedToInventoryIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int LandParcelId,
+    Guid PublicLandParcelId,
     int HomeCenterNumber,
     string StockNumber,
     string? StockType,

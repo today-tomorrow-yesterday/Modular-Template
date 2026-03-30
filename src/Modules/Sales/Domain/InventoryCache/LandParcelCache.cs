@@ -10,7 +10,7 @@ namespace Modules.Sales.Domain.InventoryCache;
 // Extends Entity for domain event support (appraisal change detection).
 public sealed class LandParcelCache : Entity, ICacheProjection
 {
-    public int RefLandParcelId { get; set; }
+    public Guid RefPublicId { get; set; }
 
     public int RefHomeCenterNumber { get; set; }
 

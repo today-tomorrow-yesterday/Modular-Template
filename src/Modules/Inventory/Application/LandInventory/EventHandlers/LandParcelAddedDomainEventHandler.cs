@@ -28,7 +28,7 @@ internal sealed class LandParcelAddedDomainEventHandler(
             new LandParcelAddedToInventoryIntegrationEvent(
                 Guid.CreateVersion7(),
                 dateTimeProvider.UtcNow,
-                parcel.Id,
+                parcel.PublicId,
                 parcel.RefHomeCenterNumber,
                 parcel.RefStockNumber,
                 parcel.StockType,

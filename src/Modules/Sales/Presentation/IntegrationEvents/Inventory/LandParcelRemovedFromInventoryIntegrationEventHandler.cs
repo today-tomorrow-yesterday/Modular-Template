@@ -17,16 +17,11 @@ internal sealed class LandParcelRemovedFromInventoryIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogWarning(
-            "Processing LandParcelRemovedFromInventory: LandParcelId={LandParcelId}, HC={HomeCenterNumber}, Stock={StockNumber}",
-            integrationEvent.LandParcelId,
-            integrationEvent.HomeCenterNumber,
-            integrationEvent.StockNumber);
+            "Processing LandParcelRemovedFromInventory: PublicLandParcelId={PublicLandParcelId}",
+            integrationEvent.PublicLandParcelId);
 
         await sender.Send(
-            new RemoveLandParcelCacheCommand(
-                integrationEvent.LandParcelId,
-                integrationEvent.HomeCenterNumber,
-                integrationEvent.StockNumber),
+            new RemoveLandParcelCacheCommand(integrationEvent.PublicLandParcelId),
             cancellationToken);
     }
 }

@@ -44,16 +44,15 @@ internal sealed class RemoveOnLotHomeCacheCommandHandler(
     {
         using var _ = cacheWriteScope.AllowWrites();
 
-        var affectedLines = await cacheQueries.GetPackageLinesForHomeByRefIdAsync(
-            request.RefOnLotHomeId,
+        var affectedLines = await cacheQueries.GetPackageLinesForHomeByPublicIdAsync(
+            request.PublicOnLotHomeId,
             cancellationToken);
 
         if (affectedLines.Count > 0)
         {
             logger.LogWarning(
-                "OnLotHome {StockNumber} (HC={HomeCenterNumber}) removed from inventory — {Count} package line(s) will lose product reference: {Affected}",
-                request.StockNumber,
-                request.HomeCenterNumber,
+                "OnLotHome {PublicOnLotHomeId} removed from inventory — {Count} package line(s) will lose product reference: {Affected}",
+                request.PublicOnLotHomeId,
                 affectedLines.Count,
                 string.Join(", ", affectedLines.Select(l => $"Sale={l.SaleId}/Pkg={l.PackageId}/Line={l.PackageLineId}")));
 
@@ -69,7 +68,7 @@ internal sealed class RemoveOnLotHomeCacheCommandHandler(
             }
         }
 
-        await cacheWriter.MarkAsRemovedByRefIdAsync(request.RefOnLotHomeId, cancellationToken);
+        await cacheWriter.MarkAsRemovedByPublicIdAsync(request.PublicOnLotHomeId, cancellationToken);
 
         return Result.Success();
     }

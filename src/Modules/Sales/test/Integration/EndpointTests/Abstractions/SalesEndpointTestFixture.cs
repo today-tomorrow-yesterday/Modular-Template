@@ -34,7 +34,7 @@ public class SalesEndpointTestFixture : SalesTestFixtureBase
             db.Set<Domain.InventoryCache.LandParcelCache>().Add(
                 new Domain.InventoryCache.LandParcelCache
                 {
-                    RefLandParcelId = Random.Shared.Next(9000, 99999),
+                    RefPublicId = Guid.CreateVersion7(),
                     RefHomeCenterNumber = TestHomeCenterNumber,
                     RefStockNumber = stockNumber,
                     LandCost = landCost,

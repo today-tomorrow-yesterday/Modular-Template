@@ -11,6 +11,8 @@ namespace Modules.Sales.Application.Tests.InventoryCache;
 
 public sealed class RemoveLandParcelCacheCommandHandlerTests
 {
+    private static readonly Guid TestPublicId = Guid.Parse("00000000-0000-0000-0000-000000000042");
+
     private readonly ICacheWriteScope _cacheWriteScope = Substitute.For<ICacheWriteScope>();
     private readonly ILandParcelCacheWriter _cacheWriter = Substitute.For<ILandParcelCacheWriter>();
     private readonly IInventoryCacheQueries _cacheQueries = Substitute.For<IInventoryCacheQueries>();
@@ -27,14 +29,14 @@ public sealed class RemoveLandParcelCacheCommandHandlerTests
     [Fact]
     public async Task Returns_success_and_marks_cache_removed_when_no_affected_lines()
     {
-        _cacheQueries.GetPackageLinesForLandByRefIdAsync(42, Arg.Any<CancellationToken>())
+        _cacheQueries.GetPackageLinesForLandByPublicIdAsync(TestPublicId, Arg.Any<CancellationToken>())
             .Returns(Array.Empty<AffectedPackageLine>());
 
         var result = await _sut.Handle(
-            new RemoveLandParcelCacheCommand(42, 100, "LP-100"), CancellationToken.None);
+            new RemoveLandParcelCacheCommand(TestPublicId), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        await _cacheWriter.Received(1).MarkAsRemovedByRefIdAsync(42, Arg.Any<CancellationToken>());
+        await _cacheWriter.Received(1).MarkAsRemovedByPublicIdAsync(TestPublicId, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -44,7 +46,7 @@ public sealed class RemoveLandParcelCacheCommandHandlerTests
         {
             new(PackageLineId: 1, PackageId: 10, SaleId: 100)
         };
-        _cacheQueries.GetPackageLinesForLandByRefIdAsync(42, Arg.Any<CancellationToken>())
+        _cacheQueries.GetPackageLinesForLandByPublicIdAsync(TestPublicId, Arg.Any<CancellationToken>())
             .Returns(affectedLines);
 
         // Package not found — should still mark cache as removed
@@ -52,10 +54,10 @@ public sealed class RemoveLandParcelCacheCommandHandlerTests
             .Returns((Package?)null);
 
         var result = await _sut.Handle(
-            new RemoveLandParcelCacheCommand(42, 100, "LP-100"), CancellationToken.None);
+            new RemoveLandParcelCacheCommand(TestPublicId), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        await _cacheWriter.Received(1).MarkAsRemovedByRefIdAsync(42, Arg.Any<CancellationToken>());
+        await _cacheWriter.Received(1).MarkAsRemovedByPublicIdAsync(TestPublicId, Arg.Any<CancellationToken>());
     }
 
     [Fact]
@@ -75,13 +77,13 @@ public sealed class RemoveLandParcelCacheCommandHandlerTests
         {
             new(PackageLineId: landLine.Id, PackageId: package.Id, SaleId: 100)
         };
-        _cacheQueries.GetPackageLinesForLandByRefIdAsync(42, Arg.Any<CancellationToken>())
+        _cacheQueries.GetPackageLinesForLandByPublicIdAsync(TestPublicId, Arg.Any<CancellationToken>())
             .Returns(affectedLines);
         _packageRepository.GetByIdWithTrackingAsync(package.Id, Arg.Any<CancellationToken>())
             .Returns(package);
 
         var result = await _sut.Handle(
-            new RemoveLandParcelCacheCommand(42, 100, "LP-100"), CancellationToken.None);
+            new RemoveLandParcelCacheCommand(TestPublicId), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
         Assert.True(landLine.IsProductRemovedFromInventory);

@@ -19,9 +19,7 @@ internal sealed class LandParcelRemovedDomainEventHandler(
             new LandParcelRemovedFromInventoryIntegrationEvent(
                 Guid.CreateVersion7(),
                 dateTimeProvider.UtcNow,
-                domainEvent.EntityId,
-                domainEvent.HomeCenterNumber,
-                domainEvent.StockNumber),
+                domainEvent.PublicId),
             cancellationToken);
     }
 }

@@ -18,8 +18,8 @@ internal sealed class LandParcelAppraisalRevisedIntegrationEventHandler(
         CancellationToken cancellationToken = default)
     {
         logger.LogInformation(
-            "Processing LandParcelAppraisalRevised: LandParcelId={LandParcelId}, Stock={StockNumber}",
-            integrationEvent.LandParcelId,
+            "Processing LandParcelAppraisalRevised: PublicLandParcelId={PublicLandParcelId}, Stock={StockNumber}",
+            integrationEvent.PublicLandParcelId,
             integrationEvent.StockNumber);
 
         await sender.Send(
@@ -29,7 +29,7 @@ internal sealed class LandParcelAppraisalRevisedIntegrationEventHandler(
 
     private static LandParcelCache MapToCache(LandParcelAppraisalRevisedIntegrationEvent e) => new()
     {
-        RefLandParcelId = e.LandParcelId,
+        RefPublicId = e.PublicLandParcelId,
         RefHomeCenterNumber = e.HomeCenterNumber,
         RefStockNumber = e.StockNumber,
         StockType = e.StockType,
