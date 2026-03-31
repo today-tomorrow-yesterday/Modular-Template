@@ -29,29 +29,14 @@ dotnet ef migrations add {MigrationName} \
 
 ### Module-Specific Commands
 
-**Customer:**
+**SampleOrders:**
 ```bash
---context CustomerDbContext
+--context OrdersDbContext
 ```
 
-**Sales:**
+**SampleSales:**
 ```bash
---context SalesDbContext
-```
-
-**Inventory:**
-```bash
---context InventoryDbContext
-```
-
-**Organization:**
-```bash
---context OrganizationDbContext
-```
-
-**Funding:**
-```bash
---context FundingDbContext
+--context SampleDbContext
 ```
 
 ## Apply Migration
@@ -77,11 +62,11 @@ ENCRYPTION_KEY="..." dotnet ef migrations remove \
 | Change | Name Pattern | Example |
 |--------|-------------|---------|
 | New table/entity | `Add{Entity}` | `AddRepoHome` |
-| New column | `Add{Column}To{Table}` | `AddPublicIdToInventoryEntities` |
-| Drop table | `Drop{Entity}` | `DropSaleSummaryCache` |
-| Column rename | `Rename{Old}To{New}` | `RenamePartyIdToCustomerId` |
+| New column | `Add{Column}To{Table}` | `AddPublicIdToOrders` |
+| Drop table | `Drop{Entity}` | `DropProductCache` |
+| Column rename | `Rename{Old}To{New}` | `RenameStatusToOrderStatus` |
 | Type change | `Replace{Old}With{New}` | `ReplaceIntRefWithGuidPublicId` |
-| Combined changes | Descriptive summary | `DropSaleSummaryCacheAndReclassifyEntities` |
+| Combined changes | Descriptive summary | `AddOrderLineTPHAndShippingAddress` |
 
 ## Data Loss Warnings
 
@@ -102,15 +87,15 @@ When a refactoring spans multiple modules (e.g., changing an integration event c
 ```bash
 # 1. Generate for the producer module
 ENCRYPTION_KEY="..." dotnet ef migrations add {Name} \
-  --project src/Modules/Inventory/Infrastructure \
+  --project src/Modules/SampleOrders/Infrastructure \
   --startup-project src/Api/Host \
-  --context InventoryDbContext --output-dir Persistence/Migrations
+  --context OrdersDbContext --output-dir Persistence/Migrations
 
 # 2. Generate for the consumer module
 ENCRYPTION_KEY="..." dotnet ef migrations add {Name} \
-  --project src/Modules/Sales/Infrastructure \
+  --project src/Modules/SampleSales/Infrastructure \
   --startup-project src/Api/Host \
-  --context SalesDbContext --output-dir Persistence/Migrations
+  --context SampleDbContext --output-dir Persistence/Migrations
 ```
 
 ## Troubleshooting

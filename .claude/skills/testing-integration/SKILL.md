@@ -137,7 +137,7 @@ public class Get{Entity}Tests({Module}EndpointTestFixture fixture)
 - **Arrange via commands** — never insert directly into DB, always go through the command pipeline
 - **HttpAssert helpers** — use `HttpAssert.IsOkAsync(response)`, `HttpAssert.IsCreatedAsync(response)` for cleaner assertions with response body in failure messages
 - **Cache seeding** — use `ICacheWriteScope.AllowWrites()` in a `using` block to bypass cache write guards
-- **Progressive arrangement** — for Sales tests, use `ArrangeSaleAsync()` → `ArrangeSaleWithPackageAsync()` → `ArrangeSaleWithHomeAsync()` chain to build up state incrementally
+- **Progressive arrangement** — for complex tests, use helper methods that build up state incrementally (e.g., create customer → place order → add lines)
 - **Respawner resets** — `ResetDatabaseAsync()` runs before each test via `IAsyncLifetime.InitializeAsync()`
 - **Collection fixtures** — share the WebApplicationFactory across tests in the same collection (single app startup)
 

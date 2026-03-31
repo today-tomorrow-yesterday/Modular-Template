@@ -105,7 +105,7 @@ builder.Property(e => e.Id).HasColumnName("id").UseHiLo($"seq_{table}");
 builder.Property(e => e.Id).HasColumnName("id").ValueGeneratedNever();
 ```
 
-**Consumer cache entities** (Sales owns the local cache key):
+**Consumer cache entities** (consumer module owns the local cache key):
 ```csharp
 builder.Property(e => e.Id).HasColumnName("id").UseIdentityAlwaysColumn();
 ```
@@ -168,12 +168,18 @@ dotnet ef migrations script --project src/Modules/{Module}/Infrastructure \
 
 ## TPH (Table Per Hierarchy) Pattern
 
-Used for package lines in Sales:
+Used for order lines in SampleOrders:
 ```csharp
 builder.HasDiscriminator<string>("line_type")
-    .HasValue<HomeLine>("Home")
-    .HasValue<LandLine>("Land")
-    .HasValue<ProjectCostLine>("ProjectCost");
+    .HasValue<ProductLine>("Product")
+    .HasValue<CustomLine>("Custom");
+```
+
+Each concrete type shares a single `details` JSONB column with its own `VersionedJsonConverter<T>`:
+```csharp
+// ProductLineConfiguration
+builder.Property(l => l.Details).HasColumnName("details").HasColumnType("jsonb")
+    .HasConversion(new VersionedJsonConverter<ProductLineDetails>());
 ```
 
 ## Checklist

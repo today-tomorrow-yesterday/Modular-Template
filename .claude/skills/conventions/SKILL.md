@@ -10,7 +10,7 @@ description: Use when writing any code in this modular monolith - enforces namin
 **NEVER expose `int Id` across module boundaries.** Internal entity IDs (`int Id` from `Entity` base class) are private to the owning module. Cross-module references always use `Guid PublicId`.
 
 ### Integration Events
-- Identity property: `Guid Public{EntityName}Id` (e.g., `PublicCustomerId`, `PublicOnLotHomeId`, `PublicLandParcelId`, `PublicUserId`)
+- Identity property: `Guid Public{EntityName}Id` (e.g., `PublicCustomerId`, `PublicOrderId`, `PublicProductId`)
 - NEVER include `int` entity IDs in integration events
 - Add `[EventDetailType("rtl.{module}.{camelCaseEventName}")]` attribute
 - Base: `IntegrationEvent(Id, OccurredOnUtc)` where `Id` = `Guid.CreateVersion7()`
@@ -21,19 +21,20 @@ description: Use when writing any code in this modular monolith - enforces namin
 - Drop "Ref" prefix from properties (Ref is internal domain naming)
 
 ### Cache Entities in Consumer Modules
-- Cross-module reference property: `Guid RefPublicId` (short form, matches `CustomerCache.RefPublicId`)
+- Cross-module reference property: `Guid RefPublicId` (short form, matches `ProductCache.RefPublicId`)
 - NOT `RefPublic{EntityName}Id` — the entity class name already provides context
-- Internal `int Id` is auto-generated (`UseIdentityAlwaysColumn`) — this is the Sales module's own key
+- Internal `int Id` is auto-generated (`UseIdentityAlwaysColumn`) — this is the consumer module's own key
 
 ## Entity Classification
 
 | Pattern | Base Class | When to Use |
 |---------|-----------|-------------|
-| Source of truth (module owns this data) | `Entity, IAggregateRoot` | Customer, Sale, Package |
-| CDC cache with change detection | `Entity, ICacheProjection` | OnLotHome, LandParcel (emits domain events on data changes) |
-| Read-only cache (no events) | `ICacheProjection` only | LandCost, AncillaryData, WheelsAndAxlesTransaction |
-| Cross-module cache in consumer | `Entity, ICacheProjection` | OnLotHomeCache, LandParcelCache (extends Entity for domain events like price change detection) |
-| Simple cross-module cache | `ICacheProjection` only | CustomerCache, AuthorizedUserCache |
+| Source of truth (module owns this data) | `SoftDeletableEntity, IAggregateRoot` | Customer, Order, Product, Catalog |
+| CDC cache with change detection | `Entity, ICacheProjection` | External data that emits domain events on changes |
+| Read-only cache (no events) | `ICacheProjection` only | ProductCache, OrderCache |
+| Cross-module cache with events | `Entity, ICacheProjection` | Cache that needs to detect changes (e.g., price revisions) |
+| Child Entity | `Entity` | Owned by an aggregate (CustomerContact, OrderLine, ShippingAddress) |
+| Value Object | `record` | Immutable, equality by value (CustomerName, Address, Email) |
 
 ## Property Naming
 
@@ -47,15 +48,14 @@ description: Use when writing any code in this modular monolith - enforces namin
 - Aggregate root events carry data needed by handlers (handlers load entity for full state)
 - Remove events carry `Guid PublicId` (entity may be gone when handler runs)
 - Add/Revise events carry no payload — handlers load the entity from the repository
-- Event naming: `{Entity}{Action}DomainEvent` (e.g., `OnLotHomeAddedDomainEvent`, `LandParcelRemovedDomainEvent`)
+- Event naming: `{Entity}{Action}DomainEvent` (e.g., `OrderPlacedDomainEvent`, `CustomerContactsChangedDomainEvent`)
 
 ## EF Configuration Patterns
 
 - Column names: `snake_case` (e.g., `public_id`, `ref_home_center_number`)
-- Index names: `ix_{table}_{column}` (e.g., `ix_on_lot_homes_public_id`)
+- Index names: `ix_{table}_{column}` (e.g., `ix_customers_public_id`)
 - Cache tables: schema `cache`, table name `{entity}_cache`
 - `PublicId`: always unique indexed
-- Composite business key `(RefHomeCenterNumber, RefStockNumber)`: always unique indexed
 
 ## Swagger / Minimal API
 

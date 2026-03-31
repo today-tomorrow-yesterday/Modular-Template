@@ -9,11 +9,11 @@ description: Use when creating domain entities, value objects, aggregate roots, 
 
 | Type | Inherits | Implements | When |
 |------|----------|------------|------|
-| Aggregate Root | `Entity` | `IAggregateRoot` | Module owns this data (Customer, Sale, Package) |
-| CDC Cache with Events | `Entity` | `ICacheProjection` | External data with change detection (OnLotHome, LandParcel) |
-| Simple Cache | — | `ICacheProjection` | External data, no events (LandCost, AncillaryData) |
-| Child Entity | `Entity` | — | Owned by an aggregate (ContactPoint, CustomerIdentifier, PackageLine) |
-| Value Object | — | — | Immutable, equality by value (CustomerName, MailingAddress) |
+| Aggregate Root | `SoftDeletableEntity` | `IAggregateRoot` | Module owns this data (Customer, Order, Product, Catalog) |
+| CDC Cache with Events | `Entity` | `ICacheProjection` | External data with change detection |
+| Simple Cache | — | `ICacheProjection` | External data, no events (ProductCache, OrderCache) |
+| Child Entity | `Entity` | — | Owned by an aggregate (CustomerContact, CustomerAddress, OrderLine, ShippingAddress) |
+| Value Object | — | — | Immutable, equality by value (CustomerName, Address, Email) |
 
 ## Aggregate Root Pattern
 

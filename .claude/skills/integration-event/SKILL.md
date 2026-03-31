@@ -127,11 +127,10 @@ internal sealed class {EventName}IntegrationEventHandler(
 
 | Source Module | Entity | Event | Detail Type |
 |---|---|---|---|
-| Customer | Customer | CustomerCreated | `rtl.customer.customerCreated` |
-| Inventory | OnLotHome | OnLotHomeAddedToInventory | `rtl.inventory.onLotHomeAddedToInventory` |
-| Inventory | LandParcel | LandParcelRemovedFromInventory | `rtl.inventory.landParcelRemovedFromInventory` |
-| Organization | User | UserAccessGranted | `rtl.organization.userAccessGranted` |
-| Sales | Sale | DeliveryAddressCreated | `rtl.sales.deliveryAddressCreated` |
+| SampleOrders | Order | OrderPlaced | `rtl.sampleOrders.orderPlaced` |
+| SampleOrders | Order | OrderStatusChanged | `rtl.sampleOrders.orderStatusChanged` |
+| SampleSales | Product | ProductCreated | `rtl.sampleSales.productCreated` |
+| SampleSales | Product | ProductUpdated | `rtl.sampleSales.productUpdated` |
 
 ## Checklist
 

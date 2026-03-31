@@ -154,11 +154,9 @@ Used for `IUnitOfWork<I{Module}Module>` — scopes the unit of work to the modul
 ## Database Schema Convention
 
 Each module owns one or more Postgres schemas:
-- Main schema: lowercase module name (e.g., `customers`, `sales`, `inventories`)
+- Main schema: lowercase module name (e.g., `orders`, `sample`)
 - Cache schema: `cache` (for cross-module cache projections)
 - Messaging schema: `messaging` (outbox/inbox, shared infrastructure)
-- CDC schema: `cdc` (for CDC reference data)
-- Packages schema: `packages` (Sales-specific, for package lines TPH)
 
 Defined in `Infrastructure/Persistence/Schemas.cs`:
 ```csharp

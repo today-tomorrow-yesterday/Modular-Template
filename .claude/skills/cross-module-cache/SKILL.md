@@ -1,15 +1,15 @@
 ---
-name: scaffold-sales-cache
-description: Use when adding a new cache projection to the Sales module - creates cache entity, EF config, writer interface, repository, integration event handler, and upsert command
+name: scaffold-cross-module-cache
+description: Use when adding a new cache projection that receives data from another module via integration events - creates cache entity, EF config, writer interface, repository, and event handler
 ---
 
-# Scaffold Sales Cache Projection
+# Scaffold Cross-Module Cache Projection
 
-Creates a complete cache entity in the Sales module that receives data from another module's integration events. Cache projections are read replicas of external data used for local queries and FK references.
+Creates a cache entity that stores a read-only copy of another module's data, maintained via integration events. Cache projections are read replicas used for local queries and FK references.
 
 ## What You Create
 
-For caching `{SourceEntity}` from `{SourceModule}` module (e.g., caching `OnLotHome` from `Inventory`):
+For caching `{SourceEntity}` from `{SourceModule}` module (e.g., caching `Product` from `SampleSales` into `SampleOrders`):
 
 ### 1. Cache Entity
 

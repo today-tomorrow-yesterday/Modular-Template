@@ -17,7 +17,7 @@ Project-specific review items beyond general code quality. These are the mistake
 
 ## Naming Conventions
 
-- [ ] **Integration event identity:** `Guid Public{EntityName}Id` (e.g., `PublicCustomerId`, `PublicOnLotHomeId`)
+- [ ] **Integration event identity:** `Guid Public{EntityName}Id` (e.g., `PublicCustomerId`, `PublicOrderId`, `PublicProductId`)
 - [ ] **Cache entity cross-ref:** `Guid RefPublicId` (short form on cache entities)
 - [ ] **Domain "Ref" prefix:** Only on properties referencing external system data (`RefHomeCenterNumber`, `RefStockNumber`)
 - [ ] **Event detail type:** `[EventDetailType("rtl.{module}.{camelCaseEventName}")]`
@@ -71,8 +71,8 @@ These are real bugs we've caught in this codebase:
 2. **`RefPublic{EntityName}Id` instead of `RefPublicId`** on cache entities — too verbose
 3. **Missing `.WithName()` on endpoints** — causes Swagger to group unrelated endpoints
 4. **`IAggregateRoot` on CDC cache entities** — they don't own the data, should be `ICacheProjection`
-5. **`SaleSummaryCache` in Inventory** — Inventory shouldn't cache Sales data (removed)
-6. **`CrmPartyId` naming** — renamed to `CrmCustomerId` to match domain language
-7. **`private set` on `LastSyncedAtUtc`** for `ICacheProjection` — interface requires public setter
-8. **Redundant `int SaleId` + `Guid SalePublicId`** on DeliveryAddress events — just the Guid
-9. **`int UserId` + `Guid PublicId`** on Organization events — drop the int, rename to `PublicUserId`
+5. **Redundant `int` + `Guid` in same event** — just the Guid, never both
+6. **`private set` on `LastSyncedAtUtc`** for `ICacheProjection` — interface requires public setter
+7. **Cache writer interfaces in Presentation** — should live in Domain layer
+8. **`Guid.NewGuid()` in event handlers** — use `Guid.CreateVersion7()` instead
+9. **Braceless if statements** — always use curly braces, even for single-line returns
