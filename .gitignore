@@ -92,6 +92,9 @@ CLAUDE.md
 CLAUDE.local.md
 .planning/
 *.claude
+!.claude/
+.claude/*
+!.claude/skills/
 .cursorrules
 .cursor/
 .aider*
