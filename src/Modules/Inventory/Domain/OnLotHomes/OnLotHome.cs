@@ -1,10 +1,11 @@
 using Modules.Inventory.Domain.OnLotHomes.Events;
 using Rtl.Core.Domain.Auditing;
+using Rtl.Core.Domain.Caching;
 using Rtl.Core.Domain.Entities;
 
 namespace Modules.Inventory.Domain.OnLotHomes;
 
-public sealed class OnLotHome : Entity, IAggregateRoot
+public sealed class OnLotHome : Entity, ICacheProjection
 {
     private OnLotHome() { }
 
@@ -50,7 +51,7 @@ public sealed class OnLotHome : Entity, IAggregateRoot
 
     public string? LandStockNumber { get; private set; }
 
-    public DateTime LastSyncedAtUtc { get; private set; }
+    public DateTime LastSyncedAtUtc { get; set; }
 
     public static OnLotHome Create(
         int id,

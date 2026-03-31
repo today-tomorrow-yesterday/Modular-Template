@@ -1,10 +1,11 @@
 using Modules.Inventory.Domain.LandParcels.Events;
 using Rtl.Core.Domain.Auditing;
+using Rtl.Core.Domain.Caching;
 using Rtl.Core.Domain.Entities;
 
 namespace Modules.Inventory.Domain.LandParcels;
 
-public sealed class LandParcel : Entity, IAggregateRoot
+public sealed class LandParcel : Entity, ICacheProjection
 {
     private LandParcel() { }
 
@@ -42,7 +43,7 @@ public sealed class LandParcel : Entity, IAggregateRoot
 
     public string? HomeStockNumber { get; private set; }
 
-    public DateTime LastSyncedAtUtc { get; private set; }
+    public DateTime LastSyncedAtUtc { get; set; }
 
     public static LandParcel Create(
         int id,

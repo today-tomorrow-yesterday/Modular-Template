@@ -1,17 +1,15 @@
 using Modules.Inventory.Domain.LandCosts;
 using Modules.Inventory.Domain.OnLotHomes;
-using Modules.Inventory.Domain.SaleSummariesCache;
 using Rtl.Core.Application.Messaging;
 using Rtl.Core.Domain.Results;
 
 namespace Modules.Inventory.Application.OnLotInventory.GetOnLotInventory;
 
-// Flow: GET /api/v1/inventory/on-lot → join Inventory.on_lot_homes + land_costs + ancillary_data + cache.sale_summaries
+// Flow: GET /api/v1/inventory/on-lot → join Inventory.on_lot_homes + land_costs + ancillary_data
 internal sealed class GetOnLotInventoryQueryHandler(
     IOnLotHomeRepository onLotHomeRepository,
     ILandCostRepository landCostRepository,
-    Domain.AncillaryData.IAncillaryDataRepository ancillaryDataRepository,
-    ISaleSummaryCacheRepository saleSummaryCacheRepository)
+    Domain.AncillaryData.IAncillaryDataRepository ancillaryDataRepository)
     : IQueryHandler<GetOnLotInventoryQuery, IReadOnlyCollection<OnLotInventoryResponse>>
 {
     public async Task<Result<IReadOnlyCollection<OnLotInventoryResponse>>> Handle(
@@ -35,18 +33,13 @@ internal sealed class GetOnLotInventoryQueryHandler(
         var ancillaryData = await ancillaryDataRepository.GetByHomeCenterAndStockNumbersAsync(
             request.HomeCenterNumber, stockNumbers, cancellationToken);
 
-        var saleSummaries = await saleSummaryCacheRepository.GetByStockNumbersAsync(
-            stockNumbers, cancellationToken);
-
         var landCostsByStock = landCosts.ToDictionary(l => l.RefStockNumber);
         var ancillaryByStock = ancillaryData.ToDictionary(a => a.RefStockNumber);
-        var saleSummaryByStock = saleSummaries.ToDictionary(s => s.RefStockNumber);
 
         var responses = homes.Select(home =>
         {
             landCostsByStock.TryGetValue(home.RefStockNumber, out var lc);
             ancillaryByStock.TryGetValue(home.RefStockNumber, out var ad);
-            saleSummaryByStock.TryGetValue(home.RefStockNumber, out var ss);
 
             return new OnLotInventoryResponse(
                 home.PublicId,
@@ -71,8 +64,7 @@ internal sealed class GetOnLotInventoryQueryHandler(
                 home.StockedInDate,
                 home.LandStockNumber,
                 lc is not null ? new OnLotLandCostsResponse(lc.AddToTotal, lc.FurnitureTotal) : null,
-                ad is not null ? new OnLotAncillaryDataResponse(ad.CustomerName, ad.PackageReceivedDate) : null,
-                ss is not null ? new OnLotSaleSummaryResponse(ss.SalePublicId, ss.CustomerName, ss.ReceivedInDate, ss.OriginalRetailPrice, ss.CurrentRetailPrice) : null);
+                ad is not null ? new OnLotAncillaryDataResponse(ad.CustomerName, ad.PackageReceivedDate) : null);
         }).ToList();
 
         return Result.Success<IReadOnlyCollection<OnLotInventoryResponse>>(responses);

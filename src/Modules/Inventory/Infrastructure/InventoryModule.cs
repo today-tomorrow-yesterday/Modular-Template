@@ -7,7 +7,6 @@ using Modules.Inventory.Domain.HomeCentersCache;
 using Modules.Inventory.Domain.LandCosts;
 using Modules.Inventory.Domain.LandParcels;
 using Modules.Inventory.Domain.OnLotHomes;
-using Modules.Inventory.Domain.SaleSummariesCache;
 using Modules.Inventory.Domain.WheelsAndAxles;
 using Modules.Inventory.Infrastructure.EventBus;
 using Modules.Inventory.Infrastructure.Persistence;
@@ -50,8 +49,6 @@ public static class InventoryModule
         services.AddScoped<ILandCostRepository, LandCostRepository>();
         services.AddScoped<Domain.AncillaryData.IAncillaryDataRepository, AncillaryDataRepository>();
         services.AddScoped<IWheelsAndAxlesTransactionRepository, WheelsAndAxlesTransactionRepository>();
-        services.AddScoped<ISaleSummaryCacheRepository, SaleSummaryCacheRepository>();
-        services.AddScoped<ISaleSummaryCacheWriter, SaleSummaryCacheRepository>();
         services.AddScoped<IHomeCenterCacheRepository, HomeCenterCacheRepository>();
         services.AddScoped<IHomeCenterCacheWriter, HomeCenterCacheRepository>();
         services.AddScoped<IUnitOfWork<IInventoryModule>>(sp => sp.GetRequiredService<InventoryDbContext>());

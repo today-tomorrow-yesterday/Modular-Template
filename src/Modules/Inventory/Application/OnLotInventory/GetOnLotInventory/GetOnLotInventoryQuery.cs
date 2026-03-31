@@ -27,8 +27,7 @@ public sealed record OnLotInventoryResponse(
     string? StockedInDate,
     string? LandStockNumber,
     OnLotLandCostsResponse? LandCosts,
-    OnLotAncillaryDataResponse? AncillaryData,
-    OnLotSaleSummaryResponse? SaleSummary);
+    OnLotAncillaryDataResponse? AncillaryData);
 
 public sealed record OnLotLandCostsResponse(
     decimal? AddToTotal,
@@ -37,10 +36,3 @@ public sealed record OnLotLandCostsResponse(
 public sealed record OnLotAncillaryDataResponse(
     string? CustomerName,
     DateTime? PackageReceivedDate);
-
-public sealed record OnLotSaleSummaryResponse(
-    Guid? SalePublicId,
-    string? CustomerName,
-    DateTime? ReceivedInDate,
-    decimal? OriginalRetailPrice,
-    decimal? CurrentRetailPrice);
