@@ -11,7 +11,7 @@ docker-compose up
 ```
 
 This starts:
-- All 6 module API containers
+- All module API containers
 - PostgreSQL database
 - Redis cache (optional)
 
@@ -19,11 +19,9 @@ This starts:
 
 | Service | Port | Description |
 |---------|------|-------------|
-| `orders-api` | 5001 | Orders module API |
-| `sales-api` | 5002 | Sales module API |
-| `customer-api` | 5003 | Customer module API |
-| `organization-api` | 5005 | Organization module API |
-| `sample-api` | 5006 | Sample module API |
+| `api` | 5000 | All modules (monolith) |
+| `sampleorders-api` | 5002 | SampleOrders module API |
+| `samplesales-api` | 5003 | SampleSales module API |
 | `postgres` | 5432 | PostgreSQL database |
 | `redis` | 6379 | Redis cache |
 
@@ -33,36 +31,49 @@ This starts:
 version: '3.8'
 
 services:
-  # Module APIs
-  orders-api:
+  # Monolith API (All Modules)
+  api:
+    build:
+      context: .
+      dockerfile: src/Api/Host/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Database=Host=postgres;Database=rtlcore;Username=postgres;Password=postgres
+      - ConnectionStrings__Cache=redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Module APIs (Independent Deployment)
+  sampleorders-api:
     build:
       context: .
       dockerfile: src/Api/Host.SampleOrders/Dockerfile
     ports:
-      - "5001:8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__Database=Host=postgres;Database=orders;Username=postgres;Password=postgres
-      - ConnectionStrings__Cache=redis:6379
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  sales-api:
-    build:
-      context: .
-      dockerfile: src/Api/Host.Sales/Dockerfile
-    ports:
       - "5002:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__Database=Host=postgres;Database=sales;Username=postgres;Password=postgres
+      - ConnectionStrings__Database=Host=postgres;Database=sampleorders;Username=postgres;Password=postgres
       - ConnectionStrings__Cache=redis:6379
     depends_on:
       postgres:
         condition: service_healthy
 
-  # ... additional module services ...
+  samplesales-api:
+    build:
+      context: .
+      dockerfile: src/Api/Host.SampleSales/Dockerfile
+    ports:
+      - "5003:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Database=Host=postgres;Database=samplesales;Username=postgres;Password=postgres
+      - ConnectionStrings__Cache=redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # Infrastructure
   postgres:
@@ -98,11 +109,8 @@ Create `init-databases.sql` to initialize all module databases:
 
 ```sql
 -- init-databases.sql
-CREATE DATABASE orders;
-CREATE DATABASE sales;
-CREATE DATABASE customer;
-CREATE DATABASE organization;
-CREATE DATABASE sample;
+CREATE DATABASE sampleorders;
+CREATE DATABASE samplesales;
 ```
 
 ## Common Commands
@@ -120,8 +128,8 @@ docker-compose up -d
 ### Start Specific Services
 
 ```bash
-# Start only Orders module and dependencies
-docker-compose up orders-api postgres redis
+# Start only SampleOrders module and dependencies
+docker-compose up sampleorders-api postgres redis
 ```
 
 ### Rebuild Images
@@ -131,7 +139,7 @@ docker-compose up orders-api postgres redis
 docker-compose build
 
 # Rebuild specific image
-docker-compose build orders-api
+docker-compose build sampleorders-api
 
 # Rebuild and start
 docker-compose up --build
@@ -144,7 +152,7 @@ docker-compose up --build
 docker-compose logs -f
 
 # Specific service
-docker-compose logs -f orders-api
+docker-compose logs -f sampleorders-api
 ```
 
 ### Stop Services
@@ -161,7 +169,7 @@ docker-compose down -v
 
 ```bash
 # Access running container
-docker-compose exec orders-api sh
+docker-compose exec sampleorders-api sh
 
 # Access database
 docker-compose exec postgres psql -U postgres
@@ -173,18 +181,18 @@ Use profiles to run subsets of services:
 
 ```yaml
 services:
-  orders-api:
-    profiles: ["orders", "all"]
+  sampleorders-api:
+    profiles: ["sampleorders", "all"]
     # ...
 
-  sales-api:
-    profiles: ["sales", "all"]
+  samplesales-api:
+    profiles: ["samplesales", "all"]
     # ...
 ```
 
 ```bash
-# Run only orders profile
-docker-compose --profile orders up
+# Run only sampleorders profile
+docker-compose --profile sampleorders up
 
 # Run all services
 docker-compose --profile all up
@@ -209,13 +217,13 @@ docker-compose ps
 
 ```bash
 # Start the module you're working on
-docker-compose up orders-api -d
+docker-compose up sampleorders-api -d
 
 # View logs
-docker-compose logs -f orders-api
+docker-compose logs -f sampleorders-api
 
 # Make code changes, rebuild, restart
-docker-compose up --build orders-api -d
+docker-compose up --build sampleorders-api -d
 ```
 
 ### 3. Full Stack Testing
@@ -224,12 +232,10 @@ docker-compose up --build orders-api -d
 # Start everything
 docker-compose up -d
 
-# Run integration tests
-dotnet test src/Modules/SampleOrders/test/Modules.SampleOrders.IntegrationTests
-
 # Check all services
-curl http://localhost:5001/health
+curl http://localhost:5000/health
 curl http://localhost:5002/health
+curl http://localhost:5003/health
 ```
 
 ## Environment Variables
@@ -251,7 +257,7 @@ Add resource limits for production-like behavior:
 
 ```yaml
 services:
-  orders-api:
+  sampleorders-api:
     deploy:
       resources:
         limits:
@@ -267,19 +273,20 @@ services:
 Services communicate using Docker's internal network:
 
 ```
-┌─────────────────────────────────────────┐
-│           docker-compose network        │
-│                                         │
-│  ┌─────────┐  ┌─────────┐  ┌────────┐  │
-│  │orders-api│  │sales-api│  │postgres│  │
-│  └────┬────┘  └────┬────┘  └───┬────┘  │
-│       │            │           │        │
-│       └────────────┴───────────┘        │
-│                    │                    │
-└────────────────────┼────────────────────┘
-                     │
-              Host Machine
-         (localhost:5001, 5002, 5432)
+┌──────────────────────────────────────────────────┐
+│              docker-compose network              │
+│                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌────────┐ │
+│  │sampleorders  │  │samplesales   │  │postgres│ │
+│  │    -api      │  │    -api      │  │        │ │
+│  └──────┬───────┘  └──────┬───────┘  └───┬────┘ │
+│         │                 │              │       │
+│         └─────────────────┴──────────────┘       │
+│                           │                      │
+└───────────────────────────┼──────────────────────┘
+                            │
+                     Host Machine
+              (localhost:5002, 5003, 5432)
 ```
 
 ## Troubleshooting
@@ -288,7 +295,7 @@ Services communicate using Docker's internal network:
 
 ```bash
 # Check logs
-docker-compose logs orders-api
+docker-compose logs sampleorders-api
 
 # Check container status
 docker-compose ps
@@ -309,18 +316,18 @@ docker-compose ps postgres
 docker-compose exec postgres psql -U postgres -c '\l'
 
 # View connection errors
-docker-compose logs orders-api | grep -i connection
+docker-compose logs sampleorders-api | grep -i connection
 ```
 
 ### Port Conflicts
 
 ```bash
 # Find what's using the port
-netstat -ano | findstr :5001
+netstat -ano | findstr :5002
 
 # Change port in docker-compose.yml
 ports:
-  - "5011:8080"  # Use different host port
+  - "5012:8080"  # Use different host port
 ```
 
 ### Slow Builds

@@ -6,7 +6,7 @@ This guide covers different approaches to running Rtl.Core locally for developme
 
 ## Prerequisites
 
-- .NET 9.0 SDK
+- .NET 10.0 SDK
 - PostgreSQL (local or Docker)
 - Redis (optional, for caching)
 - Docker (optional, for containerized development)
@@ -35,22 +35,17 @@ dotnet run --project src/Api/Host
 Run only the module you're working on:
 
 ```bash
-# Run Orders module only
+# Run SampleOrders module only
 dotnet run --project src/Api/Host.SampleOrders
 
-# Run Sales module only
-dotnet run --project src/Api/Host.Sales
-
-# etc.
+# Run SampleSales module only
+dotnet run --project src/Api/Host.SampleSales
 ```
 
 | Module | Command | URL |
 |--------|---------|-----|
-| Orders | `dotnet run --project src/Api/Host.SampleOrders` | `http://localhost:5001` |
-| Sales | `dotnet run --project src/Api/Host.Sales` | `http://localhost:5002` |
-| Customer | `dotnet run --project src/Api/Host.Customer` | `http://localhost:5003` |
-| Organization | `dotnet run --project src/Api/Host.Organization` | `http://localhost:5005` |
-| Sample | `dotnet run --project src/Api/Host.SampleSales` | `http://localhost:5006` |
+| SampleOrders | `dotnet run --project src/Api/Host.SampleOrders` | `http://localhost:5001` |
+| SampleSales | `dotnet run --project src/Api/Host.SampleSales` | `http://localhost:5002` |
 
 **When to use:**
 - Focused development on single module
@@ -84,8 +79,7 @@ Configure your IDE to run multiple module hosts simultaneously.
 2. Select **Multiple startup projects**
 3. Set Action to **Start** for:
    - `Rtl.Core.Api.SampleOrders`
-   - `Rtl.Core.Api.Sales`
-   - etc.
+   - `Rtl.Core.Api.SampleSales`
 4. Press F5 to start all
 
 #### JetBrains Rider
@@ -106,11 +100,8 @@ Install PostgreSQL and create the development database:
 psql -U postgres
 
 # Create databases for each module
-CREATE DATABASE orders_dev;
-CREATE DATABASE sales_dev;
-CREATE DATABASE customer_dev;
-CREATE DATABASE organization_dev;
-CREATE DATABASE sample_dev;
+CREATE DATABASE sampleorders_dev;
+CREATE DATABASE samplesales_dev;
 
 # Or create single database for all-in-one mode
 CREATE DATABASE rtlcore_dev;
@@ -141,7 +132,7 @@ docker run -d \
 ```json
 {
   "ConnectionStrings": {
-    "Database": "Host=localhost;Database=orders_dev;Username=postgres;Password=postgres"
+    "Database": "Host=localhost;Database=sampleorders_dev;Username=postgres;Password=postgres"
   }
 }
 ```
@@ -157,7 +148,7 @@ In Development environment, migrations run automatically on startup:
 if (environment.IsDevelopment())
 {
     ApplyMigration<OrdersDbContext>(scope);
-    // etc.
+    ApplyMigration<SampleDbContext>(scope);
 }
 ```
 
@@ -230,14 +221,14 @@ Add launch configuration in `.vscode/launch.json`:
       "name": "Launch All Modules",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/src/Api/Host/bin/Debug/net9.0/Rtl.Core.Api.dll",
+      "program": "${workspaceFolder}/src/Api/Host/bin/Debug/net10.0/Rtl.Core.Api.dll",
       "cwd": "${workspaceFolder}/src/Api/Host"
     },
     {
-      "name": "Launch Orders Module",
+      "name": "Launch SampleOrders Module",
       "type": "coreclr",
       "request": "launch",
-      "program": "${workspaceFolder}/src/Api/Host.SampleOrders/bin/Debug/net9.0/Rtl.Core.Api.SampleOrders.dll",
+      "program": "${workspaceFolder}/src/Api/Host.SampleOrders/bin/Debug/net10.0/Rtl.Core.Api.SampleOrders.dll",
       "cwd": "${workspaceFolder}/src/Api/Host.SampleOrders"
     }
   ]
@@ -272,16 +263,16 @@ dotnet test Rtl.Core.Api.sln
 
 ```bash
 # Unit tests (example using SampleOrders)
-dotnet test src/Modules/SampleOrders/test/Modules.SampleOrders.Domain.Tests
+dotnet test src/Modules/SampleOrders/test/Domain.Tests/
 
-# Integration tests
-dotnet test src/Modules/SampleOrders/test/Modules.SampleOrders.IntegrationTests
+# Application tests
+dotnet test src/Modules/SampleOrders/test/Application.Tests/
 ```
 
 ### Watch Mode
 
 ```bash
-dotnet watch test --project src/Modules/SampleOrders/test/Modules.SampleOrders.Domain.Tests
+dotnet watch test --project src/Modules/SampleOrders/test/Domain.Tests/
 ```
 
 ## Common Issues

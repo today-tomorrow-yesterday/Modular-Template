@@ -54,7 +54,7 @@ Module flags are configured in `appsettings.json` under `{ModuleName}:Features`:
 }
 ```
 
-**Naming Convention**: Module feature paths use the actual module name as the prefix (e.g., `SampleSales:`, `SampleOrders:`, `Customer:`), not abbreviated or generic names.
+**Naming Convention**: Module feature paths use the actual module name as the prefix (e.g., `SampleSales:`, `SampleOrders:`), not abbreviated or generic names.
 
 **Define in module**:
 ```csharp

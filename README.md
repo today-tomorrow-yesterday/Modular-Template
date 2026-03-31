@@ -18,7 +18,7 @@ Two-tier system designed for microservice extraction:
 | Scope | Location | Example Key |
 |-------|----------|-------------|
 | Infrastructure | `appsettings.json` | `Features:Infrastructure:Outbox` |
-| Module | `modules.{module}.json` | `Sales:Features:CatalogV2Pagination` |
+| Module | `modules.{module}.json` | `SampleSales:Features:CatalogV2Pagination` |
 
 **Infrastructure flags**: `Outbox`, `Inbox`, `BackgroundJobs`, `Emails`, `CdcEvents` - when disabled, messages remain queued.
 
@@ -30,7 +30,7 @@ Two-tier system designed for microservice extraction:
 src/
 ├── API/                    # API hosts (main + module-specific)
 ├── Common/                 # Shared: Domain, Application, Infrastructure, Presentation
-└── Modules/                # Customer, Fees, Organization, Product, Sales, SampleOrders, SampleSales
+└── Modules/                # SampleOrders, SampleSales
 ```
 
 **Layer Dependencies**: Domain -> Application -> Infrastructure/Presentation -> API
@@ -40,11 +40,6 @@ src/
 | API Host | Modules |
 |----------|---------|
 | `Rtl.Core.Api` | All (monolith) |
-| `Rtl.Core.Api.Customer` | Customer only |
-| `Rtl.Core.Api.Fees` | Fees only |
-| `Rtl.Core.Api.Organization` | Organization only |
-| `Rtl.Core.Api.Product` | Product only |
-| `Rtl.Core.Api.Sales` | Sales only |
 | `Rtl.Core.Api.SampleOrders` | SampleOrders only |
 | `Rtl.Core.Api.SampleSales` | SampleSales only |
 
@@ -67,11 +62,6 @@ Each module has its own DbContext. Migrations auto-apply on startup.
 
 | Module | DbContext |
 |--------|-----------|
-| Customer | `CustomerDbContext` |
-| Fees | `FeesDbContext` |
-| Organization | `OrganizationDbContext` |
-| Product | `ProductDbContext` |
-| Sales | `SalesDbContext` |
 | SampleOrders | `OrdersDbContext` |
 | SampleSales | `SampleDbContext` |
 
@@ -132,4 +122,4 @@ dotnet test --collect:"XPlat Code Coverage" --results-directory ./coverage
 
 ## Tech Stack
 
-.NET 10, EF Core 9 (PostgreSQL), Dapper, MediatR, FluentValidation, AWS EventBridge/SQS, Quartz.NET, Redis, OpenTelemetry, Serilog, Swagger
+.NET 10, EF Core 10 (PostgreSQL), Dapper, MediatR, FluentValidation, AWS EventBridge/SQS, Quartz.NET, Redis, OpenTelemetry, Serilog, Swagger

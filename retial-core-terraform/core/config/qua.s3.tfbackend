@@ -1,3 +1,0 @@
-bucket = "qua.rtl.us-east-1.terraform-state"
-key    = "rtl-core-domain-module/terraform.tfstate"
-region = "us-east-1"

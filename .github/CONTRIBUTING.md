@@ -191,11 +191,6 @@ git push -u origin feature/my-feature
 |--------|-----------|-------------|
 | SampleOrders | `modular-api-sampleorders` | `sampleorders-service` |
 | SampleSales | `modular-api-samplesales` | `samplesales-service` |
-| Sales | `modular-api-sales` | `sales-service` |
-| Customer | `modular-api-customer` | `customer-service` |
-| Organization | `modular-api-organization` | `organization-service` |
-| Fees | `modular-api-fees` | `fees-service` |
-| Product | `modular-api-product` | `product-service` |
 
 ---
 

@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        module: [Sales, Customer, Organization, Inventory, Funding]
+        module: [SampleOrders, SampleSales]
 
     steps:
       - name: Checkout

@@ -56,7 +56,6 @@ We use `IDbConnectionFactory<TModule>` (generic) instead of a shared `IDbConnect
 // Each module has its own connection factory
 IDbConnectionFactory<ISampleOrdersModule>   // SampleOrders module connections
 IDbConnectionFactory<ISampleSalesModule>    // SampleSales module connections
-IDbConnectionFactory<ICustomerModule>       // Customer module connections
 ```
 
 **Benefits:**
