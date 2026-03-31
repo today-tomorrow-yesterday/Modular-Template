@@ -21,7 +21,6 @@ internal sealed class GetOrderQueryHandler(IOrderRepository orderRepository)
         }
 
         var lines = order.Lines.Select(l => new OrderLineResponse(
-            l.Id,
             l.GetType().Name,
             l.Quantity,
             l.UnitPrice.Amount,
@@ -30,7 +29,6 @@ internal sealed class GetOrderQueryHandler(IOrderRepository orderRepository)
 
         return new OrderResponse(
             order.PublicId,
-            order.CustomerId,
             lines,
             order.TotalPrice.Amount,
             order.TotalPrice.Currency,

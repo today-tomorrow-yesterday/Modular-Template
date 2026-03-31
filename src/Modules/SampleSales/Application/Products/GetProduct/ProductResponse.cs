@@ -1,7 +1,7 @@
 ﻿namespace Modules.SampleSales.Application.Products.GetProduct;
 
 public sealed record ProductResponse(
-    int Id,
+    Guid PublicId,
     string Name,
     string? Description,
     decimal Price,

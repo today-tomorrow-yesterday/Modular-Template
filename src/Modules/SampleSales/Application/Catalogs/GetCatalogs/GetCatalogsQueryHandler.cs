@@ -17,7 +17,7 @@ internal sealed class GetCatalogsQueryHandler(ICatalogRepository catalogReposito
             cancellationToken);
 
         var response = catalogs.Select(c => new CatalogResponse(
-            c.Id,
+            c.PublicId,
             c.Name,
             c.Description,
             c.CreatedAtUtc,

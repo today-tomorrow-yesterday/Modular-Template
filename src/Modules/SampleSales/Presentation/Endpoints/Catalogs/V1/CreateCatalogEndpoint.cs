@@ -39,4 +39,4 @@ internal sealed class CreateCatalogEndpoint : IEndpoint
 
 public sealed record CreateCatalogRequest(string Name, string? Description);
 
-public sealed record CreateCatalogResponse(int Id);
+public sealed record CreateCatalogResponse(Guid PublicId);

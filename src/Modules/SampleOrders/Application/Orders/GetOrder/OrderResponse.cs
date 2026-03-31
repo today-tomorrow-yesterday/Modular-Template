@@ -4,7 +4,6 @@ namespace Modules.SampleOrders.Application.Orders.GetOrder;
 
 public sealed record OrderResponse(
     Guid PublicId,
-    int CustomerId,
     IReadOnlyCollection<OrderLineResponse> Lines,
     decimal TotalPrice,
     string Currency,
@@ -16,7 +15,6 @@ public sealed record OrderResponse(
     Guid? ModifiedByUserId);
 
 public sealed record OrderLineResponse(
-    int Id,
     string LineType,
     int Quantity,
     decimal UnitPrice,

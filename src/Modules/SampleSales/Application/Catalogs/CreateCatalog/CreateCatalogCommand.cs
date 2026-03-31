@@ -4,4 +4,4 @@ namespace Modules.SampleSales.Application.Catalogs.CreateCatalog;
 
 public sealed record CreateCatalogCommand(
     string Name,
-    string? Description) : ICommand<int>;
+    string? Description) : ICommand<Guid>;

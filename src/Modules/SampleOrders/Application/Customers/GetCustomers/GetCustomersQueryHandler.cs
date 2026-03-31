@@ -23,6 +23,7 @@ internal sealed class GetCustomersQueryHandler(ICustomerRepository customerRepos
             c.Name.LastName,
             c.Name.FullName,
             c.GetPrimaryEmail(),
+            c.Status.ToString(),
             c.CreatedAtUtc,
             c.CreatedByUserId,
             c.ModifiedAtUtc,

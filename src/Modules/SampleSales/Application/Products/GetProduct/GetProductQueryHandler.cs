@@ -21,7 +21,7 @@ internal sealed class GetProductQueryHandler(IProductRepository productRepositor
         }
 
         return new ProductResponse(
-            product.Id,
+            product.PublicId,
             product.Name,
             product.Description,
             product.Price.Amount,

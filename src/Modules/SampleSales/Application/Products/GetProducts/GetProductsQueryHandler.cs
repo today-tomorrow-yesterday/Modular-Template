@@ -17,7 +17,7 @@ internal sealed class GetProductsQueryHandler(IProductRepository productReposito
             cancellationToken);
 
         var response = products.Select(p => new ProductResponse(
-            p.Id,
+            p.PublicId,
             p.Name,
             p.Description,
             p.Price.Amount,

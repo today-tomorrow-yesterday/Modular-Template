@@ -43,4 +43,4 @@ internal sealed class CreateProductEndpoint : IEndpoint
 
 public sealed record CreateProductRequest(string Name, string? Description, decimal Price, decimal? InternalCost);
 
-public sealed record CreateProductResponse(int Id);
+public sealed record CreateProductResponse(Guid PublicId);

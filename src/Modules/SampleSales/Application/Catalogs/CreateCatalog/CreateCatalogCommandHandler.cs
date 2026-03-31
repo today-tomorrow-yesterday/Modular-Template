@@ -9,9 +9,9 @@ namespace Modules.SampleSales.Application.Catalogs.CreateCatalog;
 internal sealed class CreateCatalogCommandHandler(
     ICatalogRepository catalogRepository,
     IUnitOfWork<ISampleSalesModule> unitOfWork)
-    : ICommandHandler<CreateCatalogCommand, int>
+    : ICommandHandler<CreateCatalogCommand, Guid>
 {
-    public async Task<Result<int>> Handle(
+    public async Task<Result<Guid>> Handle(
         CreateCatalogCommand request,
         CancellationToken cancellationToken)
     {
@@ -19,13 +19,13 @@ internal sealed class CreateCatalogCommandHandler(
 
         if (catalogResult.IsFailure)
         {
-            return Result.Failure<int>(catalogResult.Error);
+            return Result.Failure<Guid>(catalogResult.Error);
         }
 
         catalogRepository.Add(catalogResult.Value);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return catalogResult.Value.Id;
+        return catalogResult.Value.PublicId;
     }
 }

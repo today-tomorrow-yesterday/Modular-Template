@@ -21,7 +21,7 @@ internal sealed class GetCatalogQueryHandler(ICatalogRepository catalogRepositor
         }
 
         return new CatalogResponse(
-            catalog.Id,
+            catalog.PublicId,
             catalog.Name,
             catalog.Description,
             catalog.CreatedAtUtc,

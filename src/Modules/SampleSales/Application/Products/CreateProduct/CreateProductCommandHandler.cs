@@ -9,9 +9,9 @@ namespace Modules.SampleSales.Application.Products.CreateProduct;
 internal sealed class CreateProductCommandHandler(
     IProductRepository productRepository,
     IUnitOfWork<ISampleSalesModule> unitOfWork)
-    : ICommandHandler<CreateProductCommand, int>
+    : ICommandHandler<CreateProductCommand, Guid>
 {
-    public async Task<Result<int>> Handle(
+    public async Task<Result<Guid>> Handle(
         CreateProductCommand request,
         CancellationToken cancellationToken)
     {
@@ -19,13 +19,13 @@ internal sealed class CreateProductCommandHandler(
 
         if (productResult.IsFailure)
         {
-            return Result.Failure<int>(productResult.Error);
+            return Result.Failure<Guid>(productResult.Error);
         }
 
         productRepository.Add(productResult.Value);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return productResult.Value.Id;
+        return productResult.Value.PublicId;
     }
 }

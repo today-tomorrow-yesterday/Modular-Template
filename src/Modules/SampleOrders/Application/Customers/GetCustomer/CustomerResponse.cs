@@ -7,6 +7,7 @@ public sealed record CustomerResponse(
     string LastName,
     string FullName,
     string? Email,
+    string Status,
     DateTime CreatedAtUtc,
     Guid CreatedByUserId,
     DateTime? ModifiedAtUtc,

@@ -7,7 +7,7 @@ namespace Modules.SampleSales.IntegrationTests.Abstractions;
 
 internal static class CommandHelpers
 {
-    internal static async Task<int> CreateProductAsync(
+    internal static async Task<Guid> CreateProductAsync(
         this ISender sender,
         string? name = null,
         string? description = null,
@@ -21,7 +21,7 @@ internal static class CommandHelpers
             price ?? faker.Random.Decimal(1, 1000),
             internalCost ?? faker.Random.Decimal(1, 500));
 
-        Result<int> result = await sender.Send(command);
+        Result<Guid> result = await sender.Send(command);
         return result.Value;
     }
 }

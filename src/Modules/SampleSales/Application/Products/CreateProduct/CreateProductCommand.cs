@@ -6,4 +6,4 @@ public sealed record CreateProductCommand(
     string Name,
     string? Description,
     decimal Price,
-    decimal? InternalCost) : ICommand<int>;
+    decimal? InternalCost) : ICommand<Guid>;
