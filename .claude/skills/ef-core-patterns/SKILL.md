@@ -96,16 +96,13 @@ builder.Property(e => e.LastSyncedAtUtc).HasColumnName("last_synced_at_utc");
 ### Primary Keys
 
 **Source-of-truth entities** (module owns the data):
+HiLo is configured automatically at the `ModuleDbContext` level for ALL `Entity`-derived types. You do NOT need to configure it per-entity. Just set the column name:
 ```csharp
-builder.Property(e => e.Id).HasColumnName("id").UseHiLo($"seq_{table}");
-```
-
-**CDC cache entities** (iSeries provides the ID):
-```csharp
-builder.Property(e => e.Id).HasColumnName("id").ValueGeneratedNever();
+builder.Property(e => e.Id).HasColumnName("id");
 ```
 
 **Consumer cache entities** (consumer module owns the local cache key):
+Cache entities that implement `ICacheProjection` (not extending `Entity`) need explicit ID generation:
 ```csharp
 builder.Property(e => e.Id).HasColumnName("id").UseIdentityAlwaysColumn();
 ```
@@ -124,10 +121,8 @@ builder.HasIndex(e => new { e.RefHomeCenterNumber, e.RefStockNumber }).IsUnique(
 builder.Property(e => e.Status).HasColumnName("status").HasConversion<string>();
 ```
 
-### Ignore DomainEvents
-```csharp
-builder.Ignore(e => e.DomainEvents);  // Required for entities extending Entity
-```
+### DomainEvents
+`DomainEvents` on the `Entity` base class is a computed property backed by a private field — EF Core does NOT attempt to map it. No `.Ignore()` call is needed.
 
 ## Migration Workflow
 
@@ -188,7 +183,8 @@ builder.Property(l => l.Details).HasColumnName("details").HasColumnType("jsonb")
 - [ ] JSONB fields use `VersionedJsonConverter<T>`, not `OwnsOne`/`ToJson`
 - [ ] Details classes implement `IVersionedDetails` with `SchemaVersion` + `ExtensionData`
 - [ ] Sensitive fields marked with `[SensitiveData]`
-- [ ] DomainEvents ignored on Entity-derived classes
-- [ ] Correct PK strategy (HiLo vs ValueGeneratedNever vs UseIdentityAlwaysColumn)
+- [ ] DomainEvents NOT explicitly ignored (EF handles it automatically)
+- [ ] Entity-derived types use HiLo automatically (configured in ModuleDbContext)
+- [ ] Non-Entity cache types use `UseIdentityAlwaysColumn()`
 - [ ] Index names follow `ix_{table}_{column}` pattern
 - [ ] Migration generated with `ENCRYPTION_KEY` env var set

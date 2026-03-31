@@ -1,16 +1,6 @@
 #if DEBUG
 using Rtl.Core.Api.Diagnostics;
 #endif
-using Modules.Customer.Infrastructure;
-using Modules.Customer.Infrastructure.Persistence;
-using Modules.Funding.Infrastructure;
-using Modules.Funding.Infrastructure.Persistence;
-using Modules.Inventory.Infrastructure;
-using Modules.Inventory.Infrastructure.Persistence;
-using Modules.Organization.Infrastructure;
-using Modules.Organization.Infrastructure.Persistence;
-using Modules.Sales.Infrastructure;
-using Modules.Sales.Infrastructure.Persistence;
 using Modules.SampleOrders.Infrastructure;
 using Modules.SampleOrders.Infrastructure.Persistence;
 using Modules.SampleSales.Infrastructure;
@@ -22,12 +12,7 @@ using Rtl.Core.Infrastructure;
 using Rtl.Core.Infrastructure.Application;
 using Rtl.Core.Infrastructure.Secrets;
 using Serilog;
-using CustomerApplication = Modules.Customer.Application.AssemblyReference;
-using FundingApplication = Modules.Funding.Application.AssemblyReference;
-using InventoryApplication = Modules.Inventory.Application.AssemblyReference;
 using OrdersApplication = Modules.SampleOrders.Application.AssemblyReference;
-using OrganizationApplication = Modules.Organization.Application.AssemblyReference;
-using SalesApplication = Modules.Sales.Application.AssemblyReference;
 using SampleApplication = Modules.SampleSales.Application.AssemblyReference;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,7 +60,7 @@ var cacheConnectionString = builder.Configuration.GetConnectionString("Cache")
     ?? "localhost:6379";
 
 // Load module-specific configuration files
-builder.Configuration.AddModuleConfiguration(["SampleSales", "SampleOrders", "Customer", "Inventory", "Sales", "Organization", "Funding"], builder.Environment.EnvironmentName);
+builder.Configuration.AddModuleConfiguration(["SampleSales", "SampleOrders"], builder.Environment.EnvironmentName);
 
 // ========================================
 // Common Cross-Cutting Concerns
@@ -100,12 +85,7 @@ builder.Services
 // Application layer (MediatR, FluentValidation, Pipeline Behaviors)
 builder.Services.AddCommonApplication([
     SampleApplication.Assembly,
-    OrdersApplication.Assembly,
-    CustomerApplication.Assembly,
-    InventoryApplication.Assembly,
-    SalesApplication.Assembly,
-    OrganizationApplication.Assembly,
-    FundingApplication.Assembly]);
+    OrdersApplication.Assembly]);
 
 // Infrastructure layer (Database, Cache, Auth, Workers, Messaging)
 builder.Services.AddCommonInfrastructure(
@@ -120,12 +100,7 @@ builder.Services.AddCommonInfrastructure(
 
 builder.Services
     .AddSampleSalesModule(builder.Configuration, builder.Environment, DatabaseMigrationExtensions.GetModuleConnectionString(builder.Configuration, "SampleSales", databaseConnectionString))
-    .AddSampleOrdersModule(builder.Configuration, builder.Environment, DatabaseMigrationExtensions.GetModuleConnectionString(builder.Configuration, "SampleOrders", databaseConnectionString))
-    .AddCustomerModule(builder.Configuration, builder.Environment, DatabaseMigrationExtensions.GetModuleConnectionString(builder.Configuration, "Customer", databaseConnectionString))
-    .AddInventoryModule(builder.Configuration, builder.Environment, DatabaseMigrationExtensions.GetModuleConnectionString(builder.Configuration, "Inventory", databaseConnectionString))
-    .AddSalesModule(builder.Configuration, builder.Environment, DatabaseMigrationExtensions.GetModuleConnectionString(builder.Configuration, "Sales", databaseConnectionString))
-    .AddOrganizationModule(builder.Configuration, builder.Environment, DatabaseMigrationExtensions.GetModuleConnectionString(builder.Configuration, "Organization", databaseConnectionString))
-    .AddFundingModule(builder.Configuration, builder.Environment, DatabaseMigrationExtensions.GetModuleConnectionString(builder.Configuration, "Funding", databaseConnectionString));
+    .AddSampleOrdersModule(builder.Configuration, builder.Environment, DatabaseMigrationExtensions.GetModuleConnectionString(builder.Configuration, "SampleOrders", databaseConnectionString));
 
 // ========================================
 // Middleware Pipeline
@@ -139,12 +114,7 @@ app.ApplyMigrations(
     builder.Configuration,
     databaseConnectionString,
     ("SampleSales", typeof(SampleDbContext)),
-    ("SampleOrders", typeof(OrdersDbContext)),
-    ("Customer", typeof(CustomerDbContext)),
-    ("Inventory", typeof(InventoryDbContext)),
-    ("Sales", typeof(SalesDbContext)),
-    ("Organization", typeof(OrganizationDbContext)),
-    ("Funding", typeof(FundingDbContext)));
+    ("SampleOrders", typeof(OrdersDbContext)));
 
 // Seed data after migrations (controlled via Seeding:Enabled in appsettings)
 await app.SeedDataAsync(builder.Configuration);

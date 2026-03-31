@@ -14,6 +14,7 @@ internal sealed class GetCustomerByIdEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapGet("/{customerId:int}", GetCustomerByIdAsync)
+            .WithName("GetCustomerById")
             .WithSummary("Get a customer by ID")
             .WithDescription("Retrieves a customer by its unique identifier.")
             .MapToApiVersion(new ApiVersion(1, 0))

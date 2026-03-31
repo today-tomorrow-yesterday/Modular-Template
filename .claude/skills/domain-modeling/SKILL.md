@@ -18,7 +18,7 @@ description: Use when creating domain entities, value objects, aggregate roots, 
 ## Aggregate Root Pattern
 
 ```csharp
-public sealed class {Entity} : Entity, IAggregateRoot
+public sealed class {Entity} : SoftDeletableEntity, IAggregateRoot
 {
     private readonly List<{Child}> _{children} = [];
 
@@ -30,8 +30,13 @@ public sealed class {Entity} : Entity, IAggregateRoot
     public IReadOnlyCollection<{Child}> {Children} => _{children}.AsReadOnly();
 
     // ─── Factory Methods ───
-    public static {Entity} Create(/* params */)
+    public static Result<{Entity}> Create(/* params */)
     {
+        if (/* validation failure */)
+        {
+            return Result.Failure<{Entity}>({Entity}Errors.SomeError);
+        }
+
         var entity = new {Entity}
         {
             PublicId = Guid.CreateVersion7(),
@@ -45,7 +50,9 @@ public sealed class {Entity} : Entity, IAggregateRoot
     public Result DoSomething(/* params */)
     {
         if (/* business rule violation */)
+        {
             return Result.Failure({Entity}Errors.SomeError);
+        }
 
         // ... apply changes
         Raise(new {Entity}SomethingHappenedDomainEvent());
@@ -54,13 +61,17 @@ public sealed class {Entity} : Entity, IAggregateRoot
 }
 ```
 
+**Inheritance chain:** `SoftDeletableEntity` → `AuditableEntity` → `Entity` → (Id, DomainEvents, Raise)
+
 **Rules:**
-- `sealed class` — no inheritance
+- `sealed class` — no inheritance beyond the base chain
+- Aggregate roots extend `SoftDeletableEntity` (provides audit + soft delete)
 - Private parameterless constructor for EF
-- Factory methods for creation (never `new {Entity}()` from outside)
+- Factory methods return `Result<{Entity}>` with validation (never `new {Entity}()` from outside)
 - `Guid.CreateVersion7()` for PublicId
 - `Raise()` domain events in factory methods and behavioral methods
-- Return `Result`/`Result<T>` from behavioral methods, not exceptions
+- Return `Result`/`Result<T>` from all public methods, not exceptions
+- Always use curly braces on if/else — even single-line returns
 - Collections exposed as `IReadOnlyCollection<T>` via `.AsReadOnly()`
 
 ## Value Object Pattern
@@ -115,18 +126,20 @@ if (result.IsFailure) return result;
 ```csharp
 public static class {Entity}Errors
 {
-    public static readonly Error NotFound = Error.NotFound(
-        "{Entities}.NotFound", "{Entity} not found");
+    // Parameterized errors — use static methods
+    public static Error NotFound(int entityId) =>
+        Error.NotFound("{Entities}.NotFound", $"The {entity} with ID '{entityId}' was not found.");
 
-    public static readonly Error NotFoundByPublicId = Error.NotFound(
-        "{Entities}.NotFoundByPublicId", "{Entity} not found by PublicId");
+    // Fixed errors — use static readonly fields
+    public static readonly Error NameEmpty =
+        Error.Validation("{Entities}.NameEmpty", "The {entity} name cannot be empty.");
 
-    public static readonly Error InvalidLifecycleTransition = Error.Validation(
-        "{Entities}.InvalidLifecycleTransition", "Invalid lifecycle transition");
+    public static readonly Error InvalidStatusTransition =
+        Error.Validation("{Entities}.InvalidStatusTransition", "Invalid status transition.");
 }
 ```
 
-Error codes: `{Entities}.{ErrorName}` (plural entity name prefix).
+Error codes: `{Entities}.{ErrorName}` (plural entity name prefix). Use static methods for errors with parameters, static readonly fields for fixed errors.
 
 ## Domain Events
 
@@ -190,7 +203,7 @@ internal sealed class {Command}Validator : AbstractValidator<{Command}>
 
 ## Checklist
 
-- [ ] Aggregate roots: `sealed class`, `Entity, IAggregateRoot`, private ctor, factory methods
+- [ ] Aggregate roots: `sealed class`, `SoftDeletableEntity, IAggregateRoot`, private ctor, factory methods returning `Result<T>`
 - [ ] `Guid.CreateVersion7()` for PublicId in factory methods
 - [ ] Domain events raised in factory and behavioral methods
 - [ ] Behavioral methods return `Result`/`Result<T>`, not exceptions

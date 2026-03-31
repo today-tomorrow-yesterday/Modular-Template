@@ -15,6 +15,7 @@ internal sealed class GetAllOrdersEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapGet("/", GetAllOrdersAsync)
+            .WithName("GetAllOrders")
             .WithSummary("Get all orders")
             .WithDescription("Retrieves all orders with optional limit.")
             .MapToApiVersion(new ApiVersion(1, 0))

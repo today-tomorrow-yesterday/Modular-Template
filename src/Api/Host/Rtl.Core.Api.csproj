@@ -25,16 +25,6 @@
     <ProjectReference Include="..\..\Common\Application\Rtl.Core.Application.csproj" />
     <ProjectReference Include="..\..\Common\Infrastructure\Rtl.Core.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Common\Presentation\Rtl.Core.Presentation.csproj" />
-    <ProjectReference Include="..\..\Modules\Customer\Infrastructure\Modules.Customer.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Modules\Customer\Presentation\Modules.Customer.Presentation.csproj" />
-    <ProjectReference Include="..\..\Modules\Inventory\Infrastructure\Modules.Inventory.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Modules\Inventory\Presentation\Modules.Inventory.Presentation.csproj" />
-    <ProjectReference Include="..\..\Modules\Sales\Infrastructure\Modules.Sales.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Modules\Sales\Presentation\Modules.Sales.Presentation.csproj" />
-    <ProjectReference Include="..\..\Modules\Organization\Infrastructure\Modules.Organization.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Modules\Organization\Presentation\Modules.Organization.Presentation.csproj" />
-    <ProjectReference Include="..\..\Modules\Funding\Infrastructure\Modules.Funding.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Modules\Funding\Presentation\Modules.Funding.Presentation.csproj" />
     <ProjectReference Include="..\..\Modules\SampleOrders\Infrastructure\Modules.SampleOrders.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Modules\SampleSales\Infrastructure\Modules.SampleSales.Infrastructure.csproj" />
     <ProjectReference Include="..\Shared\Rtl.Core.Api.Shared.csproj" />

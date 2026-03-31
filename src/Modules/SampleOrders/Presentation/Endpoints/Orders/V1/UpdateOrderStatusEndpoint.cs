@@ -15,6 +15,7 @@ internal sealed class UpdateOrderStatusEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPatch("/{orderId:int}/status", UpdateOrderStatusAsync)
+            .WithName("UpdateOrderStatus")
             .WithSummary("Update order status")
             .WithDescription("Updates the status of an existing order.")
             .MapToApiVersion(new ApiVersion(1, 0))

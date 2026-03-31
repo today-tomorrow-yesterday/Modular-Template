@@ -14,6 +14,7 @@ internal sealed class CreateCustomerEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/", CreateCustomerAsync)
+            .WithName("CreateCustomer")
             .WithSummary("Create a new customer")
             .WithDescription("Creates a new customer with the specified name and email.")
             .MapToApiVersion(new ApiVersion(1, 0))

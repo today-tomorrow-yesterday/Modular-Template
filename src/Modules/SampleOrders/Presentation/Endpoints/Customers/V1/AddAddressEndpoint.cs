@@ -3,20 +3,20 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Modules.SampleOrders.Application.Customers.UpdateCustomer;
+using Modules.SampleOrders.Application.Customers.AddAddress;
 using Rtl.Core.Presentation.Endpoints;
 using Rtl.Core.Presentation.Results;
 
 namespace Modules.SampleOrders.Presentation.Endpoints.Customers.V1;
 
-internal sealed class UpdateCustomerEndpoint : IEndpoint
+internal sealed class AddAddressEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapPut("/{customerId:int}", UpdateCustomerAsync)
-            .WithName("UpdateCustomer")
-            .WithSummary("Update a customer")
-            .WithDescription("Updates an existing customer with the specified details.")
+        group.MapPost("/{customerId:int}/addresses", AddAddressAsync)
+            .WithName("AddCustomerAddress")
+            .WithSummary("Add an address to a customer")
+            .WithDescription("Adds a physical address to an existing customer.")
             .MapToApiVersion(new ApiVersion(1, 0))
             .Produces<ApiEnvelope<object>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
@@ -24,17 +24,21 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
-    private static async Task<IResult> UpdateCustomerAsync(
+    private static async Task<IResult> AddAddressAsync(
         int customerId,
-        UpdateCustomerRequest request,
+        AddAddressRequest request,
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var command = new UpdateCustomerCommand(
+        var command = new AddAddressCommand(
             customerId,
-            request.FirstName,
-            request.MiddleName,
-            request.LastName);
+            request.AddressLine1,
+            request.AddressLine2,
+            request.City,
+            request.State,
+            request.PostalCode,
+            request.Country,
+            request.IsPrimary);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -44,4 +48,11 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
     }
 }
 
-public sealed record UpdateCustomerRequest(string FirstName, string? MiddleName, string LastName);
+public sealed record AddAddressRequest(
+    string AddressLine1,
+    string? AddressLine2,
+    string City,
+    string State,
+    string PostalCode,
+    string? Country,
+    bool IsPrimary = false);

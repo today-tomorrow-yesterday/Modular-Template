@@ -1,9 +1,4 @@
 using Asp.Versioning.Builder;
-using Modules.Customer.Presentation.Endpoints;
-using Modules.Funding.Presentation.Endpoints;
-using Modules.Inventory.Presentation.Endpoints;
-using Modules.Organization.Presentation.Endpoints;
-using Modules.Sales.Presentation.Endpoints;
 using Modules.SampleOrders.Presentation.Endpoints;
 using Modules.SampleSales.Presentation.Endpoints;
 using Rtl.Core.Presentation.Endpoints;
@@ -25,11 +20,6 @@ internal static class ModuleExtensions
         [
             new SampleSalesModuleEndpoints(),
             new SampleOrdersModuleEndpoints(),
-            new CustomerModuleEndpoints(),
-            new InventoryModuleEndpoints(),
-            new SalesModuleEndpoints(),
-            new OrganizationModuleEndpoints(),
-            new FundingModuleEndpoints(),
         ];
     }
 

@@ -9,13 +9,14 @@ Creates a complete Minimal API endpoint following the project's conventions.
 
 ## Endpoint Structure
 
-Each endpoint is a static class in `src/Modules/{Module}/Presentation/Endpoints/V1/{Feature}/`.
+Each endpoint is a class in `src/Modules/{Module}/Presentation/Endpoints/{Feature}/V1/`.
 
 ### Query Endpoint (GET)
 
-**File:** `src/Modules/{Module}/Presentation/Endpoints/V1/{Feature}/{EndpointName}Endpoint.cs`
+**File:** `src/Modules/{Module}/Presentation/Endpoints/{Feature}/V1/{EndpointName}Endpoint.cs`
 
 ```csharp
+using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -24,120 +25,211 @@ using Modules.{Module}.Application.{Feature}.{QueryName};
 using Rtl.Core.Presentation.Endpoints;
 using Rtl.Core.Presentation.Results;
 
-namespace Modules.{Module}.Presentation.Endpoints.V1.{Feature};
+namespace Modules.{Module}.Presentation.Endpoints.{Feature}.V1;
 
 internal sealed class {EndpointName}Endpoint : IEndpoint
 {
-    public void MapEndpoint(IEndpointRouteBuilder app)
+    public void MapEndpoint(RouteGroupBuilder group)
     {
-        app.MapGet("/api/v1/{route}", HandleAsync)
-            .WithName("{UniqueOperationId}")    // REQUIRED for Swagger
-            .WithTags("{Feature}")
+        group.MapGet("/{routeParam:int}", Get{Entity}ByIdAsync)
+            .WithName("Get{Entity}ById")           // REQUIRED for Swagger
+            .WithSummary("Get a {entity} by ID")
+            .WithDescription("Retrieves a {entity} by its unique identifier.")
+            .MapToApiVersion(new ApiVersion(1, 0))
             .Produces<ApiEnvelope<{Response}>>(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
-    private static async Task<IResult> HandleAsync(
-        [AsParameters] {Request} request,
+    private static async Task<IResult> Get{Entity}ByIdAsync(
+        int {routeParam},
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(
-            new {QueryName}(request.{Param}),
-            cancellationToken);
+        var query = new {QueryName}({routeParam});
 
-        return result.Match(
-            success: data => Results.Ok(ApiEnvelope.Success(data)),
-            failure: error => error.ToProblem());
+        var result = await sender.Send(query, cancellationToken);
+
+        return result.Match(ApiResponse.Ok, ApiResponse.Problem);
     }
 }
 ```
 
-### Command Endpoint (POST/PUT/DELETE)
+### Command Endpoint (POST — Create)
 
 ```csharp
-internal sealed class {EndpointName}Endpoint : IEndpoint
+internal sealed class Create{Entity}Endpoint : IEndpoint
 {
-    public void MapEndpoint(IEndpointRouteBuilder app)
+    public void MapEndpoint(RouteGroupBuilder group)
     {
-        app.MapPost("/api/v1/{route}", HandleAsync)
-            .WithName("{UniqueOperationId}")    // REQUIRED for Swagger
-            .WithTags("{Feature}")
-            .Produces<ApiEnvelope<{Response}>>(StatusCodes.Status201Created)
+        group.MapPost("/", Create{Entity}Async)
+            .WithName("Create{Entity}")            // REQUIRED for Swagger
+            .WithSummary("Create a new {entity}")
+            .WithDescription("Creates a new {entity}.")
+            .MapToApiVersion(new ApiVersion(1, 0))
+            .Produces<ApiEnvelope<Create{Entity}Response>>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
-            .ProducesProblem(StatusCodes.Status404NotFound);
+            .ProducesProblem(StatusCodes.Status400BadRequest)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
-    private static async Task<IResult> HandleAsync(
-        {RequestBody} request,
+    private static async Task<IResult> Create{Entity}Async(
+        Create{Entity}Request request,
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var result = await sender.Send(
-            new {CommandName}(request.{Prop1}, request.{Prop2}),
-            cancellationToken);
+        var command = new Create{Entity}Command(request.Prop1, request.Prop2);
+
+        var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            success: data => Results.Created($"/api/v1/{route}/{data}", ApiEnvelope.Success(data)),
-            failure: error => error.ToProblem());
+            publicId => ApiResponse.Created($"/{entities}/{publicId}", new Create{Entity}Response(publicId)),
+            ApiResponse.Problem);
     }
 }
+
+public sealed record Create{Entity}Request(string Prop1, string? Prop2);
+public sealed record Create{Entity}Response(Guid PublicId);
+```
+
+### Command Endpoint (PUT/PATCH — Update)
+
+```csharp
+internal sealed class Update{Entity}Endpoint : IEndpoint
+{
+    public void MapEndpoint(RouteGroupBuilder group)
+    {
+        group.MapPut("/{entityId:int}/{subResource}", Update{Entity}Async)
+            .WithName("Update{Entity}")            // REQUIRED for Swagger
+            .WithSummary("Update {entity}")
+            .WithDescription("Updates an existing {entity}.")
+            .MapToApiVersion(new ApiVersion(1, 0))
+            .Produces<ApiEnvelope<object>>(StatusCodes.Status200OK)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+    }
+
+    private static async Task<IResult> Update{Entity}Async(
+        int entityId,
+        Update{Entity}Request request,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var command = new Update{Entity}Command(entityId, request.Prop1);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            () => ApiResponse.Success(),
+            ApiResponse.Problem);
+    }
+}
+
+public sealed record Update{Entity}Request(string Prop1);
+```
+
+### Nested Resource Endpoint (POST — Add child to aggregate)
+
+```csharp
+// POST /customers/{customerId}/contacts — adds a contact to a customer
+internal sealed class Add{Child}Endpoint : IEndpoint
+{
+    public void MapEndpoint(RouteGroupBuilder group)
+    {
+        group.MapPost("/{parentId:int}/{children}", Add{Child}Async)
+            .WithName("Add{Parent}{Child}")        // REQUIRED for Swagger
+            .WithSummary("Add a {child} to a {parent}")
+            .WithDescription("Adds a {child} to an existing {parent}.")
+            .MapToApiVersion(new ApiVersion(1, 0))
+            .Produces<ApiEnvelope<object>>(StatusCodes.Status200OK)
+            .ProducesValidationProblem()
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .ProducesProblem(StatusCodes.Status500InternalServerError);
+    }
+
+    private static async Task<IResult> Add{Child}Async(
+        int parentId,
+        Add{Child}Request request,
+        ISender sender,
+        CancellationToken cancellationToken)
+    {
+        var command = new Add{Child}Command(parentId, request.Prop1, request.Prop2);
+
+        var result = await sender.Send(command, cancellationToken);
+
+        return result.Match(
+            () => ApiResponse.Success(),
+            ApiResponse.Problem);
+    }
+}
+
+public sealed record Add{Child}Request(string Prop1, string? Prop2);
 ```
 
 ## Response DTOs
 
-**File:** `src/Modules/{Module}/Application/{Feature}/{QueryName}/{QueryName}.cs`
+**File:** `src/Modules/{Module}/Application/{Feature}/{QueryName}/{Response}.cs`
 
 ```csharp
-public sealed record {QueryName}(/* params */) : IQuery<{Response}>;
-
 public sealed record {Response}(
     Guid PublicId,              // ALWAYS Guid — NEVER int Id
-    // ... fields without Ref prefix
-);
+    // ... fields
+    ShippingAddressResponse? ShippingAddress,  // nullable child DTOs
+    DateTime CreatedAtUtc,
+    Guid CreatedByUserId,
+    DateTime? ModifiedAtUtc,
+    Guid? ModifiedByUserId);
+
+// Child response DTOs in same file
+public sealed record ShippingAddressResponse(
+    string? AddressLine1,
+    string? AddressLine2,
+    string? City,
+    string? State,
+    string? PostalCode,
+    string? Country);
 ```
 
 **Rules:**
 - Use `Guid PublicId` for entity identity — never `int Id`
 - Drop "Ref" prefix from response properties
-- Nested DTOs for complex sub-objects (e.g., `AddressResponse`, `ContactPointResponse`)
+- Nested DTOs for complex sub-objects (e.g., `ShippingAddressResponse`, `OrderLineResponse`)
 
-## Request DTOs
+## Key Patterns
 
-```csharp
-// For GET — use [AsParameters] with a record
-public sealed record {Request}(Guid PublicId);           // route param
-public sealed record {Request}(int HomeCenterNumber);    // query param
+**Handler method names MUST be unique per endpoint class** — use descriptive names like `Get{Entity}ByIdAsync`, `Create{Entity}Async`, `Add{Child}Async`. This ensures unique Swagger `operationId` values.
 
-// For POST/PUT — request body record
-public sealed record {RequestBody}(
-    Guid PublicCustomerId,     // reference to another entity's PublicId
-    int HomeCenterNumber,
-    // ... input fields
-);
-```
+**Route parameters** are passed directly in the method signature (e.g., `int customerId`), NOT via `[AsParameters]`.
+
+**Result.Match patterns:**
+- GET queries: `result.Match(ApiResponse.Ok, ApiResponse.Problem)`
+- Commands returning void: `result.Match(() => ApiResponse.Success(), ApiResponse.Problem)`
+- Commands returning data: `result.Match(data => ApiResponse.Created(...), ApiResponse.Problem)`
 
 ## Swagger Rules
 
 **Every endpoint MUST have `.WithName("UniqueOperationId")`.**
 
-Without it, endpoints sharing `HandleAsync` as their handler method get the same `operationId` and Swagger UI groups them together incorrectly.
-
 The `CustomOperationIds` in `Api/Shared/OpenApiExtensions.cs` checks `EndpointNameMetadata` first, falls back to method name. `.WithName()` sets `EndpointNameMetadata`.
 
 **Naming convention for operation IDs:**
-- `Get{Entity}` — single entity by ID
-- `Get{Entity}List` or `Get{Entities}` — collection
-- `Create{Entity}` — POST
-- `Update{Entity}` — PUT
+- `Get{Entity}ById` — single entity by ID
+- `GetAll{Entities}` — collection
+- `Create{Entity}` — POST new entity
+- `Update{Entity}` or `Set{SubResource}` — PUT/PATCH
+- `Add{Parent}{Child}` — nested resource POST
 - `Delete{Entity}` — DELETE
 
 ## Checklist
 
 - [ ] `.WithName("UniqueOperationId")` present — Swagger will break without it
+- [ ] `.MapToApiVersion(new ApiVersion(1, 0))` present
+- [ ] `.WithSummary()` and `.WithDescription()` present
+- [ ] Handler method name is unique and descriptive (NOT `HandleAsync`)
+- [ ] Method signature: `RouteGroupBuilder group` (NOT `IEndpointRouteBuilder app`)
+- [ ] Route is relative to group (NOT `/api/v1/...`)
 - [ ] Response uses `Guid PublicId` — never `int Id`
-- [ ] No "Ref" prefix in response properties
-- [ ] `.WithTags("{Feature}")` for Swagger grouping
 - [ ] `.Produces<>()` and `.ProducesProblem()` for OpenAPI schema
-- [ ] Uses `ApiEnvelope.Success()` wrapper for consistent response shape
-- [ ] Error results use `.ToProblem()` for ProblemDetails format
+- [ ] Result matched with `ApiResponse.Ok`, `ApiResponse.Created`, or `ApiResponse.Success()`
+- [ ] Errors matched with `ApiResponse.Problem`

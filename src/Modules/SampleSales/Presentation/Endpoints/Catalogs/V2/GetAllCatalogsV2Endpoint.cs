@@ -21,6 +21,7 @@ internal sealed class GetAllCatalogsV2Endpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapGet("/", GetAllCatalogsAsync)
+            .WithName("GetAllCatalogsV2")
             .WithSummary("Get all catalogs (v2)")
             .WithDescription("Retrieves catalogs with pagination metadata. Enhanced response format with total count and page info.")
             .MapToApiVersion(new ApiVersion(2, 0))

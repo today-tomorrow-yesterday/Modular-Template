@@ -14,6 +14,7 @@ internal sealed class CreateCatalogEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/", CreateCatalogAsync)
+            .WithName("CreateCatalog")
             .WithSummary("Create a new catalog")
             .WithDescription("Creates a new catalog with the specified name and description.")
             .MapToApiVersion(new ApiVersion(1, 0))

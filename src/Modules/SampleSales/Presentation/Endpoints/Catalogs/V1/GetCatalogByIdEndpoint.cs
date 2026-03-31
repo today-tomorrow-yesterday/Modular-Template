@@ -14,6 +14,7 @@ internal sealed class GetCatalogByIdEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapGet("/{catalogId:int}", GetCatalogByIdAsync)
+            .WithName("GetCatalogById")
             .WithSummary("Get a catalog by ID")
             .WithDescription("Retrieves a catalog by its unique identifier.")
             .MapToApiVersion(new ApiVersion(1, 0))

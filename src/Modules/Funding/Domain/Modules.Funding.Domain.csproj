@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <RootNamespace>Modules.Funding.Domain</RootNamespace>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Common\Domain\Rtl.Core.Domain.csproj" />
-  </ItemGroup>
-</Project>

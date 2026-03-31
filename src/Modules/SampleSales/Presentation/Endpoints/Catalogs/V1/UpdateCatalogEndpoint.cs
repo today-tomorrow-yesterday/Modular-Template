@@ -14,6 +14,7 @@ internal sealed class UpdateCatalogEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPut("/{catalogId:int}", UpdateCatalogAsync)
+            .WithName("UpdateCatalog")
             .WithSummary("Update a catalog")
             .WithDescription("Updates an existing catalog with the specified details.")
             .MapToApiVersion(new ApiVersion(1, 0))

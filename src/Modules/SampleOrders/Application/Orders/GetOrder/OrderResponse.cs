@@ -9,6 +9,7 @@ public sealed record OrderResponse(
     string Currency,
     OrderStatus Status,
     DateTime OrderedAtUtc,
+    ShippingAddressResponse? ShippingAddress,
     DateTime CreatedAtUtc,
     Guid CreatedByUserId,
     DateTime? ModifiedAtUtc,
@@ -20,3 +21,11 @@ public sealed record OrderLineResponse(
     decimal UnitPrice,
     string Currency,
     decimal LineTotal);
+
+public sealed record ShippingAddressResponse(
+    string? AddressLine1,
+    string? AddressLine2,
+    string? City,
+    string? State,
+    string? PostalCode,
+    string? Country);

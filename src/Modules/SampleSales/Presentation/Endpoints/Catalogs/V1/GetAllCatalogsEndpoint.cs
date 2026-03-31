@@ -18,6 +18,7 @@ internal sealed class GetAllCatalogsEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapGet("/", GetAllCatalogsAsync)
+            .WithName("GetAllCatalogs")
             .WithSummary("Get all catalogs (v1)")
             .WithDescription("Retrieves all catalogs with optional limit. Returns a simple array.")
             .MapToApiVersion(new ApiVersion(1, 0))

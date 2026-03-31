@@ -27,6 +27,16 @@ internal sealed class GetOrderQueryHandler(IOrderRepository orderRepository)
             l.UnitPrice.Currency,
             l.LineTotal.Amount)).ToList();
 
+        var shippingAddress = order.ShippingAddress is not null
+            ? new ShippingAddressResponse(
+                order.ShippingAddress.Address.AddressLine1,
+                order.ShippingAddress.Address.AddressLine2,
+                order.ShippingAddress.Address.City,
+                order.ShippingAddress.Address.State,
+                order.ShippingAddress.Address.PostalCode,
+                order.ShippingAddress.Address.Country)
+            : null;
+
         return new OrderResponse(
             order.PublicId,
             lines,
@@ -34,6 +44,7 @@ internal sealed class GetOrderQueryHandler(IOrderRepository orderRepository)
             order.TotalPrice.Currency,
             order.Status,
             order.OrderedAtUtc,
+            shippingAddress,
             order.CreatedAtUtc,
             order.CreatedByUserId,
             order.ModifiedAtUtc,

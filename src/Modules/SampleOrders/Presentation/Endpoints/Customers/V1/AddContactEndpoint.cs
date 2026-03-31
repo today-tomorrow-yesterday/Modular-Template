@@ -3,20 +3,21 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using Modules.SampleOrders.Application.Customers.UpdateCustomer;
+using Modules.SampleOrders.Application.Customers.AddContact;
+using Modules.SampleOrders.Domain.Customers;
 using Rtl.Core.Presentation.Endpoints;
 using Rtl.Core.Presentation.Results;
 
 namespace Modules.SampleOrders.Presentation.Endpoints.Customers.V1;
 
-internal sealed class UpdateCustomerEndpoint : IEndpoint
+internal sealed class AddContactEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapPut("/{customerId:int}", UpdateCustomerAsync)
-            .WithName("UpdateCustomer")
-            .WithSummary("Update a customer")
-            .WithDescription("Updates an existing customer with the specified details.")
+        group.MapPost("/{customerId:int}/contacts", AddContactAsync)
+            .WithName("AddCustomerContact")
+            .WithSummary("Add a contact to a customer")
+            .WithDescription("Adds a contact (email, phone, mobile) to an existing customer.")
             .MapToApiVersion(new ApiVersion(1, 0))
             .Produces<ApiEnvelope<object>>(StatusCodes.Status200OK)
             .ProducesValidationProblem()
@@ -24,17 +25,17 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
             .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 
-    private static async Task<IResult> UpdateCustomerAsync(
+    private static async Task<IResult> AddContactAsync(
         int customerId,
-        UpdateCustomerRequest request,
+        AddContactRequest request,
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var command = new UpdateCustomerCommand(
+        var command = new AddContactCommand(
             customerId,
-            request.FirstName,
-            request.MiddleName,
-            request.LastName);
+            request.Type,
+            request.Value,
+            request.IsPrimary);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -44,4 +45,7 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
     }
 }
 
-public sealed record UpdateCustomerRequest(string FirstName, string? MiddleName, string LastName);
+public sealed record AddContactRequest(
+    ContactType Type,
+    string Value,
+    bool IsPrimary = false);

@@ -14,6 +14,7 @@ internal sealed class PlaceOrderEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/", PlaceOrderAsync)
+            .WithName("PlaceOrder")
             .WithSummary("Place a new order")
             .WithDescription("Places a new order for a product.")
             .MapToApiVersion(new ApiVersion(1, 0))

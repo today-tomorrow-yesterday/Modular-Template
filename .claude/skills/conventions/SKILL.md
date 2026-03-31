@@ -39,8 +39,9 @@ description: Use when writing any code in this modular monolith - enforces namin
 ## Property Naming
 
 - `PublicId` — Guid v7, generated in `Create()` factory method, unique indexed
-- `Ref{PropertyName}` — properties that reference external system data (e.g., `RefHomeCenterNumber`, `RefStockNumber` from iSeries)
+- `Ref{PropertyName}` — properties that reference external system data
 - `RefPublicId` — Guid referencing another module's entity PublicId (on cache entities)
+- `RefPublic{EntityName}Id` — Guid referencing a specific entity (on non-cache entities, e.g., `RefPublicCustomerId` on OrderCache)
 - `LastSyncedAtUtc` — required on all `ICacheProjection` entities
 
 ## Domain Events

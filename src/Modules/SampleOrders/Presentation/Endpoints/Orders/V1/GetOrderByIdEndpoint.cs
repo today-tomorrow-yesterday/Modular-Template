@@ -14,6 +14,7 @@ internal sealed class GetOrderByIdEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapGet("/{orderId:int}", GetOrderByIdAsync)
+            .WithName("GetOrderById")
             .WithSummary("Get an order by ID")
             .WithDescription("Retrieves an order by its unique identifier.")
             .MapToApiVersion(new ApiVersion(1, 0))

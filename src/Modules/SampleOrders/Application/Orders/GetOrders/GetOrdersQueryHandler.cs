@@ -28,6 +28,15 @@ internal sealed class GetOrdersQueryHandler(IOrderRepository orderRepository)
             o.TotalPrice.Currency,
             o.Status,
             o.OrderedAtUtc,
+            o.ShippingAddress is not null
+                ? new ShippingAddressResponse(
+                    o.ShippingAddress.Address.AddressLine1,
+                    o.ShippingAddress.Address.AddressLine2,
+                    o.ShippingAddress.Address.City,
+                    o.ShippingAddress.Address.State,
+                    o.ShippingAddress.Address.PostalCode,
+                    o.ShippingAddress.Address.Country)
+                : null,
             o.CreatedAtUtc,
             o.CreatedByUserId,
             o.ModifiedAtUtc,

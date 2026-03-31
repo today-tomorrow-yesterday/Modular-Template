@@ -14,6 +14,7 @@ internal sealed class GetProductByIdEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapGet("/{productId:int}", GetProductByIdAsync)
+            .WithName("GetProductById")
             .WithSummary("Get a product by ID")
             .WithDescription("Retrieves a product by its unique identifier.")
             .MapToApiVersion(new ApiVersion(1, 0))
