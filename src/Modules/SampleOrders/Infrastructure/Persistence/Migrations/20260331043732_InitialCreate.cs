@@ -1,4 +1,6 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -54,8 +56,12 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false),
-                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    public_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    first_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    middle_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    last_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    date_of_birth = table.Column<string>(type: "text", nullable: true),
                     created_by_user_id = table.Column<Guid>(type: "uuid", nullable: false),
                     created_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     modified_by_user_id = table.Column<Guid>(type: "uuid", nullable: true),
@@ -107,6 +113,7 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false),
+                    public_id = table.Column<Guid>(type: "uuid", nullable: false),
                     customer_id = table.Column<int>(type: "integer", nullable: false),
                     status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     ordered_at_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -160,7 +167,9 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
                 schema: "cache",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
+                    ref_public_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
@@ -173,22 +182,101 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "customer_addresses",
+                schema: "orders",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false),
+                    customer_id = table.Column<int>(type: "integer", nullable: false),
+                    address_line1 = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    address_line2 = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    city = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    state = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: true),
+                    postal_code = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    country = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: true),
+                    is_primary = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_customer_addresses", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_customer_addresses_customers_customer_id",
+                        column: x => x.customer_id,
+                        principalSchema: "orders",
+                        principalTable: "customers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "customer_contacts",
+                schema: "orders",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false),
+                    customer_id = table.Column<int>(type: "integer", nullable: false),
+                    type = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    value = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    is_primary = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_customer_contacts", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_customer_contacts_customers_customer_id",
+                        column: x => x.customer_id,
+                        principalSchema: "orders",
+                        principalTable: "customers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "order_lines",
                 schema: "orders",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false),
                     order_id = table.Column<int>(type: "integer", nullable: false),
-                    product_id = table.Column<int>(type: "integer", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     unit_price_amount = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
-                    unit_price_currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false)
+                    unit_price_currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
+                    sort_order = table.Column<int>(type: "integer", nullable: false),
+                    line_type = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
+                    details = table.Column<string>(type: "jsonb", nullable: true),
+                    product_cache_id = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_order_lines", x => x.id);
                     table.ForeignKey(
                         name: "fk_order_lines_orders_order_id",
+                        column: x => x.order_id,
+                        principalSchema: "orders",
+                        principalTable: "orders",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "shipping_addresses",
+                schema: "orders",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false),
+                    order_id = table.Column<int>(type: "integer", nullable: false),
+                    address_line1 = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    address_line2 = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    city = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    state = table.Column<string>(type: "character varying(2)", maxLength: 2, nullable: false),
+                    postal_code = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    country = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_shipping_addresses", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_shipping_addresses_orders_order_id",
                         column: x => x.order_id,
                         principalSchema: "orders",
                         principalTable: "orders",
@@ -221,16 +309,29 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_customer_addresses_customer_id",
+                schema: "orders",
+                table: "customer_addresses",
+                column: "customer_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_customer_contacts_customer_type_value",
+                schema: "orders",
+                table: "customer_contacts",
+                columns: new[] { "customer_id", "type", "value" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_customer_is_deleted",
                 schema: "orders",
                 table: "customers",
                 column: "is_deleted");
 
             migrationBuilder.CreateIndex(
-                name: "ix_customers_email",
+                name: "ix_customers_public_id",
                 schema: "orders",
                 table: "customers",
-                column: "email",
+                column: "public_id",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -246,10 +347,10 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
                 column: "order_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_order_lines_product_id",
+                name: "ix_order_lines_product_cache_id",
                 schema: "orders",
                 table: "order_lines",
-                column: "product_id");
+                column: "product_cache_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_order_is_deleted",
@@ -264,16 +365,31 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
                 column: "customer_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_orders_public_id",
+                schema: "orders",
+                table: "orders",
+                column: "public_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_outbox_messages_processed_next_retry",
                 schema: "messaging",
                 table: "outbox_messages",
                 columns: new[] { "processed_on_utc", "next_retry_at_utc" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_products_cache_is_active",
+                name: "ix_products_cache_ref_public_id",
                 schema: "cache",
                 table: "products_cache",
-                column: "is_active");
+                column: "ref_public_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shipping_addresses_order_id",
+                schema: "orders",
+                table: "shipping_addresses",
+                column: "order_id",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -284,7 +400,11 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
                 schema: "orders");
 
             migrationBuilder.DropTable(
-                name: "customers",
+                name: "customer_addresses",
+                schema: "orders");
+
+            migrationBuilder.DropTable(
+                name: "customer_contacts",
                 schema: "orders");
 
             migrationBuilder.DropTable(
@@ -310,6 +430,14 @@ namespace Modules.SampleOrders.Infrastructure.Persistence.Migrations
             migrationBuilder.DropTable(
                 name: "products_cache",
                 schema: "cache");
+
+            migrationBuilder.DropTable(
+                name: "shipping_addresses",
+                schema: "orders");
+
+            migrationBuilder.DropTable(
+                name: "customers",
+                schema: "orders");
 
             migrationBuilder.DropTable(
                 name: "orders",

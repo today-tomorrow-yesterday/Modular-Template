@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SampleDbContext))]
-    [Migration("20260331043531_AddPublicIdToCatalogAndProduct")]
-    partial class AddPublicIdToCatalogAndProduct
+    [Migration("20260331043750_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

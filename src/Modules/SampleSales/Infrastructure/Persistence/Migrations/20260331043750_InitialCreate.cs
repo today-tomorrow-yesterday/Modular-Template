@@ -1,4 +1,6 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -54,6 +56,7 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false),
+                    public_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     created_by_user_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -106,8 +109,10 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                 schema: "cache",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false),
-                    customer_id = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
+                    ref_public_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ref_public_customer_id = table.Column<Guid>(type: "uuid", nullable: false),
                     total_price = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),
                     currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
                     status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
@@ -157,6 +162,7 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false),
+                    public_id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     internal_cost = table.Column<string>(type: "text", precision: 18, scale: 2, nullable: true),
@@ -244,16 +250,30 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                 column: "is_deleted");
 
             migrationBuilder.CreateIndex(
+                name: "ix_catalogs_public_id",
+                schema: "sample",
+                table: "catalogs",
+                column: "public_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_inbox_messages_processed_next_retry",
                 schema: "messaging",
                 table: "inbox_messages",
                 columns: new[] { "processed_on_utc", "next_retry_at_utc" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_orders_cache_customer_id",
+                name: "ix_orders_cache_ref_public_customer_id",
                 schema: "cache",
                 table: "orders_cache",
-                column: "customer_id");
+                column: "ref_public_customer_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_orders_cache_ref_public_id",
+                schema: "cache",
+                table: "orders_cache",
+                column: "ref_public_id",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_outbox_messages_processed_next_retry",
@@ -266,6 +286,13 @@ namespace Modules.SampleSales.Infrastructure.Persistence.Migrations
                 schema: "sample",
                 table: "products",
                 column: "is_deleted");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_products_public_id",
+                schema: "sample",
+                table: "products",
+                column: "public_id",
+                unique: true);
         }
 
         /// <inheritdoc />
