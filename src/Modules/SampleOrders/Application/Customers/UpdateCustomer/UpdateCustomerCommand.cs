@@ -1,8 +1,9 @@
-﻿using Rtl.Core.Application.Messaging;
+using Rtl.Core.Application.Messaging;
 
 namespace Modules.SampleOrders.Application.Customers.UpdateCustomer;
 
 public sealed record UpdateCustomerCommand(
     int CustomerId,
-    string Name,
-    string Email) : ICommand;
+    string FirstName,
+    string? MiddleName,
+    string LastName) : ICommand;

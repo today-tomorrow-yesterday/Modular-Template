@@ -31,8 +31,9 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
     {
         var command = new UpdateCustomerCommand(
             customerId,
-            request.Name,
-            request.Email);
+            request.FirstName,
+            request.MiddleName,
+            request.LastName);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -42,4 +43,4 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
     }
 }
 
-public sealed record UpdateCustomerRequest(string Name, string Email);
+public sealed record UpdateCustomerRequest(string FirstName, string? MiddleName, string LastName);

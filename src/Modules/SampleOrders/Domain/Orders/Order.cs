@@ -1,4 +1,5 @@
 using Modules.SampleOrders.Domain.Orders.Events;
+using Modules.SampleOrders.Domain.ValueObjects;
 using Rtl.Core.Domain.Entities;
 using Rtl.Core.Domain.Results;
 using Rtl.Core.Domain.ValueObjects;
@@ -9,7 +10,9 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
 {
     private readonly List<OrderLine> _lines = [];
 
-    private Order() {}
+    private Order() { }
+
+    public Guid PublicId { get; private set; }
 
     public int CustomerId { get; private set; }
 
@@ -21,6 +24,10 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
 
     public DateTime OrderedAtUtc { get; private set; }
 
+    public ShippingAddress? ShippingAddress { get; private set; }
+
+    // ─── Factory Methods ───────────────────────────────────────────
+
     public static Result<Order> Place(int customerId)
     {
         if (customerId <= 0)
@@ -30,6 +37,7 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
 
         var order = new Order
         {
+            PublicId = Guid.CreateVersion7(),
             CustomerId = customerId,
             Status = OrderStatus.Pending,
             OrderedAtUtc = DateTime.UtcNow
@@ -40,7 +48,13 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
         return order;
     }
 
-    public Result AddLine(int productId, int quantity, Money unitPrice)
+    // ─── Line Management ──────────────────────────────────────────
+
+    public Result AddProductLine(
+        int quantity,
+        Money unitPrice,
+        int? productCacheId = null,
+        ProductLineDetails? details = null)
     {
         if (Status != OrderStatus.Pending)
         {
@@ -52,30 +66,45 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
             return Result.Failure(OrderErrors.QuantityInvalid);
         }
 
-        var existingLine = _lines.FirstOrDefault(l => l.ProductId == productId);
-        if (existingLine is not null)
-        {
-            existingLine.UpdateQuantity(existingLine.Quantity + quantity);
-        }
-        else
-        {
-            var line = OrderLine.Create(Id, productId, quantity, unitPrice);
-            _lines.Add(line);
+        var line = ProductLine.Create(Id, quantity, unitPrice, productCacheId, details, _lines.Count);
+        _lines.Add(line);
 
-            Raise(new OrderLineAddedDomainEvent(productId, quantity));
-        }
+        Raise(new OrderLineAddedDomainEvent(line.Id));
 
         return Result.Success();
     }
 
-    public Result RemoveLine(int productId)
+    public Result AddCustomLine(
+        int quantity,
+        Money unitPrice,
+        CustomLineDetails? details = null)
     {
         if (Status != OrderStatus.Pending)
         {
             return Result.Failure(OrderErrors.CannotModifyNonPendingOrder);
         }
 
-        var line = _lines.FirstOrDefault(l => l.ProductId == productId);
+        if (quantity <= 0)
+        {
+            return Result.Failure(OrderErrors.QuantityInvalid);
+        }
+
+        var line = CustomLine.Create(Id, quantity, unitPrice, details, _lines.Count);
+        _lines.Add(line);
+
+        Raise(new OrderLineAddedDomainEvent(line.Id));
+
+        return Result.Success();
+    }
+
+    public Result RemoveLine(int lineId)
+    {
+        if (Status != OrderStatus.Pending)
+        {
+            return Result.Failure(OrderErrors.CannotModifyNonPendingOrder);
+        }
+
+        var line = _lines.FirstOrDefault(l => l.Id == lineId);
         if (line is null)
         {
             return Result.Failure(OrderErrors.LineNotFound);
@@ -83,10 +112,12 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
 
         _lines.Remove(line);
 
-        Raise(new OrderLineRemovedDomainEvent(productId));
+        Raise(new OrderLineRemovedDomainEvent(lineId));
 
         return Result.Success();
     }
+
+    // ─── Status Transitions ───────────────────────────────────────
 
     public Result UpdateStatus(OrderStatus newStatus)
     {
@@ -103,6 +134,26 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
         return Result.Success();
     }
 
+    // ─── Shipping Address ─────────────────────────────────────────
+
+    public Result SetShippingAddress(Address address)
+    {
+        if (ShippingAddress is null)
+        {
+            ShippingAddress = ShippingAddress.Create(Id, address);
+            Raise(new ShippingAddressCreatedDomainEvent());
+        }
+        else
+        {
+            ShippingAddress.Update(address);
+            Raise(new ShippingAddressChangedDomainEvent());
+        }
+
+        return Result.Success();
+    }
+
+    // ─── Private Helpers ──────────────────────────────────────────
+
     private Money CalculateTotal()
     {
         if (_lines.Count == 0)
@@ -117,9 +168,7 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
         {
             var addResult = total.Add(line.LineTotal);
             if (addResult.IsSuccess)
-            {
                 total = addResult.Value;
-            }
         }
 
         return total;

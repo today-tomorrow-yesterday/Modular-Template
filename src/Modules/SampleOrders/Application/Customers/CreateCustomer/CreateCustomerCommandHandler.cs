@@ -9,23 +9,28 @@ namespace Modules.SampleOrders.Application.Customers.CreateCustomer;
 internal sealed class CreateCustomerCommandHandler(
     ICustomerRepository customerRepository,
     IUnitOfWork<ISampleOrdersModule> unitOfWork)
-    : ICommandHandler<CreateCustomerCommand, int>
+    : ICommandHandler<CreateCustomerCommand, Guid>
 {
-    public async Task<Result<int>> Handle(
+    public async Task<Result<Guid>> Handle(
         CreateCustomerCommand request,
         CancellationToken cancellationToken)
     {
-        var customerResult = Customer.Create(request.Name, request.Email);
+        var customerResult = Customer.Create(
+            request.FirstName,
+            request.MiddleName,
+            request.LastName,
+            request.Email,
+            request.DateOfBirth);
 
         if (customerResult.IsFailure)
         {
-            return Result.Failure<int>(customerResult.Error);
+            return Result.Failure<Guid>(customerResult.Error);
         }
 
         customerRepository.Add(customerResult.Value);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return customerResult.Value.Id;
+        return customerResult.Value.PublicId;
     }
 }

@@ -1,9 +1,12 @@
-﻿namespace Modules.SampleOrders.Application.Customers.GetCustomer;
+namespace Modules.SampleOrders.Application.Customers.GetCustomer;
 
 public sealed record CustomerResponse(
-    int Id,
-    string Name,
-    string Email,
+    Guid PublicId,
+    string FirstName,
+    string? MiddleName,
+    string LastName,
+    string FullName,
+    string? Email,
     DateTime CreatedAtUtc,
     Guid CreatedByUserId,
     DateTime? ModifiedAtUtc,

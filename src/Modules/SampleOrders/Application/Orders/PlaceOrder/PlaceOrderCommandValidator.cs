@@ -10,9 +10,9 @@ internal sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderC
             .GreaterThan(0)
             .WithMessage("CustomerId is required");
 
-        RuleFor(x => x.ProductId)
+        RuleFor(x => x.ProductCacheId)
             .GreaterThan(0)
-            .WithMessage("ProductId is required");
+            .WithMessage("ProductCacheId is required");
 
         RuleFor(x => x.Quantity)
             .GreaterThan(0)

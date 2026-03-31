@@ -1,14 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Modules.SampleSales.Domain.OrdersCache;
-using Modules.SampleSales.Presentation.IntegrationEvents;
 using Rtl.Core.Infrastructure.Caching;
 
 namespace Modules.SampleSales.Infrastructure.Persistence.Repositories;
 
-/// <summary>
-/// Repository for OrderCache that implements both read and write interfaces.
-/// Inherits read operations from CacheReadRepository, adds custom queries and write operations.
-/// </summary>
 internal sealed class OrderCacheRepository(SampleDbContext dbContext)
     : CacheReadRepository<OrderCache, SampleDbContext>(dbContext),
       IOrderCacheRepository,
@@ -29,21 +24,19 @@ internal sealed class OrderCacheRepository(SampleDbContext dbContext)
     }
 
     public async Task<IReadOnlyCollection<OrderCache>> GetByCustomerIdAsync(
-        int customerId,
+        Guid publicCustomerId,
         CancellationToken cancellationToken = default)
     {
         return await DbSet
-            .Where(o => o.CustomerId == customerId)
+            .Where(o => o.RefPublicCustomerId == publicCustomerId)
             .OrderByDescending(o => o.OrderedAtUtc)
             .ToListAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Upserts an OrderCache entry. Used only by integration event handlers.
-    /// </summary>
     public async Task UpsertAsync(OrderCache orderCache, CancellationToken cancellationToken = default)
     {
-        var existing = await DbSet.FindAsync([orderCache.Id], cancellationToken);
+        var existing = await DbSet
+            .FirstOrDefaultAsync(o => o.RefPublicId == orderCache.RefPublicId, cancellationToken);
 
         if (existing is null)
         {
@@ -51,7 +44,7 @@ internal sealed class OrderCacheRepository(SampleDbContext dbContext)
         }
         else
         {
-            existing.CustomerId = orderCache.CustomerId;
+            existing.RefPublicCustomerId = orderCache.RefPublicCustomerId;
             existing.TotalPrice = orderCache.TotalPrice;
             existing.Currency = orderCache.Currency;
             existing.Status = orderCache.Status;

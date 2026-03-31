@@ -1,13 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Modules.SampleOrders.Domain.ProductsCache;
 
 namespace Modules.SampleOrders.Infrastructure.Persistence.Configurations;
 
-/// <summary>
-/// EF Core configuration for ProductCache entity.
-/// Note: No audit or soft delete fields - cache entities are simple data copies.
-/// </summary>
 internal sealed class ProductCacheConfiguration : IEntityTypeConfiguration<ProductCache>
 {
     public void Configure(EntityTypeBuilder<ProductCache> builder)
@@ -18,7 +14,11 @@ internal sealed class ProductCacheConfiguration : IEntityTypeConfiguration<Produ
 
         builder.Property(p => p.Id)
             .HasColumnName("id")
-            .ValueGeneratedNever();
+            .UseIdentityAlwaysColumn();
+
+        builder.Property(p => p.RefPublicId)
+            .HasColumnName("ref_public_id")
+            .IsRequired();
 
         builder.Property(p => p.Name)
             .HasColumnName("name")
@@ -42,6 +42,8 @@ internal sealed class ProductCacheConfiguration : IEntityTypeConfiguration<Produ
             .HasColumnName("last_synced_at_utc")
             .IsRequired();
 
-        builder.HasIndex(p => p.IsActive);
+        builder.HasIndex(p => p.RefPublicId)
+            .IsUnique()
+            .HasDatabaseName("ix_products_cache_ref_public_id");
     }
 }

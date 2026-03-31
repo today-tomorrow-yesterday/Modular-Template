@@ -16,6 +16,10 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Id)
             .HasColumnName("id");
 
+        builder.Property(p => p.PublicId)
+            .HasColumnName("public_id")
+            .IsRequired();
+
         builder.Property(p => p.Name)
             .HasColumnName("name")
             .HasMaxLength(200)
@@ -48,6 +52,10 @@ internal sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.IsActive)
             .HasColumnName("is_active")
             .HasDefaultValue(true);
+
+        builder.HasIndex(p => p.PublicId)
+            .IsUnique()
+            .HasDatabaseName("ix_products_public_id");
 
         // Configure audit fields from IAuditableEntity
         builder.ConfigureAuditProperties();

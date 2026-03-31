@@ -16,6 +16,10 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(o => o.Id)
             .HasColumnName("id");
 
+        builder.Property(o => o.PublicId)
+            .HasColumnName("public_id")
+            .IsRequired();
+
         builder.Property(o => o.CustomerId)
             .HasColumnName("customer_id")
             .IsRequired();
@@ -30,21 +34,32 @@ internal sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
             .HasColumnName("ordered_at_utc")
             .IsRequired();
 
-        // Configure Lines collection
+        // Configure Lines collection (TPH — OrderLine base)
         builder.HasMany(o => o.Lines)
             .WithOne()
             .HasForeignKey(l => l.OrderId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Ignore computed TotalPrice property - calculated from Lines
+        // Configure ShippingAddress (one-to-one, optional)
+        builder.HasOne(o => o.ShippingAddress)
+            .WithOne()
+            .HasForeignKey<ShippingAddress>(a => a.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Ignore computed TotalPrice property — calculated from Lines
         builder.Ignore(o => o.TotalPrice);
+
+        builder.HasIndex(o => o.PublicId)
+            .IsUnique()
+            .HasDatabaseName("ix_orders_public_id");
+
+        builder.HasIndex(o => o.CustomerId)
+            .HasDatabaseName("ix_orders_customer_id");
 
         // Configure audit fields from IAuditableEntity
         builder.ConfigureAuditProperties();
 
         // Configure soft delete fields from ISoftDeletable
         builder.ConfigureSoftDeleteProperties();
-
-        builder.HasIndex(o => o.CustomerId);
     }
 }

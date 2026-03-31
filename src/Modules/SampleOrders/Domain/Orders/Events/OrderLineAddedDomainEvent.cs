@@ -1,7 +1,5 @@
-﻿using Rtl.Core.Domain.Events;
+using Rtl.Core.Domain.Events;
 
 namespace Modules.SampleOrders.Domain.Orders.Events;
 
-public sealed record OrderLineAddedDomainEvent(
-    int ProductId,
-    int Quantity) : DomainEvent;
+public sealed record OrderLineAddedDomainEvent(int LineId) : DomainEvent;

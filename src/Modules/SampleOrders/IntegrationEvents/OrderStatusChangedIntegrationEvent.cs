@@ -1,4 +1,4 @@
-﻿using Rtl.Core.Application.EventBus;
+using Rtl.Core.Application.EventBus;
 
 namespace Modules.SampleOrders.IntegrationEvents;
 
@@ -10,5 +10,5 @@ namespace Modules.SampleOrders.IntegrationEvents;
 public sealed record OrderStatusChangedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int OrderId,
+    Guid PublicOrderId,
     string NewStatus) : IntegrationEvent(Id, OccurredOnUtc);

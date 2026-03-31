@@ -1,17 +1,18 @@
-﻿using Rtl.Core.Domain.Caching;
+using Rtl.Core.Domain.Caching;
 
 namespace Modules.SampleSales.Domain.OrdersCache;
 
 /// <summary>
-/// Cache entity representing orders from the Orders module.
+/// Cache entity representing orders from the SampleOrders module.
 /// This is a read-only copy maintained via integration events.
-/// No audit fields or soft delete - cache entities are simple data copies.
 /// </summary>
 public sealed class OrderCache : ICacheProjection
 {
     public int Id { get; set; }
 
-    public int CustomerId { get; set; }
+    public Guid RefPublicId { get; set; }
+
+    public Guid RefPublicCustomerId { get; set; }
 
     public decimal TotalPrice { get; set; }
 

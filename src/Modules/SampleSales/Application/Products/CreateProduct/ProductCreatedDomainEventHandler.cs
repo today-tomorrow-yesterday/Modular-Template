@@ -16,20 +16,17 @@ internal sealed class ProductCreatedDomainEventHandler(
         ProductCreatedDomainEvent domainEvent,
         CancellationToken cancellationToken = default)
     {
-        Product? product = await productRepository.GetByIdAsync(
+        var product = await productRepository.GetByIdAsync(
             domainEvent.EntityId,
             cancellationToken);
 
-        if (product is null)
-        {
-            return;
-        }
+        if (product is null) return;
 
         await eventBus.PublishAsync(
             new ProductCreatedIntegrationEvent(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 dateTimeProvider.UtcNow,
-                product.Id,
+                product.PublicId,
                 product.Name,
                 product.Description,
                 product.Price.Amount),

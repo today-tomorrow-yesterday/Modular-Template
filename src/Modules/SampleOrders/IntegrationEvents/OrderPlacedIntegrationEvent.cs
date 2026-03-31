@@ -1,4 +1,4 @@
-﻿using Rtl.Core.Application.EventBus;
+using Rtl.Core.Application.EventBus;
 
 namespace Modules.SampleOrders.IntegrationEvents;
 
@@ -10,8 +10,8 @@ namespace Modules.SampleOrders.IntegrationEvents;
 public sealed record OrderPlacedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int OrderId,
-    int CustomerId,
+    Guid PublicOrderId,
+    Guid PublicCustomerId,
     IReadOnlyCollection<OrderLineDto> Lines,
     decimal TotalPrice,
     string Currency,
@@ -19,7 +19,7 @@ public sealed record OrderPlacedIntegrationEvent(
     DateTime OrderedAtUtc) : IntegrationEvent(Id, OccurredOnUtc);
 
 public sealed record OrderLineDto(
-    int ProductId,
+    Guid PublicProductId,
     int Quantity,
     decimal UnitPrice,
     string Currency);

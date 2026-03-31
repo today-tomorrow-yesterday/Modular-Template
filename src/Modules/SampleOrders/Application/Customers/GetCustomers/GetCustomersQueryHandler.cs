@@ -17,9 +17,12 @@ internal sealed class GetCustomersQueryHandler(ICustomerRepository customerRepos
             cancellationToken);
 
         var response = customers.Select(c => new CustomerResponse(
-            c.Id,
-            c.Name,
-            c.Email,
+            c.PublicId,
+            c.Name.FirstName,
+            c.Name.MiddleName,
+            c.Name.LastName,
+            c.Name.FullName,
+            c.GetPrimaryEmail(),
             c.CreatedAtUtc,
             c.CreatedByUserId,
             c.ModifiedAtUtc,

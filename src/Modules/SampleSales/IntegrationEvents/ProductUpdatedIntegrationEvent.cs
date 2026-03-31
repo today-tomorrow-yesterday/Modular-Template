@@ -1,4 +1,4 @@
-﻿using Rtl.Core.Application.EventBus;
+using Rtl.Core.Application.EventBus;
 
 namespace Modules.SampleSales.IntegrationEvents;
 
@@ -10,7 +10,7 @@ namespace Modules.SampleSales.IntegrationEvents;
 public sealed record ProductUpdatedIntegrationEvent(
     Guid Id,
     DateTime OccurredOnUtc,
-    int ProductId,
+    Guid PublicProductId,
     string Name,
     string? Description,
     decimal Price,

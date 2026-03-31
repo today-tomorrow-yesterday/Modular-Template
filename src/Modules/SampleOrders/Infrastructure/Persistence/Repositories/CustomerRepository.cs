@@ -22,8 +22,16 @@ internal sealed class CustomerRepository(OrdersDbContext dbContext)
         return await query.ToListAsync(cancellationToken);
     }
 
+    public async Task<Customer?> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken = default)
+    {
+        return await DbSet.FirstOrDefaultAsync(c => c.PublicId == publicId, cancellationToken);
+    }
+
     public async Task<Customer?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        return await DbSet.AsNoTracking().FirstOrDefaultAsync(c => c.Email == email, cancellationToken);
+        return await DbSet.AsNoTracking()
+            .FirstOrDefaultAsync(
+                c => c.Contacts.Any(ct => ct.Type == ContactType.Email && ct.Value == email),
+                cancellationToken);
     }
 }

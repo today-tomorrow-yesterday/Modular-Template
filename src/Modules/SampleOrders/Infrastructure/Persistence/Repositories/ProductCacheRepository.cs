@@ -1,14 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Modules.SampleOrders.Domain.ProductsCache;
-using Modules.SampleOrders.Presentation.IntegrationEvents;
 using Rtl.Core.Infrastructure.Caching;
 
 namespace Modules.SampleOrders.Infrastructure.Persistence.Repositories;
 
-/// <summary>
-/// Repository for ProductCache that implements both read and write interfaces.
-/// Inherits read operations from CacheReadRepository, adds custom queries and write operations.
-/// </summary>
 internal sealed class ProductCacheRepository(OrdersDbContext dbContext)
     : CacheReadRepository<ProductCache, int, OrdersDbContext>(dbContext),
       IProductCacheRepository,
@@ -37,12 +32,10 @@ internal sealed class ProductCacheRepository(OrdersDbContext dbContext)
             .ToListAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Upserts a ProductCache entry. Used only by integration event handlers.
-    /// </summary>
     public async Task UpsertAsync(ProductCache productCache, CancellationToken cancellationToken = default)
     {
-        var existing = await DbSet.FindAsync([productCache.Id], cancellationToken);
+        var existing = await DbSet
+            .FirstOrDefaultAsync(p => p.RefPublicId == productCache.RefPublicId, cancellationToken);
 
         if (existing is null)
         {

@@ -19,10 +19,10 @@ internal sealed class UpdateCustomerCommandHandler(
 
         if (customer is null)
         {
-            return Result.Failure(CustomerErrors.NotFound(request.CustomerId));
+            return Result.Failure(CustomerErrors.NotFound);
         }
 
-        var updateResult = customer.Update(request.Name, request.Email);
+        var updateResult = customer.UpdateName(request.FirstName, request.MiddleName, request.LastName);
 
         if (updateResult.IsFailure)
         {

@@ -12,6 +12,8 @@ public sealed class Product : SoftDeletableEntity, IAggregateRoot
 
     private Product() {}
 
+    public Guid PublicId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     [SensitiveData]
@@ -49,6 +51,7 @@ public sealed class Product : SoftDeletableEntity, IAggregateRoot
 
         var product = new Product
         {
+            PublicId = Guid.CreateVersion7(),
             Name = name.Trim(),
             Description = description?.Trim(),
             InternalCost = internalCost,

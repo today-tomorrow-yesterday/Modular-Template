@@ -7,10 +7,6 @@ using Rtl.Core.Domain;
 
 namespace Modules.SampleOrders.Presentation.IntegrationEvents;
 
-/// <summary>
-/// Handles ProductUpdatedIntegrationEvent from the Sales module.
-/// Updates the product data in the local ProductCache.
-/// </summary>
 internal sealed class ProductUpdatedIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
     IProductCacheWriter productCacheWriter,
@@ -25,14 +21,14 @@ internal sealed class ProductUpdatedIntegrationEventHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         logger.LogInformation(
-            "Processing ProductUpdated integration event: ProductId={ProductId}, Name={Name}, IsActive={IsActive}",
-            integrationEvent.ProductId,
+            "Processing ProductUpdated: PublicProductId={PublicProductId}, Name={Name}, IsActive={IsActive}",
+            integrationEvent.PublicProductId,
             integrationEvent.Name,
             integrationEvent.IsActive);
 
         var productCache = new ProductCache
         {
-            Id = integrationEvent.ProductId,
+            RefPublicId = integrationEvent.PublicProductId,
             Name = integrationEvent.Name,
             Description = integrationEvent.Description,
             Price = integrationEvent.Price,

@@ -12,27 +12,27 @@ internal sealed class PlaceOrderCommandHandler(
     IOrderRepository orderRepository,
     IProductCacheRepository productCacheRepository,
     IUnitOfWork<ISampleOrdersModule> unitOfWork)
-    : ICommandHandler<PlaceOrderCommand, int>
+    : ICommandHandler<PlaceOrderCommand, Guid>
 {
-    public async Task<Result<int>> Handle(
+    public async Task<Result<Guid>> Handle(
         PlaceOrderCommand request,
         CancellationToken cancellationToken)
     {
         // Get product from local cache (synced from Sales module)
         var product = await productCacheRepository.GetByIdAsync(
-            request.ProductId,
+            request.ProductCacheId,
             cancellationToken);
 
         if (product is null || !product.IsActive)
         {
-            return Result.Failure<int>(OrderErrors.ProductNotFound);
+            return Result.Failure<Guid>(OrderErrors.ProductNotFound);
         }
 
         var orderResult = Order.Place(request.CustomerId);
 
         if (orderResult.IsFailure)
         {
-            return Result.Failure<int>(orderResult.Error);
+            return Result.Failure<Guid>(orderResult.Error);
         }
 
         var order = orderResult.Value;
@@ -41,20 +41,29 @@ internal sealed class PlaceOrderCommandHandler(
         var unitPriceResult = Money.Create(product.Price);
         if (unitPriceResult.IsFailure)
         {
-            return Result.Failure<int>(unitPriceResult.Error);
+            return Result.Failure<Guid>(unitPriceResult.Error);
         }
 
-        var addLineResult = order.AddLine(request.ProductId, request.Quantity, unitPriceResult.Value);
+        var details = new ProductLineDetails
+        {
+            ProductName = product.Name
+        };
+
+        var addLineResult = order.AddProductLine(
+            request.Quantity,
+            unitPriceResult.Value,
+            request.ProductCacheId,
+            details);
 
         if (addLineResult.IsFailure)
         {
-            return Result.Failure<int>(addLineResult.Error);
+            return Result.Failure<Guid>(addLineResult.Error);
         }
 
         orderRepository.Add(order);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return order.Id;
+        return order.PublicId;
     }
 }

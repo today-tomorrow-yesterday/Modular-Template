@@ -17,6 +17,9 @@ public sealed class OrdersDbContext(DbContextOptions<OrdersDbContext> options)
     internal DbSet<Order> Orders => Set<Order>();
     internal DbSet<OrderLine> OrderLines => Set<OrderLine>();
     internal DbSet<Customer> Customers => Set<Customer>();
+    internal DbSet<CustomerContact> CustomerContacts => Set<CustomerContact>();
+    internal DbSet<CustomerAddress> CustomerAddresses => Set<CustomerAddress>();
+    internal DbSet<ShippingAddress> ShippingAddresses => Set<ShippingAddress>();
     internal DbSet<ProductCache> ProductsCache => Set<ProductCache>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,7 +28,12 @@ public sealed class OrdersDbContext(DbContextOptions<OrdersDbContext> options)
 
         modelBuilder.ApplyConfiguration(new OrderConfiguration());
         modelBuilder.ApplyConfiguration(new OrderLineConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductLineConfiguration());
+        modelBuilder.ApplyConfiguration(new CustomLineConfiguration());
         modelBuilder.ApplyConfiguration(new CustomerConfiguration());
+        modelBuilder.ApplyConfiguration(new CustomerContactConfiguration());
+        modelBuilder.ApplyConfiguration(new CustomerAddressConfiguration());
+        modelBuilder.ApplyConfiguration(new ShippingAddressConfiguration());
         modelBuilder.ApplyConfiguration(new ProductCacheConfiguration());
     }
 }

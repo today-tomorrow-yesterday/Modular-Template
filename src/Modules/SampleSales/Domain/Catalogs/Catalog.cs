@@ -12,6 +12,8 @@ public sealed class Catalog : SoftDeletableEntity, IAggregateRoot
 
     private Catalog() {}
 
+    public Guid PublicId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     public string? Description { get; private set; }
@@ -32,6 +34,7 @@ public sealed class Catalog : SoftDeletableEntity, IAggregateRoot
 
         var catalog = new Catalog
         {
+            PublicId = Guid.CreateVersion7(),
             Name = name.Trim(),
             Description = description?.Trim()
         };

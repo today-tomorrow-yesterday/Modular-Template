@@ -7,10 +7,6 @@ using Rtl.Core.Domain;
 
 namespace Modules.SampleOrders.Presentation.IntegrationEvents;
 
-/// <summary>
-/// Handles ProductCreatedIntegrationEvent from the Sales module.
-/// Upserts product data into the local ProductCache for read operations.
-/// </summary>
 internal sealed class ProductCreatedIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
     IProductCacheWriter productCacheWriter,
@@ -25,13 +21,13 @@ internal sealed class ProductCreatedIntegrationEventHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         logger.LogInformation(
-            "Processing ProductCreated integration event: ProductId={ProductId}, Name={Name}",
-            integrationEvent.ProductId,
+            "Processing ProductCreated: PublicProductId={PublicProductId}, Name={Name}",
+            integrationEvent.PublicProductId,
             integrationEvent.Name);
 
         var productCache = new ProductCache
         {
-            Id = integrationEvent.ProductId,
+            RefPublicId = integrationEvent.PublicProductId,
             Name = integrationEvent.Name,
             Description = integrationEvent.Description,
             Price = integrationEvent.Price,
@@ -41,13 +37,4 @@ internal sealed class ProductCreatedIntegrationEventHandler(
 
         await productCacheWriter.UpsertAsync(productCache, cancellationToken);
     }
-}
-
-/// <summary>
-/// Interface for writing to the ProductCache.
-/// Used only by integration event handlers.
-/// </summary>
-public interface IProductCacheWriter
-{
-    Task UpsertAsync(ProductCache productCache, CancellationToken cancellationToken = default);
 }

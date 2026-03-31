@@ -17,11 +17,11 @@ internal sealed class GetOrdersQueryHandler(IOrderRepository orderRepository)
             cancellationToken);
 
         var response = orders.Select(o => new OrderResponse(
-            o.Id,
+            o.PublicId,
             o.CustomerId,
             o.Lines.Select(l => new OrderLineResponse(
                 l.Id,
-                l.ProductId,
+                l.GetType().Name,
                 l.Quantity,
                 l.UnitPrice.Amount,
                 l.UnitPrice.Currency,

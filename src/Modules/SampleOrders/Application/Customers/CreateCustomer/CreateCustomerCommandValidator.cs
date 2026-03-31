@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Modules.SampleOrders.Application.Customers.CreateCustomer;
 
@@ -6,16 +6,25 @@ internal sealed class CreateCustomerCommandValidator : AbstractValidator<CreateC
 {
     public CreateCustomerCommandValidator()
     {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.FirstName)
             .NotEmpty()
-            .WithMessage("Name is required")
-            .MaximumLength(200)
-            .WithMessage("Name cannot exceed 200 characters");
+            .WithMessage("First name is required.")
+            .MaximumLength(100)
+            .WithMessage("First name cannot exceed 100 characters.");
+
+        RuleFor(x => x.LastName)
+            .NotEmpty()
+            .WithMessage("Last name is required.")
+            .MaximumLength(100)
+            .WithMessage("Last name cannot exceed 100 characters.");
+
+        RuleFor(x => x.MiddleName)
+            .MaximumLength(100)
+            .WithMessage("Middle name cannot exceed 100 characters.");
 
         RuleFor(x => x.Email)
-            .NotEmpty()
-            .WithMessage("Email is required")
             .EmailAddress()
-            .WithMessage("Email format is invalid");
+            .When(x => !string.IsNullOrWhiteSpace(x.Email))
+            .WithMessage("Email format is invalid.");
     }
 }

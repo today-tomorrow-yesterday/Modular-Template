@@ -28,16 +28,16 @@ internal sealed class PlaceOrderEndpoint : IEndpoint
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var command = new PlaceOrderCommand(request.CustomerId, request.ProductId, request.Quantity);
+        var command = new PlaceOrderCommand(request.CustomerId, request.ProductCacheId, request.Quantity);
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            id => ApiResponse.Created($"/orders/{id}", new PlaceOrderResponse(id)),
+            publicId => ApiResponse.Created($"/orders/{publicId}", new PlaceOrderResponse(publicId)),
             ApiResponse.Problem);
     }
 }
 
-public sealed record PlaceOrderRequest(int CustomerId, int ProductId, int Quantity);
+public sealed record PlaceOrderRequest(int CustomerId, int ProductCacheId, int Quantity);
 
-public sealed record PlaceOrderResponse(int OrderId);
+public sealed record PlaceOrderResponse(Guid PublicId);

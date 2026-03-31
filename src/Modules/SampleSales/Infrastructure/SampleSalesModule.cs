@@ -9,7 +9,6 @@ using Modules.SampleSales.Domain.Products;
 using Modules.SampleSales.Infrastructure.EventBus;
 using Modules.SampleSales.Infrastructure.Persistence;
 using Modules.SampleSales.Infrastructure.Persistence.Repositories;
-using Modules.SampleSales.Presentation.IntegrationEvents;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Infrastructure;
 using Rtl.Core.Infrastructure.EventBus;

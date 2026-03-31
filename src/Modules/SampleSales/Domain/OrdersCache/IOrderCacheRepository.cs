@@ -8,5 +8,5 @@ namespace Modules.SampleSales.Domain.OrdersCache;
 /// </summary>
 public interface IOrderCacheRepository : IReadRepository<OrderCache, int>
 {
-    Task<IReadOnlyCollection<OrderCache>> GetByCustomerIdAsync(int customerId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyCollection<OrderCache>> GetByCustomerIdAsync(Guid publicCustomerId, CancellationToken cancellationToken = default);
 }

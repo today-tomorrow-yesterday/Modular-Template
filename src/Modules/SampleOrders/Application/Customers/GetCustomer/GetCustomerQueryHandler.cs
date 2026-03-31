@@ -17,13 +17,16 @@ internal sealed class GetCustomerQueryHandler(ICustomerRepository customerReposi
 
         if (customer is null)
         {
-            return Result.Failure<CustomerResponse>(CustomerErrors.NotFound(request.CustomerId));
+            return Result.Failure<CustomerResponse>(CustomerErrors.NotFound);
         }
 
         return new CustomerResponse(
-            customer.Id,
-            customer.Name,
-            customer.Email,
+            customer.PublicId,
+            customer.Name.FirstName,
+            customer.Name.MiddleName,
+            customer.Name.LastName,
+            customer.Name.FullName,
+            customer.GetPrimaryEmail(),
             customer.CreatedAtUtc,
             customer.CreatedByUserId,
             customer.ModifiedAtUtc,

@@ -9,7 +9,6 @@ using Modules.SampleOrders.Domain.ProductsCache;
 using Modules.SampleOrders.Infrastructure.EventBus;
 using Modules.SampleOrders.Infrastructure.Persistence;
 using Modules.SampleOrders.Infrastructure.Persistence.Repositories;
-using Modules.SampleOrders.Presentation.IntegrationEvents;
 using Rtl.Core.Application.Persistence;
 using Rtl.Core.Infrastructure;
 using Rtl.Core.Infrastructure.EventBus;

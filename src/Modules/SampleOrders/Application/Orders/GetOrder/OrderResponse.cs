@@ -1,9 +1,9 @@
-﻿using Modules.SampleOrders.Domain.Orders;
+using Modules.SampleOrders.Domain.Orders;
 
 namespace Modules.SampleOrders.Application.Orders.GetOrder;
 
 public sealed record OrderResponse(
-    int Id,
+    Guid PublicId,
     int CustomerId,
     IReadOnlyCollection<OrderLineResponse> Lines,
     decimal TotalPrice,
@@ -17,7 +17,7 @@ public sealed record OrderResponse(
 
 public sealed record OrderLineResponse(
     int Id,
-    int ProductId,
+    string LineType,
     int Quantity,
     decimal UnitPrice,
     string Currency,

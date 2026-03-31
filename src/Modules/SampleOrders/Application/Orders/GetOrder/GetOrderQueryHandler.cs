@@ -22,14 +22,14 @@ internal sealed class GetOrderQueryHandler(IOrderRepository orderRepository)
 
         var lines = order.Lines.Select(l => new OrderLineResponse(
             l.Id,
-            l.ProductId,
+            l.GetType().Name,
             l.Quantity,
             l.UnitPrice.Amount,
             l.UnitPrice.Currency,
             l.LineTotal.Amount)).ToList();
 
         return new OrderResponse(
-            order.Id,
+            order.PublicId,
             order.CustomerId,
             lines,
             order.TotalPrice.Amount,

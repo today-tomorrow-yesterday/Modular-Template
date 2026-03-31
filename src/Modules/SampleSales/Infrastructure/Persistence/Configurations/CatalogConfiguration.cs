@@ -16,6 +16,10 @@ internal sealed class CatalogConfiguration : IEntityTypeConfiguration<Catalog>
         builder.Property(c => c.Id)
             .HasColumnName("id");
 
+        builder.Property(c => c.PublicId)
+            .HasColumnName("public_id")
+            .IsRequired();
+
         builder.Property(c => c.Name)
             .HasColumnName("name")
             .HasMaxLength(200)
@@ -30,6 +34,10 @@ internal sealed class CatalogConfiguration : IEntityTypeConfiguration<Catalog>
             .WithOne()
             .HasForeignKey(cp => cp.CatalogId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(c => c.PublicId)
+            .IsUnique()
+            .HasDatabaseName("ix_catalogs_public_id");
 
         // Configure audit fields from IAuditableEntity
         builder.ConfigureAuditProperties();

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 
 namespace Modules.SampleOrders.Application.Customers.UpdateCustomer;
 
@@ -10,16 +10,20 @@ internal sealed class UpdateCustomerCommandValidator : AbstractValidator<UpdateC
             .GreaterThan(0)
             .WithMessage("Customer ID is required.");
 
-        RuleFor(x => x.Name)
+        RuleFor(x => x.FirstName)
             .NotEmpty()
-            .WithMessage("Customer name is required.")
-            .MaximumLength(200)
-            .WithMessage("Customer name must not exceed 200 characters.");
+            .WithMessage("First name is required.")
+            .MaximumLength(100)
+            .WithMessage("First name must not exceed 100 characters.");
 
-        RuleFor(x => x.Email)
+        RuleFor(x => x.LastName)
             .NotEmpty()
-            .WithMessage("Customer email is required.")
-            .EmailAddress()
-            .WithMessage("Customer email format is invalid.");
+            .WithMessage("Last name is required.")
+            .MaximumLength(100)
+            .WithMessage("Last name must not exceed 100 characters.");
+
+        RuleFor(x => x.MiddleName)
+            .MaximumLength(100)
+            .WithMessage("Middle name must not exceed 100 characters.");
     }
 }

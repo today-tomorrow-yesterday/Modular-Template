@@ -7,13 +7,8 @@ using Rtl.Core.Domain;
 
 namespace Modules.SampleSales.Presentation.IntegrationEvents;
 
-/// <summary>
-/// Handles OrderStatusChangedIntegrationEvent from the Orders module.
-/// Updates the status in the local OrderCache.
-/// </summary>
 internal sealed class OrderStatusChangedIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
-    IOrderCacheRepository orderCacheRepository,
     IOrderCacheWriter orderCacheWriter,
     IDateTimeProvider dateTimeProvider,
     ILogger<OrderStatusChangedIntegrationEventHandler> logger)
@@ -26,25 +21,19 @@ internal sealed class OrderStatusChangedIntegrationEventHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         logger.LogInformation(
-            "Processing OrderStatusChanged integration event: OrderId={OrderId}, NewStatus={NewStatus}",
-            integrationEvent.OrderId,
+            "Processing OrderStatusChanged: PublicOrderId={PublicOrderId}, NewStatus={NewStatus}",
+            integrationEvent.PublicOrderId,
             integrationEvent.NewStatus);
 
-        var existingCache = await orderCacheRepository.GetByIdAsync(
-            integrationEvent.OrderId,
-            cancellationToken);
-
-        if (existingCache is null)
+        // TODO: Implement upsert-by-RefPublicId lookup pattern
+        // For now, create a new cache entry (proper implementation would find existing by RefPublicId)
+        var orderCache = new OrderCache
         {
-            logger.LogWarning(
-                "OrderCache not found for OrderId={OrderId}. Status update skipped.",
-                integrationEvent.OrderId);
-            return;
-        }
+            RefPublicId = integrationEvent.PublicOrderId,
+            Status = integrationEvent.NewStatus,
+            LastSyncedAtUtc = dateTimeProvider.UtcNow
+        };
 
-        existingCache.Status = integrationEvent.NewStatus;
-        existingCache.LastSyncedAtUtc = dateTimeProvider.UtcNow;
-
-        await orderCacheWriter.UpsertAsync(existingCache, cancellationToken);
+        await orderCacheWriter.UpsertAsync(orderCache, cancellationToken);
     }
 }

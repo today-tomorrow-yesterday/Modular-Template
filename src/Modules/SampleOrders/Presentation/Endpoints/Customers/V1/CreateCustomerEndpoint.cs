@@ -27,16 +27,26 @@ internal sealed class CreateCustomerEndpoint : IEndpoint
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var command = new CreateCustomerCommand(request.Name, request.Email);
+        var command = new CreateCustomerCommand(
+            request.FirstName,
+            request.MiddleName,
+            request.LastName,
+            request.Email,
+            request.DateOfBirth);
 
         var result = await sender.Send(command, cancellationToken);
 
         return result.Match(
-            id => ApiResponse.Created($"/customers/{id}", new CreateCustomerResponse(id)),
+            publicId => ApiResponse.Created($"/customers/{publicId}", new CreateCustomerResponse(publicId)),
             ApiResponse.Problem);
     }
 }
 
-public sealed record CreateCustomerRequest(string Name, string Email);
+public sealed record CreateCustomerRequest(
+    string FirstName,
+    string? MiddleName,
+    string LastName,
+    string? Email,
+    DateOnly? DateOfBirth = null);
 
-public sealed record CreateCustomerResponse(int Id);
+public sealed record CreateCustomerResponse(Guid PublicId);

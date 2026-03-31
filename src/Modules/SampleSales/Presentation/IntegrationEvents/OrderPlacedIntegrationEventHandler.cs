@@ -7,10 +7,6 @@ using Rtl.Core.Domain;
 
 namespace Modules.SampleSales.Presentation.IntegrationEvents;
 
-/// <summary>
-/// Handles OrderPlacedIntegrationEvent from the Orders module.
-/// Upserts order data into the local OrderCache for read operations.
-/// </summary>
 internal sealed class OrderPlacedIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
     IOrderCacheWriter orderCacheWriter,
@@ -25,14 +21,14 @@ internal sealed class OrderPlacedIntegrationEventHandler(
         using var _ = cacheWriteScope.AllowWrites();
 
         logger.LogInformation(
-            "Processing OrderPlaced integration event: OrderId={OrderId}, CustomerId={CustomerId}",
-            integrationEvent.OrderId,
-            integrationEvent.CustomerId);
+            "Processing OrderPlaced: PublicOrderId={PublicOrderId}, PublicCustomerId={PublicCustomerId}",
+            integrationEvent.PublicOrderId,
+            integrationEvent.PublicCustomerId);
 
         var orderCache = new OrderCache
         {
-            Id = integrationEvent.OrderId,
-            CustomerId = integrationEvent.CustomerId,
+            RefPublicId = integrationEvent.PublicOrderId,
+            RefPublicCustomerId = integrationEvent.PublicCustomerId,
             TotalPrice = integrationEvent.TotalPrice,
             Currency = integrationEvent.Currency,
             Status = integrationEvent.Status,
@@ -42,13 +38,4 @@ internal sealed class OrderPlacedIntegrationEventHandler(
 
         await orderCacheWriter.UpsertAsync(orderCache, cancellationToken);
     }
-}
-
-/// <summary>
-/// Interface for writing to the OrderCache.
-/// Used only by integration event handlers.
-/// </summary>
-public interface IOrderCacheWriter
-{
-    Task UpsertAsync(OrderCache orderCache, CancellationToken cancellationToken = default);
 }

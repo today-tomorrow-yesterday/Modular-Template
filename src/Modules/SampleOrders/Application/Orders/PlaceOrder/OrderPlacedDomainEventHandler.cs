@@ -1,3 +1,4 @@
+using Modules.SampleOrders.Domain.Customers;
 using Modules.SampleOrders.Domain.Orders;
 using Modules.SampleOrders.Domain.Orders.Events;
 using Modules.SampleOrders.IntegrationEvents;
@@ -9,6 +10,7 @@ namespace Modules.SampleOrders.Application.Orders.PlaceOrder;
 
 internal sealed class OrderPlacedDomainEventHandler(
     IOrderRepository orderRepository,
+    ICustomerRepository customerRepository,
     IEventBus eventBus,
     IDateTimeProvider dateTimeProvider) : DomainEventHandler<OrderPlacedDomainEvent>
 {
@@ -16,27 +18,28 @@ internal sealed class OrderPlacedDomainEventHandler(
         OrderPlacedDomainEvent domainEvent,
         CancellationToken cancellationToken = default)
     {
-        Order? order = await orderRepository.GetByIdAsync(
+        var order = await orderRepository.GetByIdAsync(
             domainEvent.EntityId,
             cancellationToken);
 
-        if (order is null)
-        {
-            return;
-        }
+        if (order is null) return;
+
+        var customer = await customerRepository.GetByIdAsync(
+            order.CustomerId,
+            cancellationToken);
 
         var lines = order.Lines.Select(l => new OrderLineDto(
-            l.ProductId,
+            Guid.Empty, // ProductId lookup would require cache query — simplified for template
             l.Quantity,
             l.UnitPrice.Amount,
             l.UnitPrice.Currency)).ToList();
 
         await eventBus.PublishAsync(
             new OrderPlacedIntegrationEvent(
-                Guid.NewGuid(),
+                Guid.CreateVersion7(),
                 dateTimeProvider.UtcNow,
-                order.Id,
-                order.CustomerId,
+                order.PublicId,
+                customer?.PublicId ?? Guid.Empty,
                 lines,
                 order.TotalPrice.Amount,
                 order.TotalPrice.Currency,

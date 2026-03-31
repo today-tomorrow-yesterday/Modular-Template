@@ -37,7 +37,7 @@ internal sealed class OrderRepository(OrdersDbContext dbContext)
         return await DbSet
             .Include(o => o.Lines)
             .AsNoTracking()
-            .Where(o => o.Lines.Any(l => l.ProductId == productId))
+            .Where(o => o.Lines.OfType<ProductLine>().Any(l => l.ProductCacheId == productId))
             .OrderByDescending(o => o.OrderedAtUtc)
             .ToListAsync(cancellationToken);
     }
