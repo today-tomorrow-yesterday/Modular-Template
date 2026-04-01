@@ -14,6 +14,7 @@ internal sealed class UpdateProductEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPut("/{productId:int}", UpdateProductAsync)
+            .WithMetadata(new RequestBodyExample("""{ "name": "Wireless Keyboard Pro", "description": "Ergonomic wireless keyboard with RGB backlit keys", "price": 89.99, "isActive": true }"""))
             .WithName("UpdateProduct")
             .WithSummary("Update a product")
             .WithDescription("Updates an existing product with the specified details.")

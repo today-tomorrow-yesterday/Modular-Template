@@ -14,6 +14,7 @@ internal sealed class CreateCustomerEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/", CreateCustomerAsync)
+            .WithMetadata(new RequestBodyExample("""{ "firstName": "Jane", "middleName": "M", "lastName": "Doe", "email": "jane.doe@example.com", "dateOfBirth": "1990-05-15" }"""))
             .WithName("CreateCustomer")
             .WithSummary("Create a new customer")
             .WithDescription("Creates a new customer with the specified name and email.")

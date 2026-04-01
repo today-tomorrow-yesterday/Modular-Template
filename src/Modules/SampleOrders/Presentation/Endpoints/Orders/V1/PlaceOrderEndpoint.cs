@@ -14,6 +14,7 @@ internal sealed class PlaceOrderEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/", PlaceOrderAsync)
+            .WithMetadata(new RequestBodyExample("""{ "customerId": 1, "productCacheId": 42, "quantity": 3 }"""))
             .WithName("PlaceOrder")
             .WithSummary("Place a new order")
             .WithDescription("Places a new order for a product.")

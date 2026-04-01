@@ -14,6 +14,7 @@ internal sealed class SetShippingAddressEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPut("/{orderId:int}/shipping-address", SetShippingAddressAsync)
+            .WithMetadata(new RequestBodyExample("""{ "addressLine1": "742 Evergreen Terrace", "addressLine2": "Suite 4B", "city": "Springfield", "state": "IL", "postalCode": "62704", "country": "US" }"""))
             .WithName("SetShippingAddress")
             .WithSummary("Set shipping address")
             .WithDescription("Sets or updates the shipping address for an order.")

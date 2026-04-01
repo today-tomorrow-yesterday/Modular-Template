@@ -14,6 +14,7 @@ internal sealed class CreateProductEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/", CreateProductAsync)
+            .WithMetadata(new RequestBodyExample("""{ "name": "Wireless Keyboard", "description": "Ergonomic wireless keyboard with backlit keys", "price": 79.99, "internalCost": 34.50 }"""))
             .WithName("CreateProduct")
             .WithSummary("Create a new product")
             .WithDescription("Creates a new product with the specified name, description, price, and internal cost.")

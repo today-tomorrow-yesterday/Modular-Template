@@ -14,6 +14,7 @@ internal sealed class UpdateCustomerEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPut("/{customerId:int}", UpdateCustomerAsync)
+            .WithMetadata(new RequestBodyExample("""{ "firstName": "Jane", "middleName": "M", "lastName": "Smith" }"""))
             .WithName("UpdateCustomer")
             .WithSummary("Update a customer")
             .WithDescription("Updates an existing customer with the specified details.")

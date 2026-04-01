@@ -14,6 +14,7 @@ internal sealed class CreateCatalogEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/", CreateCatalogAsync)
+            .WithMetadata(new RequestBodyExample("""{ "name": "Summer Collection 2026", "description": "Seasonal product catalog for summer promotions" }"""))
             .WithName("CreateCatalog")
             .WithSummary("Create a new catalog")
             .WithDescription("Creates a new catalog with the specified name and description.")
