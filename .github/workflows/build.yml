@@ -1,0 +1,152 @@
+name: Build Module Images
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  # ========================================
+  # Build and Test with Coverage
+  # ========================================
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ModularTemplate.Api.sln
+
+      - name: Build
+        run: dotnet build ModularTemplate.Api.sln --no-restore --configuration Release
+
+      - name: Test with Coverage
+        if: false # TODO: Re-enable once integration test infrastructure is stabilized
+        run: |
+          dotnet test ModularTemplate.Api.sln \
+            --no-build \
+            --configuration Release \
+            --verbosity normal \
+            --collect:"XPlat Code Coverage" \
+            --settings ModularTemplate.runsettings \
+            --results-directory ./coverage
+
+      # TODO: Re-enable coverage steps once tests are re-enabled
+      # - name: Download Coverage History
+      #   uses: dawidd6/action-download-artifact@v3
+      #   with:
+      #     name: coverage-history
+      #     path: coverage-history
+      #     if_no_artifact_found: warn
+      #     workflow_conclusion: success
+      #     search_artifacts: true
+
+      # - name: Generate Detailed Coverage Report
+      #   uses: danielpalme/ReportGenerator-GitHub-Action@5
+      #   with:
+      #     reports: coverage/**/coverage.cobertura.xml
+      #     targetdir: coverage-report
+      #     historydir: coverage-history
+      #     reporttypes: 'Html;HtmlSummary;MarkdownSummaryGithub;MarkdownDeltaSummary;Badges;JsonSummary'
+      #     classfilters: '+*'
+      #     filefilters: '+*'
+      #     verbosity: 'Info'
+      #     riskhotspotassemblyfilters: '+*'
+      #     riskhotspotclassfilters: '+*'
+
+      # - name: Upload Coverage History
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-history
+      #     path: coverage-history
+      #     retention-days: 90
+
+      # - name: Add Coverage PR Comment
+      #   uses: marocchino/sticky-pull-request-comment@v2
+      #   if: github.event_name == 'pull_request'
+      #   with:
+      #     header: detailed-coverage
+      #     path: coverage-report/SummaryGithub.md
+
+      # - name: Add Delta Coverage PR Comment
+      #   uses: marocchino/sticky-pull-request-comment@v2
+      #   if: github.event_name == 'pull_request' && hashFiles('coverage-report/DeltaSummary.md') != ''
+      #   with:
+      #     header: delta-coverage
+      #     path: coverage-report/DeltaSummary.md
+
+      # - name: Upload Detailed Coverage Report
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-report-html
+      #     path: coverage-report
+
+      # - name: Upload Coverage Badges
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: coverage-badges
+      #     path: coverage-report/badge_*.svg
+
+  # ========================================
+  # Build Docker Images (Matrix)
+  # ========================================
+  build-images:
+    needs: build-test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: [SampleOrders, SampleSales]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set image name
+        id: image-name
+        run: |
+          MODULE_LOWER=$(echo "${{ matrix.module }}" | tr '[:upper:]' '[:lower:]')
+          echo "name=modular-api-${MODULE_LOWER}" >> $GITHUB_OUTPUT
+
+      - name: Build and push ${{ matrix.module }} image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/Api/Host.${{ matrix.module }}/Dockerfile
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ steps.image-name.outputs.name }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ steps.image-name.outputs.name }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image digest
+        run: echo "Image pushed with digest ${{ steps.build-push.outputs.digest }}"

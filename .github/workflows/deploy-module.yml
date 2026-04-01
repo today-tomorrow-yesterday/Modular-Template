@@ -1,0 +1,189 @@
+name: Deploy Module
+
+on:
+  # Manual trigger - for dev/itg (any branch) and qua (development only)
+  workflow_dispatch:
+    inputs:
+      module:
+        description: 'Module to deploy'
+        required: true
+        type: choice
+        options:
+          - SampleOrders
+          - SampleSales
+          - All
+      environment:
+        description: 'Target environment (prod not available - auto-deploy only)'
+        required: true
+        type: choice
+        options:
+          - dev
+          - itg
+          - qua
+      image_tag:
+        description: 'Image tag (default: latest)'
+        required: false
+        default: 'latest'
+
+  # Auto-deploy after build workflow completes (ensures images exist)
+  workflow_run:
+    workflows: ["Build Module Images"]
+    types: [completed]
+    branches: [development, main]
+
+permissions:
+  contents: read
+
+env:
+  ECS_CLUSTER: modular-cluster
+
+jobs:
+  # ========================================
+  # Validate manual deployments
+  # ========================================
+  validate:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch for QUA deployment
+        run: |
+          if [ "${{ inputs.environment }}" == "qua" ] && [ "${{ github.ref }}" != "refs/heads/development" ]; then
+            echo "::error::QUA deployments must be triggered from the development branch"
+            echo "Current branch: ${{ github.ref }}"
+            echo "To deploy to QUA, switch to the development branch and run this workflow again."
+            exit 1
+          fi
+          echo "Validation passed: deploying to ${{ inputs.environment }} from ${{ github.ref }}"
+
+  # ========================================
+  # Determine deployment parameters
+  # ========================================
+  setup:
+    runs-on: ubuntu-latest
+    needs: [validate]
+    if: always() && (needs.validate.result == 'success' || needs.validate.result == 'skipped')
+    outputs:
+      modules: ${{ steps.params.outputs.modules }}
+      environment: ${{ steps.params.outputs.environment }}
+      image_tag: ${{ steps.params.outputs.image_tag }}
+      should_deploy: ${{ steps.params.outputs.should_deploy }}
+    steps:
+      - name: Set deployment parameters
+        id: params
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            # Manual trigger - dev/itg (any branch) or qua (development only, validated above)
+            if [ "${{ inputs.module }}" == "All" ]; then
+              echo 'modules=["SampleOrders","SampleSales"]' >> $GITHUB_OUTPUT
+            else
+              echo "modules=[\"${{ inputs.module }}\"]" >> $GITHUB_OUTPUT
+            fi
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "image_tag=${{ inputs.image_tag }}" >> $GITHUB_OUTPUT
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+
+          elif [ "${{ github.event_name }}" == "workflow_run" ]; then
+            # Auto-deploy after build completes - only if build succeeded
+            if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
+              echo "::warning::Build workflow did not succeed (conclusion: ${{ github.event.workflow_run.conclusion }}). Skipping deployment."
+              echo "should_deploy=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+
+            # Determine environment based on branch
+            BRANCH="${{ github.event.workflow_run.head_branch }}"
+            SHA="${{ github.event.workflow_run.head_sha }}"
+
+            echo 'modules=["SampleOrders","SampleSales"]' >> $GITHUB_OUTPUT
+            echo "image_tag=${SHA}" >> $GITHUB_OUTPUT
+
+            if [ "$BRANCH" == "development" ]; then
+              echo "environment=dev" >> $GITHUB_OUTPUT
+              echo "should_deploy=true" >> $GITHUB_OUTPUT
+              echo "Auto-deploying to dev from development branch (SHA: ${SHA})"
+            elif [ "$BRANCH" == "main" ]; then
+              echo "environment=prod" >> $GITHUB_OUTPUT
+              echo "should_deploy=true" >> $GITHUB_OUTPUT
+              echo "Auto-deploying to prod from main branch (SHA: ${SHA})"
+            else
+              echo "::warning::Unexpected branch: $BRANCH. Skipping deployment."
+              echo "should_deploy=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          fi
+
+  # ========================================
+  # Database Migrations (Flyway)
+  # ========================================
+  # Uncomment this job when Flyway is configured
+
+  # ========================================
+  # Deploy Modules
+  # ========================================
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [setup]
+    # needs: [setup, migrate]  # Uncomment when migrations enabled
+    if: needs.setup.outputs.should_deploy == 'true'
+    environment: ${{ needs.setup.outputs.environment }}
+    strategy:
+      matrix:
+        module: ${{ fromJson(needs.setup.outputs.modules) }}
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set module variables
+        id: vars
+        run: |
+          MODULE_LOWER=$(echo "${{ matrix.module }}" | tr '[:upper:]' '[:lower:]')
+          echo "service_name=${MODULE_LOWER}-service" >> $GITHUB_OUTPUT
+          echo "task_family=${MODULE_LOWER}-task" >> $GITHUB_OUTPUT
+          echo "container_name=${MODULE_LOWER}-api" >> $GITHUB_OUTPUT
+          echo "image_name=modular-api-${MODULE_LOWER}" >> $GITHUB_OUTPUT
+
+      - name: Download current task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ steps.vars.outputs.task_family }} \
+            --query 'taskDefinition' > task-definition.json
+
+      - name: Update task definition with new image
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: ${{ steps.vars.outputs.container_name }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ steps.vars.outputs.image_name }}:${{ needs.setup.outputs.image_tag }}
+
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ steps.vars.outputs.service_name }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Deployment summary
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Module:** ${{ matrix.module }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment:** ${{ needs.setup.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Image Tag:** ${{ needs.setup.outputs.image_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cluster:** ${{ env.ECS_CLUSTER }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Service:** ${{ steps.vars.outputs.service_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY

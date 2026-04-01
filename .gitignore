@@ -1,0 +1,104 @@
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.suo
+*.cache
+*.dbmdl
+*.dbproj.schemaview
+*.pfx
+*.publishsettings
+
+# Rider
+.idea/
+
+# Test Results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+TestResult.xml
+coverage/
+
+# NuGet
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+!src/Modules/**/[Pp]ackages/
+!src/Modules/**/[Pp]ackages/**
+*.nuget.props
+*.nuget.targets
+project.lock.json
+project.fragment.lock.json
+
+# ASP.NET
+appsettings.*.json
+!appsettings.json
+!appsettings.Development.json
+!appsettings.dev.json
+!appsettings.itg.json
+!appsettings.qua.json
+!appsettings.pro.json
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node (if any frontend)
+node_modules/
+
+# Misc
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Docker container data
+.containers/
+
+# Visual Studio
+.vs/
+
+# Claude / AI Agent files
+.claude/
+.auto-claude/
+.claude_settings.json
+.auto-claude-security.json
+.auto-claude-status
+.security-key
+.worktrees/
+logs/security/
+CLAUDE.local.md
+.planning/
+*.claude
+!.claude/
+.claude/*
+!.claude/skills/
+.cursorrules
+.cursor/
+.aider*
+.codeium/
+.continue/
+.copilot/
+.github/copilot/
+/nul

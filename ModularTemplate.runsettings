@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <!-- Coverlet (XPlat Code Coverage) configuration -->
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+
+          <!--
+            Exclude assemblies using [assembly]type pattern
+            - Test assemblies
+            - Third-party libraries
+          -->
+          <Exclude>
+            [*.Tests]*,
+            [*.IntegrationTests]*,
+            [*ArchitectureTests]*,
+            [xunit.*]*,
+            [FluentAssertions.*]*,
+            [NSubstitute.*]*,
+            [Moq.*]*
+          </Exclude>
+
+          <!-- Include only ModularTemplate and Modules assemblies -->
+          <Include>
+            [ModularTemplate.*]*,
+            [Modules.*]*
+          </Include>
+
+          <!--
+            Exclude source files by path pattern (glob)
+            - EF Core Migrations
+            - EF Core Configurations
+            - DbContext files
+            - Generated/Designer files
+          -->
+          <ExcludeByFile>
+            **/Migrations/**/*.cs,
+            **/*Migration.cs,
+            **/Configurations/**/*Configuration.cs,
+            **/*DbContext.cs,
+            **/*.Designer.cs,
+            **/*.g.cs
+          </ExcludeByFile>
+
+          <!--
+            Exclude code marked with these attributes
+            - [GeneratedCode]
+            - [ExcludeFromCodeCoverage]
+            - Debugger attributes
+          -->
+          <ExcludeByAttribute>
+            GeneratedCodeAttribute,
+            ExcludeFromCodeCoverageAttribute,
+            DebuggerHiddenAttribute,
+            DebuggerNonUserCodeAttribute
+          </ExcludeByAttribute>
+
+          <!-- Include auto-properties in coverage -->
+          <SkipAutoProps>true</SkipAutoProps>
+
+          <!-- Use deterministic report generation -->
+          <DeterministicReport>true</DeterministicReport>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+
+  <LoggerRunSettings>
+    <Loggers>
+      <Logger friendlyName="console" enabled="True">
+        <Configuration>
+          <Verbosity>normal</Verbosity>
+        </Configuration>
+      </Logger>
+    </Loggers>
+  </LoggerRunSettings>
+</RunSettings>

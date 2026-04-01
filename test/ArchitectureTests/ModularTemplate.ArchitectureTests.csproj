@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ModularTemplate.ArchitectureTests</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+    <PackageReference Include="NetArchTest.Rules" Version="1.3.2" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Common layers -->
+    <ProjectReference Include="..\..\src\Common\Domain\ModularTemplate.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Common\Application\ModularTemplate.Application.csproj" />
+    <ProjectReference Include="..\..\src\Common\Infrastructure\ModularTemplate.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Common\Presentation\ModularTemplate.Presentation.csproj" />
+
+    <!-- SampleSales module (all layers for architecture tests) -->
+    <ProjectReference Include="..\..\src\Modules\SampleSales\Domain\Modules.SampleSales.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SampleSales\Application\Modules.SampleSales.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SampleSales\Infrastructure\Modules.SampleSales.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SampleSales\Presentation\Modules.SampleSales.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SampleSales\IntegrationEvents\Modules.SampleSales.IntegrationEvents.csproj" />
+
+    <!-- SampleOrders module (all layers for architecture tests) -->
+    <ProjectReference Include="..\..\src\Modules\SampleOrders\Domain\Modules.SampleOrders.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SampleOrders\Application\Modules.SampleOrders.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SampleOrders\Infrastructure\Modules.SampleOrders.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SampleOrders\Presentation\Modules.SampleOrders.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\SampleOrders\IntegrationEvents\Modules.SampleOrders.IntegrationEvents.csproj" />
+  </ItemGroup>
+
+</Project>

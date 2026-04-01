@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>ModularTemplate.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Http" Version="8.1.1" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="9.0.0" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Enrichers.CorrelationId" Version="3.0.1" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Application\ModularTemplate.Application.csproj" />
+    <ProjectReference Include="..\..\Common\Infrastructure\ModularTemplate.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Common\Presentation\ModularTemplate.Presentation.csproj" />
+    <ProjectReference Include="..\..\Modules\SampleOrders\Infrastructure\Modules.SampleOrders.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\SampleSales\Infrastructure\Modules.SampleSales.Infrastructure.csproj" />
+    <ProjectReference Include="..\Shared\ModularTemplate.Api.Shared.csproj" />
+  </ItemGroup>
+
+  <!-- Module configuration files - use Update since SDK auto-includes Content -->
+  <ItemGroup>
+    <Content Update="modules.*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

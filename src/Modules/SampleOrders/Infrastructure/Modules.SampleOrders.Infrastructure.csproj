@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Modules.SampleOrders.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" Version="10.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\Infrastructure\ModularTemplate.Infrastructure.csproj" />
+    <ProjectReference Include="..\Application\Modules.SampleOrders.Application.csproj" />
+    <ProjectReference Include="..\Presentation\Modules.SampleOrders.Presentation.csproj" />
+  </ItemGroup>
+
+</Project>
