@@ -5,16 +5,15 @@ using System.Text.Json.Nodes;
 namespace ModularTemplate.Api.Shared;
 
 /// <summary>
-/// Auto-populates Swagger route parameter examples with deterministic seed GUIDs.
+/// Auto-populates Swagger route parameter examples with sample GUIDs.
 /// Fires for every endpoint — no per-endpoint configuration needed.
-/// GUIDs match <c>SeedConstants.DeterministicGuid()</c> output for index 0.
 /// </summary>
 internal sealed class SeedParameterExampleFilter : IOperationFilter
 {
-    // Deterministic GUIDs from SeedConstants.DeterministicGuid() — SHA-256 hashes of fixed strings.
-    // These NEVER change between runs, developers, or database recreations.
-    private const string DefaultSaleId = "c5331d22-bb8e-2c4f-bc06-589c0aad842c";
-    private const string DefaultPackageId = "ab743b1f-bba5-574d-83f8-3c0dd1424ab3";
+    private const string SampleOrderId = "01970000-0000-7000-8000-000000000001";
+    private const string SampleCustomerId = "01970000-0000-7000-8000-000000000002";
+    private const string SampleProductId = "01970000-0000-7000-8000-000000000003";
+    private const string SampleCatalogId = "01970000-0000-7000-8000-000000000004";
 
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
@@ -24,8 +23,10 @@ internal sealed class SeedParameterExampleFilter : IOperationFilter
         {
             param.Example = param.Name switch
             {
-                "publicSaleId" => JsonValue.Create(DefaultSaleId),
-                "publicPackageId" => JsonValue.Create(DefaultPackageId),
+                "orderId" => JsonValue.Create(SampleOrderId),
+                "customerId" => JsonValue.Create(SampleCustomerId),
+                "productId" => JsonValue.Create(SampleProductId),
+                "catalogId" => JsonValue.Create(SampleCatalogId),
                 _ => param.Example
             };
         }

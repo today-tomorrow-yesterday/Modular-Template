@@ -14,7 +14,9 @@ using ModularTemplate.Infrastructure;
 using ModularTemplate.Infrastructure.EventBus;
 using ModularTemplate.Infrastructure.Inbox.Job;
 using ModularTemplate.Infrastructure.Outbox.Job;
+using ModularTemplate.Application.Seeding;
 using ModularTemplate.Infrastructure.Persistence;
+using Modules.SampleSales.Infrastructure.Seeding;
 using ProcessInboxJob = Modules.SampleSales.Infrastructure.Inbox.ProcessInboxJob;
 using ProcessOutboxJob = Modules.SampleSales.Infrastructure.Outbox.ProcessOutboxJob;
 
@@ -32,6 +34,8 @@ public static class SampleSalesModule
             .AddModuleDataSource<ISampleSalesModule>(databaseConnectionString)
             .AddPersistence(databaseConnectionString)
             .AddMessaging(configuration, environment);
+
+        services.AddSingleton<IModuleSeeder, SampleSalesSeeder>();
 
         return services;
     }

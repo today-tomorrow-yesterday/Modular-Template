@@ -39,7 +39,7 @@ public static class DatabaseSeedingExtensions
         foreach (var seeder in seeders)
         {
             logger.LogInformation("Seeding {Module}...", seeder.ModuleName);
-            await seeder.SeedAsync(scope.ServiceProvider);
+            await seeder.SeedAsync(scope.ServiceProvider, CancellationToken.None);
             logger.LogInformation("Seeding {Module} completed.", seeder.ModuleName);
         }
 
