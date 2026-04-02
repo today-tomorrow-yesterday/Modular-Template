@@ -6,6 +6,7 @@ using ModularTemplate.Application.Identity;
 using ModularTemplate.Domain;
 using ModularTemplate.Domain.Auditing;
 using ModularTemplate.Infrastructure.Security;
+using System.Runtime.CompilerServices;
 
 namespace ModularTemplate.Infrastructure.Auditing.Interceptors;
 
@@ -19,7 +20,7 @@ public sealed class AuditTrailInterceptor(
     IAuditContext auditContext,
     IEncryptionService encryptionService) : SaveChangesInterceptor
 {
-    private List<AuditEntry> _tempEntries = [];
+    private static readonly ConditionalWeakTable<DbContext, List<AuditEntry>> _tempEntriesByContext = new();
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
@@ -27,12 +28,16 @@ public sealed class AuditTrailInterceptor(
         CancellationToken cancellationToken = default)
     {
         if (eventData.Context is null)
+        {
             return base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
 
         var auditEntries = CreateAuditEntries(eventData.Context);
 
         if (auditEntries.Count is 0)
+        {
             return base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
 
         // Store entries without temporary properties immediately
         foreach (var entry in auditEntries.Where(e => !e.HasTemporaryProperties))
@@ -40,11 +45,13 @@ public sealed class AuditTrailInterceptor(
             eventData.Context.Set<AuditLog>().Add(entry.ToAuditLog());
         }
 
-        // Keep temp entries for SavedChanges
+        // Keep temp entries for SavedChanges, keyed by context instance for thread safety
         if (auditEntries.Any(e => e.HasTemporaryProperties))
         {
             eventData.Context.ChangeTracker.AutoDetectChangesEnabled = false;
-            _tempEntries = auditEntries.Where(e => e.HasTemporaryProperties).ToList();
+            _tempEntriesByContext.AddOrUpdate(
+                eventData.Context,
+                auditEntries.Where(e => e.HasTemporaryProperties).ToList());
         }
 
         return base.SavingChangesAsync(eventData, result, cancellationToken);
@@ -52,9 +59,11 @@ public sealed class AuditTrailInterceptor(
 
     public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
     {
-        if (_tempEntries.Count > 0 && eventData.Context is not null)
+        if (eventData.Context is not null && _tempEntriesByContext.TryGetValue(eventData.Context, out var tempEntries))
         {
-            foreach (var auditEntry in _tempEntries)
+            _tempEntriesByContext.Remove(eventData.Context);
+
+            foreach (var auditEntry in tempEntries)
             {
                 // Get the generated ID
                 foreach (var prop in auditEntry.TemporaryProperties)
@@ -68,7 +77,6 @@ public sealed class AuditTrailInterceptor(
                 eventData.Context.Set<AuditLog>().Add(auditEntry.ToAuditLog());
             }
 
-            _tempEntries.Clear();
             await eventData.Context.SaveChangesAsync(cancellationToken);
             eventData.Context.ChangeTracker.AutoDetectChangesEnabled = true;
         }
@@ -81,16 +89,59 @@ public sealed class AuditTrailInterceptor(
         InterceptionResult<int> result)
     {
         if (eventData.Context is null)
+        {
             return base.SavingChanges(eventData, result);
+        }
 
         var auditEntries = CreateAuditEntries(eventData.Context);
+
+        if (auditEntries.Count is 0)
+        {
+            return base.SavingChanges(eventData, result);
+        }
 
         foreach (var entry in auditEntries.Where(e => !e.HasTemporaryProperties))
         {
             eventData.Context.Set<AuditLog>().Add(entry.ToAuditLog());
         }
 
+        // Keep temp entries for SavedChanges, keyed by context instance for thread safety
+        if (auditEntries.Any(e => e.HasTemporaryProperties))
+        {
+            eventData.Context.ChangeTracker.AutoDetectChangesEnabled = false;
+            _tempEntriesByContext.AddOrUpdate(
+                eventData.Context,
+                auditEntries.Where(e => e.HasTemporaryProperties).ToList());
+        }
+
         return base.SavingChanges(eventData, result);
+    }
+
+    public override int SavedChanges(SaveChangesCompletedEventData eventData, int result)
+    {
+        if (eventData.Context is not null && _tempEntriesByContext.TryGetValue(eventData.Context, out var tempEntries))
+        {
+            _tempEntriesByContext.Remove(eventData.Context);
+
+            foreach (var auditEntry in tempEntries)
+            {
+                // Get the generated ID
+                foreach (var prop in auditEntry.TemporaryProperties)
+                {
+                    if (prop.Metadata.IsPrimaryKey())
+                    {
+                        auditEntry.SetEntityId(prop.CurrentValue?.ToString() ?? "");
+                    }
+                }
+
+                eventData.Context.Set<AuditLog>().Add(auditEntry.ToAuditLog());
+            }
+
+            eventData.Context.SaveChanges();
+            eventData.Context.ChangeTracker.AutoDetectChangesEnabled = true;
+        }
+
+        return base.SavedChanges(eventData, result);
     }
 
     private List<AuditEntry> CreateAuditEntries(DbContext context)
@@ -102,7 +153,9 @@ public sealed class AuditTrailInterceptor(
         foreach (var entry in context.ChangeTracker.Entries())
         {
             if (entry.Entity is not IAuditable || entry.Entity is AuditLog || entry.State is EntityState.Unchanged or EntityState.Detached)
+            {
                 continue;
+            }
 
             var auditEntry = new AuditEntry(entry)
             {
@@ -118,7 +171,9 @@ public sealed class AuditTrailInterceptor(
             foreach (var property in entry.Properties)
             {
                 if (property.Metadata.IsShadowProperty() && !property.Metadata.IsForeignKey())
+                {
                     continue;
+                }
 
                 var propertyName = property.Metadata.Name;
 
@@ -174,9 +229,16 @@ public sealed class AuditTrailInterceptor(
 
     private static AuditAction DetermineAction(EntityEntry entry)
     {
-        if (entry.State == EntityState.Added) return AuditAction.Insert;
-        if (entry.State == EntityState.Deleted) return AuditAction.Delete;
-        
+        if (entry.State == EntityState.Added)
+        {
+            return AuditAction.Insert;
+        }
+
+        if (entry.State == EntityState.Deleted)
+        {
+            return AuditAction.Delete;
+        }
+
         if (entry.State == EntityState.Modified)
         {
             var isDeletedProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name.Equals("IsDeleted", StringComparison.OrdinalIgnoreCase));
@@ -184,9 +246,17 @@ public sealed class AuditTrailInterceptor(
             {
                 var wasDeleted = isDeletedProp.OriginalValue as bool? ?? false;
                 var isDeleted = isDeletedProp.CurrentValue as bool? ?? false;
-                if (!wasDeleted && isDeleted) return AuditAction.SoftDelete;
-                if (wasDeleted && !isDeleted) return AuditAction.Restore;
+                if (!wasDeleted && isDeleted)
+                {
+                    return AuditAction.SoftDelete;
+                }
+
+                if (wasDeleted && !isDeleted)
+                {
+                    return AuditAction.Restore;
+                }
             }
+
             return AuditAction.Update;
         }
 

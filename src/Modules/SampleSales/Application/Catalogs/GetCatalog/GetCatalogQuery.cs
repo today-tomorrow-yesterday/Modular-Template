@@ -2,4 +2,4 @@
 
 namespace Modules.SampleSales.Application.Catalogs.GetCatalog;
 
-public sealed record GetCatalogQuery(int CatalogId) : IQuery<CatalogResponse>;
+public sealed record GetCatalogQuery(Guid PublicCatalogId) : IQuery<CatalogResponse>;

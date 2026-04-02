@@ -19,7 +19,7 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     networks:
       - modular-network
     restart: unless-stopped
@@ -42,7 +42,7 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     networks:
       - modular-network
     restart: unless-stopped
@@ -61,7 +61,7 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
     networks:
       - modular-network
     restart: unless-stopped
@@ -95,6 +95,11 @@ services:
     volumes:
       - redis-data:/data
     command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     networks:
       - modular-network
     restart: unless-stopped

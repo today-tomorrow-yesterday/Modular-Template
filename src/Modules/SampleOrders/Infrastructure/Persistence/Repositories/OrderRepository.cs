@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Modules.SampleOrders.Domain.Orders;
+using ModularTemplate.Application.Exceptions;
 using ModularTemplate.Infrastructure.Persistence;
 using System.Linq.Expressions;
 
@@ -14,13 +15,24 @@ internal sealed class OrderRepository(OrdersDbContext dbContext)
     {
         return await DbSet
             .Include(o => o.Lines)
+            .Include(o => o.ShippingAddress)
             .FirstOrDefaultAsync(o => o.Id == id, cancellationToken);
+    }
+
+    public async Task<Order> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken = default)
+    {
+        return await DbSet
+            .Include(o => o.Lines)
+            .Include(o => o.ShippingAddress)
+            .FirstOrDefaultAsync(o => o.PublicId == publicId, cancellationToken)
+            ?? throw new EntityNotFoundException(OrderErrors.NotFound(publicId));
     }
 
     public override async Task<IReadOnlyCollection<Order>> GetAllAsync(int? limit = 100, CancellationToken cancellationToken = default)
     {
         IQueryable<Order> query = DbSet
             .Include(o => o.Lines)
+            .Include(o => o.ShippingAddress)
             .AsNoTracking()
             .OrderByDescending(o => o.OrderedAtUtc);
 

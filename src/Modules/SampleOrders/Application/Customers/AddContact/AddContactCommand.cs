@@ -4,7 +4,7 @@ using ModularTemplate.Application.Messaging;
 namespace Modules.SampleOrders.Application.Customers.AddContact;
 
 public sealed record AddContactCommand(
-    int CustomerId,
+    Guid PublicCustomerId,
     ContactType Type,
     string Value,
     bool IsPrimary) : ICommand;

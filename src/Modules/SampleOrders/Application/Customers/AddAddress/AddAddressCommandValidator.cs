@@ -6,9 +6,9 @@ internal sealed class AddAddressCommandValidator : AbstractValidator<AddAddressC
 {
     public AddAddressCommandValidator()
     {
-        RuleFor(x => x.CustomerId)
-            .GreaterThan(0)
-            .WithMessage("CustomerId is required");
+        RuleFor(x => x.PublicCustomerId)
+            .NotEmpty()
+            .WithMessage("PublicCustomerId is required");
 
         RuleFor(x => x.AddressLine1)
             .NotEmpty()
@@ -25,8 +25,8 @@ internal sealed class AddAddressCommandValidator : AbstractValidator<AddAddressC
         RuleFor(x => x.State)
             .NotEmpty()
             .WithMessage("State is required")
-            .MaximumLength(100)
-            .WithMessage("State cannot exceed 100 characters");
+            .MaximumLength(2)
+            .WithMessage("State cannot exceed 2 characters");
 
         RuleFor(x => x.PostalCode)
             .NotEmpty()

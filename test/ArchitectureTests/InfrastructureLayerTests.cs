@@ -47,7 +47,7 @@ public sealed class InfrastructureLayerTests : BaseTest
 
         foreach (var (moduleName, assembly) in infrastructures)
         {
-            var otherModuleNamespaces = GetOtherModuleNamespaces(moduleName);
+            var otherModuleNamespaces = GetOtherModuleNonEventNamespaces(moduleName);
             if (otherModuleNamespaces.Length == 0)
             {
                 continue; // Only one module exists

@@ -13,7 +13,7 @@ internal sealed class AddAddressEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapPost("/{customerId:int}/addresses", AddAddressAsync)
+        group.MapPost("/{customerId:guid}/addresses", AddAddressAsync)
             .WithMetadata(new RequestBodyExample("""{ "addressLine1": "350 Fifth Avenue", "addressLine2": "Floor 34", "city": "New York", "state": "NY", "postalCode": "10118", "country": "US", "isPrimary": true }"""))
             .WithName("AddCustomerAddress")
             .WithSummary("Add an address to a customer")
@@ -26,7 +26,7 @@ internal sealed class AddAddressEndpoint : IEndpoint
     }
 
     private static async Task<IResult> AddAddressAsync(
-        int customerId,
+        Guid customerId,
         AddAddressRequest request,
         ISender sender,
         CancellationToken cancellationToken)

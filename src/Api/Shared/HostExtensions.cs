@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using ModularTemplate.Infrastructure.Application;
 using ModularTemplate.Presentation.Endpoints;
+using Serilog;
 
 namespace ModularTemplate.Api.Shared;
 
@@ -19,6 +21,13 @@ public static class HostExtensions
         string? cacheConnectionString = null,
         IModuleEndpoints? moduleEndpoints = null)
     {
+        // Serilog
+        builder.Host.UseSerilog((context, configuration) =>
+            configuration.ReadFrom.Configuration(context.Configuration));
+
+        // Fail-Fast: Enforce SSL in Production
+        EnforceSslInProduction(builder, databaseConnectionString);
+
         // Application identity - must be registered first as other services depend on it
         builder.Services.AddOptions<ApplicationOptions>()
             .Bind(builder.Configuration.GetSection(ApplicationOptions.SectionName))
@@ -61,6 +70,9 @@ public static class HostExtensions
         this WebApplication app,
         IModuleEndpoints? moduleEndpoints = null)
     {
+        // Serilog request logging
+        app.UseSerilogRequestLogging();
+
         // OpenAPI/Swagger (development only)
         if (moduleEndpoints != null)
         {
@@ -85,5 +97,20 @@ public static class HostExtensions
         app.UseAuthorization();
 
         return app;
+    }
+
+    /// <summary>
+    /// Enforces SSL on database connections in production environments.
+    /// Throws if the connection string lacks SSL Mode=Require or VerifyFull.
+    /// </summary>
+    public static void EnforceSslInProduction(WebApplicationBuilder builder, string databaseConnectionString)
+    {
+        if (builder.Environment.IsProduction() &&
+            !databaseConnectionString.Contains("SSL Mode=Require", StringComparison.OrdinalIgnoreCase) &&
+            !databaseConnectionString.Contains("SSL Mode=VerifyFull", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "FATAL: Production database connections MUST use 'SSL Mode=Require' or 'VerifyFull' for FTC compliance.");
+        }
     }
 }

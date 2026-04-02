@@ -30,43 +30,27 @@ public abstract class IdempotentDomainEventHandlerBase<TDomainEvent, TModule>(
 
         var outboxMessageConsumer = new OutboxMessageConsumer(domainEvent.Id, _decorated.GetType().Name);
 
-        if (await OutboxConsumerExistsAsync(connection, outboxMessageConsumer))
+        // Atomically insert the consumer record; if it already exists, skip handling.
+        if (!await TryInsertOutboxConsumerAsync(connection, outboxMessageConsumer))
         {
             return;
         }
 
         await _decorated.Handle(domainEvent, cancellationToken);
-
-        await InsertOutboxConsumerAsync(connection, outboxMessageConsumer);
     }
 
-    private async Task<bool> OutboxConsumerExistsAsync(
+    private static async Task<bool> TryInsertOutboxConsumerAsync(
         DbConnection dbConnection,
         OutboxMessageConsumer outboxMessageConsumer)
     {
         var sql =
-            $"""
-            SELECT EXISTS(
-                SELECT 1
-                FROM messaging.outbox_message_consumers
-                WHERE outbox_message_id = @OutboxMessageId AND
-                      name = @Name
-            )
-            """;
-
-        return await dbConnection.ExecuteScalarAsync<bool>(sql, outboxMessageConsumer);
-    }
-
-    private async Task InsertOutboxConsumerAsync(
-        DbConnection dbConnection,
-        OutboxMessageConsumer outboxMessageConsumer)
-    {
-        var sql =
-            $"""
+            """
             INSERT INTO messaging.outbox_message_consumers(outbox_message_id, name)
             VALUES (@OutboxMessageId, @Name)
+            ON CONFLICT DO NOTHING
             """;
 
-        await dbConnection.ExecuteAsync(sql, outboxMessageConsumer);
+        var rowsAffected = await dbConnection.ExecuteAsync(sql, outboxMessageConsumer);
+        return rowsAffected > 0;
     }
 }

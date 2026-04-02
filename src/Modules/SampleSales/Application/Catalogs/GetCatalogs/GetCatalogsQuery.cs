@@ -3,4 +3,4 @@ using ModularTemplate.Application.Messaging;
 
 namespace Modules.SampleSales.Application.Catalogs.GetCatalogs;
 
-public sealed record GetCatalogsQuery(int? Limit = 100) : IQuery<IReadOnlyCollection<CatalogResponse>>;
+public sealed record GetCatalogsQuery(int? Limit = 100, int Offset = 0) : IQuery<IReadOnlyCollection<CatalogResponse>>;

@@ -15,12 +15,7 @@ internal sealed class UpdateProductCommandHandler(
         UpdateProductCommand request,
         CancellationToken cancellationToken)
     {
-        var product = await productRepository.GetByIdAsync(request.ProductId, cancellationToken);
-
-        if (product is null)
-        {
-            return Result.Failure(ProductErrors.NotFound(request.ProductId));
-        }
+        var product = await productRepository.GetByPublicIdAsync(request.PublicProductId, cancellationToken);
 
         var updateResult = product.Update(request.Name, request.Description, request.Price, request.IsActive);
 

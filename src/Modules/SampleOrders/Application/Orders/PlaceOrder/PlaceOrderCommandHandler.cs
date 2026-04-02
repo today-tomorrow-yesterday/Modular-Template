@@ -1,4 +1,5 @@
 using Modules.SampleOrders.Domain;
+using Modules.SampleOrders.Domain.Customers;
 using Modules.SampleOrders.Domain.Orders;
 using Modules.SampleOrders.Domain.ProductsCache;
 using ModularTemplate.Application.Messaging;
@@ -10,6 +11,7 @@ namespace Modules.SampleOrders.Application.Orders.PlaceOrder;
 
 internal sealed class PlaceOrderCommandHandler(
     IOrderRepository orderRepository,
+    ICustomerRepository customerRepository,
     IProductCacheRepository productCacheRepository,
     IUnitOfWork<ISampleOrdersModule> unitOfWork)
     : ICommandHandler<PlaceOrderCommand, Guid>
@@ -18,6 +20,11 @@ internal sealed class PlaceOrderCommandHandler(
         PlaceOrderCommand request,
         CancellationToken cancellationToken)
     {
+        // Resolve customer by PublicId
+        var customer = await customerRepository.GetByPublicIdAsync(
+            request.PublicCustomerId,
+            cancellationToken);
+
         // Get product from local cache (synced from Sales module)
         var product = await productCacheRepository.GetByIdAsync(
             request.ProductCacheId,
@@ -28,7 +35,7 @@ internal sealed class PlaceOrderCommandHandler(
             return Result.Failure<Guid>(OrderErrors.ProductNotFound);
         }
 
-        var orderResult = Order.Place(request.CustomerId);
+        var orderResult = Order.Place(customer.Id);
 
         if (orderResult.IsFailure)
         {

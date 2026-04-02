@@ -102,7 +102,7 @@ public sealed class Customer : SoftDeletableEntity, IAggregateRoot
         return Result.Success();
     }
 
-    public void AddContact(ContactType type, string value, bool isPrimary = false)
+    public Result AddContact(ContactType type, string value, bool isPrimary = false)
     {
         if (isPrimary)
         {
@@ -116,11 +116,13 @@ public sealed class Customer : SoftDeletableEntity, IAggregateRoot
         if (match is not null)
         {
             match.SetPrimary(isPrimary);
-            return;
+            return Result.Success();
         }
 
         _contacts.Add(CustomerContact.Create(Id, type, value, isPrimary));
         Raise(new CustomerContactsChangedDomainEvent());
+
+        return Result.Success();
     }
 
     public Result AddAddress(Address address, bool isPrimary = false)

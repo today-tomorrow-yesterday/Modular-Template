@@ -14,7 +14,7 @@ internal sealed class UpdateOrderStatusEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapPatch("/{orderId:int}/status", UpdateOrderStatusAsync)
+        group.MapPatch("/{orderId:guid}/status", UpdateOrderStatusAsync)
             .WithMetadata(new RequestBodyExample("""{ "status": "Confirmed" }"""))
             .WithName("UpdateOrderStatus")
             .WithSummary("Update order status")
@@ -27,7 +27,7 @@ internal sealed class UpdateOrderStatusEndpoint : IEndpoint
     }
 
     private static async Task<IResult> UpdateOrderStatusAsync(
-        int orderId,
+        Guid orderId,
         UpdateOrderStatusRequest request,
         ISender sender,
         CancellationToken cancellationToken)

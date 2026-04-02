@@ -11,14 +11,9 @@ internal sealed class GetProductQueryHandler(IProductRepository productRepositor
         GetProductQuery request,
         CancellationToken cancellationToken)
     {
-        Product? product = await productRepository.GetByIdAsync(
-            request.ProductId,
+        Product product = await productRepository.GetByPublicIdAsync(
+            request.PublicProductId,
             cancellationToken);
-
-        if (product is null)
-        {
-            return Result.Failure<ProductResponse>(ProductErrors.NotFound(request.ProductId));
-        }
 
         return new ProductResponse(
             product.PublicId,

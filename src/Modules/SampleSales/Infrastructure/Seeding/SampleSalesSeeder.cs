@@ -78,7 +78,7 @@ public sealed class SampleSalesSeeder : IModuleSeeder
             {
                 if (idx < products.Count)
                 {
-                    catalog.AddProduct(products[idx].Id);
+                    catalog.AddProduct(products[idx].Id, products[idx].PublicId);
                 }
             }
 

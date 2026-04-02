@@ -11,14 +11,9 @@ internal sealed class GetCatalogQueryHandler(ICatalogRepository catalogRepositor
         GetCatalogQuery request,
         CancellationToken cancellationToken)
     {
-        Catalog? catalog = await catalogRepository.GetByIdAsync(
-            request.CatalogId,
+        Catalog catalog = await catalogRepository.GetByPublicIdAsync(
+            request.PublicCatalogId,
             cancellationToken);
-
-        if (catalog is null)
-        {
-            return Result.Failure<CatalogResponse>(CatalogErrors.NotFound(request.CatalogId));
-        }
 
         return new CatalogResponse(
             catalog.PublicId,

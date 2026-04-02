@@ -9,6 +9,7 @@ namespace Modules.SampleSales.Presentation.IntegrationEvents;
 
 internal sealed class OrderStatusChangedIntegrationEventHandler(
     ICacheWriteScope cacheWriteScope,
+    IOrderCacheRepository orderCacheRepository,
     IOrderCacheWriter orderCacheWriter,
     IDateTimeProvider dateTimeProvider,
     ILogger<OrderStatusChangedIntegrationEventHandler> logger)
@@ -25,15 +26,21 @@ internal sealed class OrderStatusChangedIntegrationEventHandler(
             integrationEvent.PublicOrderId,
             integrationEvent.NewStatus);
 
-        // TODO: Implement upsert-by-RefPublicId lookup pattern
-        // For now, create a new cache entry (proper implementation would find existing by RefPublicId)
-        var orderCache = new OrderCache
-        {
-            RefPublicId = integrationEvent.PublicOrderId,
-            Status = integrationEvent.NewStatus,
-            LastSyncedAtUtc = dateTimeProvider.UtcNow
-        };
+        var existing = await orderCacheRepository.GetByRefPublicIdAsync(
+            integrationEvent.PublicOrderId,
+            cancellationToken);
 
-        await orderCacheWriter.UpsertAsync(orderCache, cancellationToken);
+        if (existing is null)
+        {
+            logger.LogWarning(
+                "OrderCache not found for PublicOrderId={PublicOrderId}. Skipping status update — the OrderCreated event may not have been processed yet.",
+                integrationEvent.PublicOrderId);
+            return;
+        }
+
+        existing.Status = integrationEvent.NewStatus;
+        existing.LastSyncedAtUtc = dateTimeProvider.UtcNow;
+
+        await orderCacheWriter.UpsertAsync(existing, cancellationToken);
     }
 }

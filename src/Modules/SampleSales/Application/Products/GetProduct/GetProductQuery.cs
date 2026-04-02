@@ -2,4 +2,4 @@
 
 namespace Modules.SampleSales.Application.Products.GetProduct;
 
-public sealed record GetProductQuery(int ProductId) : IQuery<ProductResponse>;
+public sealed record GetProductQuery(Guid PublicProductId) : IQuery<ProductResponse>;

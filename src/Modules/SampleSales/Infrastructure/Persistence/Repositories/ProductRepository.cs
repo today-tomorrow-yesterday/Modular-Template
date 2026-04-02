@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Modules.SampleSales.Domain.Products;
+using ModularTemplate.Application.Exceptions;
 using ModularTemplate.Infrastructure.Persistence;
 using System.Linq.Expressions;
 
@@ -20,5 +21,11 @@ internal sealed class ProductRepository(SampleDbContext dbContext)
         }
 
         return await query.ToListAsync(cancellationToken);
+    }
+
+    public async Task<Product> GetByPublicIdAsync(Guid publicId, CancellationToken cancellationToken = default)
+    {
+        return await DbSet.FirstOrDefaultAsync(p => p.PublicId == publicId, cancellationToken)
+            ?? throw new EntityNotFoundException(ProductErrors.NotFound(publicId));
     }
 }

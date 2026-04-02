@@ -157,9 +157,10 @@ public sealed class CatalogTests
         // Arrange
         var catalog = Catalog.Create("Summer", null).Value;
         catalog.ClearDomainEvents();
+        var publicProductId = Guid.CreateVersion7();
 
         // Act
-        var result = catalog.AddProduct(1);
+        var result = catalog.AddProduct(1, publicProductId);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -167,7 +168,7 @@ public sealed class CatalogTests
         Assert.Equal(1, catalog.Products.First().ProductId);
         Assert.Contains(
             catalog.DomainEvents,
-            e => e is CatalogProductAddedDomainEvent added && added.ProductId == 1);
+            e => e is CatalogProductAddedDomainEvent added && added.PublicProductId == publicProductId);
     }
 
     [Fact]
@@ -176,9 +177,10 @@ public sealed class CatalogTests
         // Arrange
         var catalog = Catalog.Create("Summer", null).Value;
         var customPrice = ModularTemplate.Domain.ValueObjects.Money.Create(19.99m, "USD").Value;
+        var publicProductId = Guid.CreateVersion7();
 
         // Act
-        var result = catalog.AddProduct(1, customPrice);
+        var result = catalog.AddProduct(1, publicProductId, customPrice);
 
         // Assert
         Assert.True(result.IsSuccess);
@@ -192,10 +194,10 @@ public sealed class CatalogTests
     {
         // Arrange
         var catalog = Catalog.Create("Summer", null).Value;
-        catalog.AddProduct(1);
+        catalog.AddProduct(1, Guid.CreateVersion7());
 
         // Act
-        var result = catalog.AddProduct(1);
+        var result = catalog.AddProduct(1, Guid.CreateVersion7());
 
         // Assert
         Assert.True(result.IsFailure);
@@ -209,9 +211,9 @@ public sealed class CatalogTests
         var catalog = Catalog.Create("Summer", null).Value;
 
         // Act
-        catalog.AddProduct(1);
-        catalog.AddProduct(2);
-        catalog.AddProduct(3);
+        catalog.AddProduct(1, Guid.CreateVersion7());
+        catalog.AddProduct(2, Guid.CreateVersion7());
+        catalog.AddProduct(3, Guid.CreateVersion7());
 
         // Assert
         Assert.Equal(3, catalog.Products.Count);
@@ -224,18 +226,19 @@ public sealed class CatalogTests
     {
         // Arrange
         var catalog = Catalog.Create("Summer", null).Value;
-        catalog.AddProduct(1);
+        var publicProductId = Guid.CreateVersion7();
+        catalog.AddProduct(1, publicProductId);
         catalog.ClearDomainEvents();
 
         // Act
-        var result = catalog.RemoveProduct(1);
+        var result = catalog.RemoveProduct(1, publicProductId);
 
         // Assert
         Assert.True(result.IsSuccess);
         Assert.Empty(catalog.Products);
         Assert.Contains(
             catalog.DomainEvents,
-            e => e is CatalogProductRemovedDomainEvent removed && removed.ProductId == 1);
+            e => e is CatalogProductRemovedDomainEvent removed && removed.PublicProductId == publicProductId);
     }
 
     [Fact]
@@ -245,7 +248,7 @@ public sealed class CatalogTests
         var catalog = Catalog.Create("Summer", null).Value;
 
         // Act
-        var result = catalog.RemoveProduct(99);
+        var result = catalog.RemoveProduct(99, Guid.CreateVersion7());
 
         // Assert
         Assert.True(result.IsFailure);
@@ -257,11 +260,11 @@ public sealed class CatalogTests
     {
         // Arrange
         var catalog = Catalog.Create("Summer", null).Value;
-        catalog.AddProduct(1);
-        catalog.AddProduct(2);
+        catalog.AddProduct(1, Guid.CreateVersion7());
+        catalog.AddProduct(2, Guid.CreateVersion7());
 
         // Act
-        catalog.RemoveProduct(1);
+        catalog.RemoveProduct(1, Guid.CreateVersion7());
 
         // Assert
         Assert.Single(catalog.Products);

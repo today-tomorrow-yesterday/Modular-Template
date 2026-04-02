@@ -34,7 +34,7 @@ public static class ConfigurationExtensions
         {
             // Convert module name to PascalCase for project folder name
             var modulePascal = char.ToUpperInvariant(module[0]) + module[1..];
-            var moduleHostPath = Path.Combine(apiDirectory, $"ModularTemplate.Api.{modulePascal}");
+            var moduleHostPath = Path.Combine(apiDirectory, $"Host.{modulePascal}");
 
             // Base module config (optional - don't fail if module host doesn't exist yet)
             var baseConfigPath = Path.Combine(moduleHostPath, "appsettings.json");

@@ -4,5 +4,5 @@ using ModularTemplate.Application.Messaging;
 namespace Modules.SampleOrders.Application.Orders.UpdateOrderStatus;
 
 public sealed record UpdateOrderStatusCommand(
-    int OrderId,
+    Guid PublicOrderId,
     OrderStatus NewStatus) : ICommand;

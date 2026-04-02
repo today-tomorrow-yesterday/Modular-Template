@@ -39,7 +39,7 @@ internal sealed class GetAllCatalogsV2Endpoint : IEndpoint
         // Calculate offset for pagination
         var offset = (page - 1) * pageSize;
 
-        var query = new GetCatalogsQuery(pageSize + 1); // Fetch one extra to check if there's more
+        var query = new GetCatalogsQuery(pageSize + 1, offset); // Fetch one extra to check if there's more
 
         var result = await sender.Send(query, cancellationToken);
 

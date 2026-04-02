@@ -14,7 +14,7 @@ internal sealed class PlaceOrderEndpoint : IEndpoint
     public void MapEndpoint(RouteGroupBuilder group)
     {
         group.MapPost("/", PlaceOrderAsync)
-            .WithMetadata(new RequestBodyExample("""{ "customerId": 1, "productCacheId": 42, "quantity": 3 }"""))
+            .WithMetadata(new RequestBodyExample("""{ "publicCustomerId": "01970f2e-0000-7000-8000-000000000002", "productCacheId": 1, "quantity": 2 }"""))
             .WithName("PlaceOrder")
             .WithSummary("Place a new order")
             .WithDescription("Places a new order for a product.")
@@ -30,7 +30,7 @@ internal sealed class PlaceOrderEndpoint : IEndpoint
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var command = new PlaceOrderCommand(request.CustomerId, request.ProductCacheId, request.Quantity);
+        var command = new PlaceOrderCommand(request.PublicCustomerId, request.ProductCacheId, request.Quantity);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -40,6 +40,6 @@ internal sealed class PlaceOrderEndpoint : IEndpoint
     }
 }
 
-public sealed record PlaceOrderRequest(int CustomerId, int ProductCacheId, int Quantity);
+public sealed record PlaceOrderRequest(Guid PublicCustomerId, int ProductCacheId, int Quantity);
 
 public sealed record PlaceOrderResponse(Guid PublicId);

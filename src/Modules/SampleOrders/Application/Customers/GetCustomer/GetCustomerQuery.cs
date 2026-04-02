@@ -2,4 +2,4 @@
 
 namespace Modules.SampleOrders.Application.Customers.GetCustomer;
 
-public sealed record GetCustomerQuery(int CustomerId) : IQuery<CustomerResponse>;
+public sealed record GetCustomerQuery(Guid PublicCustomerId) : IQuery<CustomerResponse>;

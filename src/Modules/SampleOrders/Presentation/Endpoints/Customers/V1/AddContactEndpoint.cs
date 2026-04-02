@@ -14,7 +14,7 @@ internal sealed class AddContactEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapPost("/{customerId:int}/contacts", AddContactAsync)
+        group.MapPost("/{customerId:guid}/contacts", AddContactAsync)
             .WithMetadata(new RequestBodyExample("""{ "type": "Email", "value": "jane.doe@example.com", "isPrimary": true }"""))
             .WithName("AddCustomerContact")
             .WithSummary("Add a contact to a customer")
@@ -27,7 +27,7 @@ internal sealed class AddContactEndpoint : IEndpoint
     }
 
     private static async Task<IResult> AddContactAsync(
-        int customerId,
+        Guid customerId,
         AddContactRequest request,
         ISender sender,
         CancellationToken cancellationToken)

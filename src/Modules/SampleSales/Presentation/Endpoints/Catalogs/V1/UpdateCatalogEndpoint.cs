@@ -13,7 +13,7 @@ internal sealed class UpdateCatalogEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapPut("/{catalogId:int}", UpdateCatalogAsync)
+        group.MapPut("/{catalogId:guid}", UpdateCatalogAsync)
             .WithMetadata(new RequestBodyExample("""{ "name": "Summer Collection 2026 - Updated", "description": "Revised seasonal product catalog with new arrivals" }"""))
             .WithName("UpdateCatalog")
             .WithSummary("Update a catalog")
@@ -26,7 +26,7 @@ internal sealed class UpdateCatalogEndpoint : IEndpoint
     }
 
     private static async Task<IResult> UpdateCatalogAsync(
-        int catalogId,
+        Guid catalogId,
         UpdateCatalogRequest request,
         ISender sender,
         CancellationToken cancellationToken)

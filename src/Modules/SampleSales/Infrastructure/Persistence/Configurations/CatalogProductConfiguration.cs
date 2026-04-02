@@ -40,8 +40,11 @@ internal sealed class CatalogProductConfiguration : IEntityTypeConfiguration<Cat
         });
 
         // Unique constraint on (CatalogId, ProductId)
-        builder.HasIndex(cp => new { cp.CatalogId, cp.ProductId }).IsUnique();
+        builder.HasIndex(cp => new { cp.CatalogId, cp.ProductId })
+            .IsUnique()
+            .HasDatabaseName("ix_catalog_products_catalog_id_product_id");
 
-        builder.HasIndex(cp => cp.ProductId);
+        builder.HasIndex(cp => cp.ProductId)
+            .HasDatabaseName("ix_catalog_products_product_id");
     }
 }

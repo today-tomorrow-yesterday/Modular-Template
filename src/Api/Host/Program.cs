@@ -39,19 +39,7 @@ builder.Host.UseSerilog((context, configuration) =>
 var databaseConnectionString = DatabaseConnectionResolver.Resolve(builder.Configuration);
 
 // Fail-Fast: Enforce SSL in Production
-if (builder.Environment.IsProduction() && 
-    !databaseConnectionString.Contains("SSL Mode=Require", StringComparison.OrdinalIgnoreCase) &&
-    !databaseConnectionString.Contains("SSL Mode=VerifyFull", StringComparison.OrdinalIgnoreCase))
-{
-    // Sanitize connection string for logging (hide password)
-    var sanitizedString = databaseConnectionString.Replace(
-        builder.Configuration["ConnectionStrings:Database"]!.Split(';').First(s => s.Contains("Password", StringComparison.OrdinalIgnoreCase)), 
-        "Password=***");
-        
-    throw new InvalidOperationException(
-        "FATAL: Production database connections MUST use 'SSL Mode=Require' or 'VerifyFull' for FTC compliance. " +
-        $"Current connection string: {sanitizedString}");
-}
+HostExtensions.EnforceSslInProduction(builder, databaseConnectionString);
 
 var cacheConnectionString = builder.Configuration.GetConnectionString("Cache")
     ?? "localhost:6379";

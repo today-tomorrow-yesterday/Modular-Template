@@ -6,9 +6,9 @@ internal sealed class UpdateProductCommandValidator : AbstractValidator<UpdatePr
 {
     public UpdateProductCommandValidator()
     {
-        RuleFor(x => x.ProductId)
+        RuleFor(x => x.PublicProductId)
             .NotEmpty()
-            .WithMessage("ProductId is required");
+            .WithMessage("PublicProductId is required");
 
         RuleFor(x => x.Name)
             .NotEmpty()

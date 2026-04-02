@@ -13,7 +13,7 @@ internal sealed class GetOrderByIdEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapGet("/{orderId:int}", GetOrderByIdAsync)
+        group.MapGet("/{orderId:guid}", GetOrderByIdAsync)
             .WithName("GetOrderById")
             .WithSummary("Get an order by ID")
             .WithDescription("Retrieves an order by its unique identifier.")
@@ -24,7 +24,7 @@ internal sealed class GetOrderByIdEndpoint : IEndpoint
     }
 
     private static async Task<IResult> GetOrderByIdAsync(
-        int orderId,
+        Guid orderId,
         ISender sender,
         CancellationToken cancellationToken)
     {

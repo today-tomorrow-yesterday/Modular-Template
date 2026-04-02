@@ -15,12 +15,7 @@ internal sealed class UpdateCatalogCommandHandler(
         UpdateCatalogCommand request,
         CancellationToken cancellationToken)
     {
-        var catalog = await catalogRepository.GetByIdAsync(request.CatalogId, cancellationToken);
-
-        if (catalog is null)
-        {
-            return Result.Failure(CatalogErrors.NotFound(request.CatalogId));
-        }
+        var catalog = await catalogRepository.GetByPublicIdAsync(request.PublicCatalogId, cancellationToken);
 
         var updateResult = catalog.Update(request.Name, request.Description);
 

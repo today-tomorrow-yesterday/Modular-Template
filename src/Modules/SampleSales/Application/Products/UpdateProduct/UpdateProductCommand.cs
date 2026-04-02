@@ -3,7 +3,7 @@
 namespace Modules.SampleSales.Application.Products.UpdateProduct;
 
 public sealed record UpdateProductCommand(
-    int ProductId,
+    Guid PublicProductId,
     string Name,
     string? Description,
     decimal Price,

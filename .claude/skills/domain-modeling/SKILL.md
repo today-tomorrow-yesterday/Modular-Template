@@ -127,8 +127,8 @@ if (result.IsFailure) return result;
 public static class {Entity}Errors
 {
     // Parameterized errors — use static methods
-    public static Error NotFound(int entityId) =>
-        Error.NotFound("{Entities}.NotFound", $"The {entity} with ID '{entityId}' was not found.");
+    public static Error NotFound(Guid publicId) =>
+        Error.NotFound("{Entities}.NotFound", $"The {entity} with PublicId '{publicId}' was not found.");
 
     // Fixed errors — use static readonly fields
     public static readonly Error NameEmpty =

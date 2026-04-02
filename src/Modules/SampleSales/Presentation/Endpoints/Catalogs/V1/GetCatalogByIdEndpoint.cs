@@ -13,7 +13,7 @@ internal sealed class GetCatalogByIdEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapGet("/{catalogId:int}", GetCatalogByIdAsync)
+        group.MapGet("/{catalogId:guid}", GetCatalogByIdAsync)
             .WithName("GetCatalogById")
             .WithSummary("Get a catalog by ID")
             .WithDescription("Retrieves a catalog by its unique identifier.")
@@ -24,7 +24,7 @@ internal sealed class GetCatalogByIdEndpoint : IEndpoint
     }
 
     private static async Task<IResult> GetCatalogByIdAsync(
-        int catalogId,
+        Guid catalogId,
         ISender sender,
         CancellationToken cancellationToken)
     {

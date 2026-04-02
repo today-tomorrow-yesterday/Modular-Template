@@ -4,8 +4,8 @@ namespace Modules.SampleSales.Domain.Catalogs;
 
 public static class CatalogErrors
 {
-    public static Error NotFound(int catalogId) =>
-        Error.NotFound("Catalogs.NotFound", $"The catalog with ID '{catalogId}' was not found.");
+    public static Error NotFound(Guid publicId) =>
+        Error.NotFound("Catalogs.NotFound", $"The catalog with ID '{publicId}' was not found.");
 
     public static readonly Error NameEmpty =
         Error.Validation("Catalogs.NameEmpty", "The catalog name cannot be empty.");

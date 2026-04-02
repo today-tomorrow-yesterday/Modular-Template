@@ -11,14 +11,9 @@ internal sealed class GetOrderQueryHandler(IOrderRepository orderRepository)
         GetOrderQuery request,
         CancellationToken cancellationToken)
     {
-        Order? order = await orderRepository.GetByIdAsync(
-            request.OrderId,
+        Order order = await orderRepository.GetByPublicIdAsync(
+            request.PublicOrderId,
             cancellationToken);
-
-        if (order is null)
-        {
-            return Result.Failure<OrderResponse>(OrderErrors.NotFound(request.OrderId));
-        }
 
         var lines = order.Lines.Select(l => new OrderLineResponse(
             l.GetType().Name,

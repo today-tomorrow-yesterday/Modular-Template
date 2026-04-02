@@ -4,8 +4,8 @@ namespace Modules.SampleOrders.Domain.Customers;
 
 public static class CustomerErrors
 {
-    public static readonly Error NotFound =
-        Error.NotFound("Customers.NotFound", "Customer not found.");
+    public static Error NotFound(Guid publicId) =>
+        Error.NotFound("Customers.NotFound", $"The customer with ID '{publicId}' was not found.");
 
     public static readonly Error NotFoundByPublicId =
         Error.NotFound("Customers.NotFoundByPublicId", "Customer not found by PublicId.");

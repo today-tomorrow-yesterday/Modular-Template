@@ -11,14 +11,9 @@ internal sealed class GetCustomerQueryHandler(ICustomerRepository customerReposi
         GetCustomerQuery request,
         CancellationToken cancellationToken)
     {
-        Customer? customer = await customerRepository.GetByIdAsync(
-            request.CustomerId,
+        Customer customer = await customerRepository.GetByPublicIdAsync(
+            request.PublicCustomerId,
             cancellationToken);
-
-        if (customer is null)
-        {
-            return Result.Failure<CustomerResponse>(CustomerErrors.NotFound);
-        }
 
         return new CustomerResponse(
             customer.PublicId,

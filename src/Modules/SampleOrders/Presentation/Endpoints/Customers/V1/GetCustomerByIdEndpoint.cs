@@ -13,7 +13,7 @@ internal sealed class GetCustomerByIdEndpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapGet("/{customerId:int}", GetCustomerByIdAsync)
+        group.MapGet("/{customerId:guid}", GetCustomerByIdAsync)
             .WithName("GetCustomerById")
             .WithSummary("Get a customer by ID")
             .WithDescription("Retrieves a customer by its unique identifier.")
@@ -24,7 +24,7 @@ internal sealed class GetCustomerByIdEndpoint : IEndpoint
     }
 
     private static async Task<IResult> GetCustomerByIdAsync(
-        int customerId,
+        Guid customerId,
         ISender sender,
         CancellationToken cancellationToken)
     {

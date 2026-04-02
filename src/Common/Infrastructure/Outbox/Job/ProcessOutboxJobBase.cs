@@ -265,7 +265,10 @@ public abstract class ProcessOutboxJobBase<TModule>(
         foreach (var assembly in assemblies)
         {
             var type = assembly.GetTypes().FirstOrDefault(t => t.Name == typeName);
-            if (type is not null) return type;
+            if (type is not null)
+            {
+                return type;
+            }
         }
 
         throw new InvalidOperationException(

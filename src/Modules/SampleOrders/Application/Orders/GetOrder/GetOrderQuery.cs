@@ -2,4 +2,4 @@
 
 namespace Modules.SampleOrders.Application.Orders.GetOrder;
 
-public sealed record GetOrderQuery(int OrderId) : IQuery<OrderResponse>;
+public sealed record GetOrderQuery(Guid PublicOrderId) : IQuery<OrderResponse>;

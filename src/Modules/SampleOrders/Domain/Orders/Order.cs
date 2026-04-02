@@ -168,7 +168,9 @@ public sealed class Order : SoftDeletableEntity, IAggregateRoot
         {
             var addResult = total.Add(line.LineTotal);
             if (addResult.IsSuccess)
+            {
                 total = addResult.Value;
+            }
         }
 
         return total;

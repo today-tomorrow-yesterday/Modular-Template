@@ -4,8 +4,8 @@ namespace Modules.SampleOrders.Domain.Orders;
 
 public static class OrderErrors
 {
-    public static Error NotFound(int orderId) =>
-        Error.NotFound("Orders.NotFound", $"The order with ID '{orderId}' was not found.");
+    public static Error NotFound(Guid publicId) =>
+        Error.NotFound("Orders.NotFound", $"The order with ID '{publicId}' was not found.");
 
     public static readonly Error ProductNotFound =
         Error.Validation("Orders.ProductNotFound", "The product for this order was not found.");

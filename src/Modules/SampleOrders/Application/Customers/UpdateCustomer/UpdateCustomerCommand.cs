@@ -3,7 +3,7 @@ using ModularTemplate.Application.Messaging;
 namespace Modules.SampleOrders.Application.Customers.UpdateCustomer;
 
 public sealed record UpdateCustomerCommand(
-    int CustomerId,
+    Guid PublicCustomerId,
     string FirstName,
     string? MiddleName,
     string LastName) : ICommand;

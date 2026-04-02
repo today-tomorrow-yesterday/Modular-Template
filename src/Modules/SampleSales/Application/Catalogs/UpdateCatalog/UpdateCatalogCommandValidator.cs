@@ -6,9 +6,9 @@ internal sealed class UpdateCatalogCommandValidator : AbstractValidator<UpdateCa
 {
     public UpdateCatalogCommandValidator()
     {
-        RuleFor(x => x.CatalogId)
+        RuleFor(x => x.PublicCatalogId)
             .NotEmpty()
-            .WithMessage("Catalog ID is required.");
+            .WithMessage("PublicCatalogId is required.");
 
         RuleFor(x => x.Name)
             .NotEmpty()

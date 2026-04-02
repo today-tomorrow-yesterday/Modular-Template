@@ -6,9 +6,9 @@ internal sealed class UpdateCustomerCommandValidator : AbstractValidator<UpdateC
 {
     public UpdateCustomerCommandValidator()
     {
-        RuleFor(x => x.CustomerId)
-            .GreaterThan(0)
-            .WithMessage("Customer ID is required.");
+        RuleFor(x => x.PublicCustomerId)
+            .NotEmpty()
+            .WithMessage("PublicCustomerId is required.");
 
         RuleFor(x => x.FirstName)
             .NotEmpty()

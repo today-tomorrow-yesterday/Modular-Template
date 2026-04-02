@@ -58,7 +58,9 @@ public abstract class ModuleDbContext<TContext>(DbContextOptions<TContext> optio
             foreach (var property in entityType.GetProperties())
             {
                 if (property.PropertyInfo?.GetCustomAttribute<SensitiveDataAttribute>() is null)
+                {
                     continue;
+                }
 
                 if (property.ClrType == typeof(string))
                 {

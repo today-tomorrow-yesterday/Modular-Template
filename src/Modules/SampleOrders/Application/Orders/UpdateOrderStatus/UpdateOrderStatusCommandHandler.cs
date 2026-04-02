@@ -15,12 +15,7 @@ internal sealed class UpdateOrderStatusCommandHandler(
         UpdateOrderStatusCommand request,
         CancellationToken cancellationToken)
     {
-        var order = await orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
-
-        if (order is null)
-        {
-            return Result.Failure(OrderErrors.NotFound(request.OrderId));
-        }
+        var order = await orderRepository.GetByPublicIdAsync(request.PublicOrderId, cancellationToken);
 
         var updateResult = order.UpdateStatus(request.NewStatus);
 

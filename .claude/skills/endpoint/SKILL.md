@@ -31,7 +31,7 @@ internal sealed class {EndpointName}Endpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapGet("/{routeParam:int}", Get{Entity}ByIdAsync)
+        group.MapGet("/{publicId:guid}", Get{Entity}ByIdAsync)
             .WithName("Get{Entity}ById")           // REQUIRED for Swagger
             .WithSummary("Get a {entity} by ID")
             .WithDescription("Retrieves a {entity} by its unique identifier.")
@@ -42,11 +42,11 @@ internal sealed class {EndpointName}Endpoint : IEndpoint
     }
 
     private static async Task<IResult> Get{Entity}ByIdAsync(
-        int {routeParam},
+        Guid publicId,
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var query = new {QueryName}({routeParam});
+        var query = new {QueryName}(publicId);
 
         var result = await sender.Send(query, cancellationToken);
 
@@ -99,7 +99,7 @@ internal sealed class Update{Entity}Endpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapPut("/{entityId:int}/{subResource}", Update{Entity}Async)
+        group.MapPut("/{publicId:guid}/{subResource}", Update{Entity}Async)
             .WithName("Update{Entity}")            // REQUIRED for Swagger
             .WithSummary("Update {entity}")
             .WithDescription("Updates an existing {entity}.")
@@ -111,12 +111,12 @@ internal sealed class Update{Entity}Endpoint : IEndpoint
     }
 
     private static async Task<IResult> Update{Entity}Async(
-        int entityId,
+        Guid publicId,
         Update{Entity}Request request,
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var command = new Update{Entity}Command(entityId, request.Prop1);
+        var command = new Update{Entity}Command(publicId, request.Prop1);
 
         var result = await sender.Send(command, cancellationToken);
 
@@ -137,7 +137,7 @@ internal sealed class Add{Child}Endpoint : IEndpoint
 {
     public void MapEndpoint(RouteGroupBuilder group)
     {
-        group.MapPost("/{parentId:int}/{children}", Add{Child}Async)
+        group.MapPost("/{parentPublicId:guid}/{children}", Add{Child}Async)
             .WithName("Add{Parent}{Child}")        // REQUIRED for Swagger
             .WithSummary("Add a {child} to a {parent}")
             .WithDescription("Adds a {child} to an existing {parent}.")
@@ -149,12 +149,12 @@ internal sealed class Add{Child}Endpoint : IEndpoint
     }
 
     private static async Task<IResult> Add{Child}Async(
-        int parentId,
+        Guid parentPublicId,
         Add{Child}Request request,
         ISender sender,
         CancellationToken cancellationToken)
     {
-        var command = new Add{Child}Command(parentId, request.Prop1, request.Prop2);
+        var command = new Add{Child}Command(parentPublicId, request.Prop1, request.Prop2);
 
         var result = await sender.Send(command, cancellationToken);
 

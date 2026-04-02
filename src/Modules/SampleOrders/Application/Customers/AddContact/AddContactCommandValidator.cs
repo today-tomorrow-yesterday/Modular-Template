@@ -6,9 +6,9 @@ internal sealed class AddContactCommandValidator : AbstractValidator<AddContactC
 {
     public AddContactCommandValidator()
     {
-        RuleFor(x => x.CustomerId)
-            .GreaterThan(0)
-            .WithMessage("CustomerId is required");
+        RuleFor(x => x.PublicCustomerId)
+            .NotEmpty()
+            .WithMessage("PublicCustomerId is required");
 
         RuleFor(x => x.Type)
             .IsInEnum()

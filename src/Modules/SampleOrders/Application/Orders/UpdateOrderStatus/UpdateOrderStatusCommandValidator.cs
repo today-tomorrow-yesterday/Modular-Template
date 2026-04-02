@@ -6,9 +6,9 @@ internal sealed class UpdateOrderStatusCommandValidator : AbstractValidator<Upda
 {
     public UpdateOrderStatusCommandValidator()
     {
-        RuleFor(x => x.OrderId)
-            .GreaterThan(0)
-            .WithMessage("OrderId is required");
+        RuleFor(x => x.PublicOrderId)
+            .NotEmpty()
+            .WithMessage("PublicOrderId is required");
 
         RuleFor(x => x.NewStatus)
             .IsInEnum()

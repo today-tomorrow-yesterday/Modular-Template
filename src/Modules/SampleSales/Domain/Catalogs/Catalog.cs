@@ -64,7 +64,7 @@ public sealed class Catalog : SoftDeletableEntity, IAggregateRoot
         return Result.Success();
     }
 
-    public Result AddProduct(int productId, Money? customPrice = null)
+    public Result AddProduct(int productId, Guid publicProductId, Money? customPrice = null)
     {
         if (_products.Any(p => p.ProductId == productId))
         {
@@ -74,12 +74,12 @@ public sealed class Catalog : SoftDeletableEntity, IAggregateRoot
         var catalogProduct = CatalogProduct.Create(Id, productId, customPrice);
         _products.Add(catalogProduct);
 
-        Raise(new CatalogProductAddedDomainEvent(productId));
+        Raise(new CatalogProductAddedDomainEvent(publicProductId));
 
         return Result.Success();
     }
 
-    public Result RemoveProduct(int productId)
+    public Result RemoveProduct(int productId, Guid publicProductId)
     {
         var catalogProduct = _products.FirstOrDefault(p => p.ProductId == productId);
         if (catalogProduct is null)
@@ -89,7 +89,7 @@ public sealed class Catalog : SoftDeletableEntity, IAggregateRoot
 
         _products.Remove(catalogProduct);
 
-        Raise(new CatalogProductRemovedDomainEvent(productId));
+        Raise(new CatalogProductRemovedDomainEvent(publicProductId));
 
         return Result.Success();
     }

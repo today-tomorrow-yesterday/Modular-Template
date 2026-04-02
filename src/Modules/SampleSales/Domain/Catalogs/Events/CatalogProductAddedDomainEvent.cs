@@ -3,4 +3,4 @@
 namespace Modules.SampleSales.Domain.Catalogs.Events;
 
 public sealed record CatalogProductAddedDomainEvent(
-    int ProductId) : DomainEvent;
+    Guid PublicProductId) : DomainEvent;

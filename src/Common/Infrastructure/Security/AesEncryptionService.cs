@@ -30,7 +30,8 @@ internal sealed class AesEncryptionService : IEncryptionService
 
         if (string.IsNullOrEmpty(keyString))
         {
-            throw new InvalidOperationException("Encryption key not found. Configure 'Encryption:Key' or set 'ENCRYPTION_KEY' env var.");
+            throw new InvalidOperationException(
+                "Encryption key not found. Configure 'Encryption:Key' or set 'ENCRYPTION_KEY' env var.");
         }
 
         try
@@ -42,15 +43,19 @@ internal sealed class AesEncryptionService : IEncryptionService
             throw new InvalidOperationException("Encryption key is not valid Base64.");
         }
 
-        if (_key.Length != 32) // AES-256 requirement
+        if (_key.Length != 32)
         {
-            throw new InvalidOperationException($"Encryption key must be 32 bytes (256 bits). Current length: {_key.Length} bytes.");
+            throw new InvalidOperationException(
+                $"Encryption key must be 32 bytes (256 bits). Current length: {_key.Length} bytes.");
         }
     }
 
     public string Encrypt(string? plainText)
     {
-        if (string.IsNullOrEmpty(plainText)) return string.Empty;
+        if (string.IsNullOrEmpty(plainText))
+        {
+            return string.Empty;
+        }
 
         var plainBytes = Encoding.UTF8.GetBytes(plainText);
         var nonce = RandomNumberGenerator.GetBytes(NonceSize);
@@ -72,7 +77,10 @@ internal sealed class AesEncryptionService : IEncryptionService
 
     public string Decrypt(string? cipherText)
     {
-        if (string.IsNullOrEmpty(cipherText)) return string.Empty;
+        if (string.IsNullOrEmpty(cipherText))
+        {
+            return string.Empty;
+        }
 
         // Parse Version
         ReadOnlySpan<char> span = cipherText.AsSpan();
@@ -94,7 +102,9 @@ internal sealed class AesEncryptionService : IEncryptionService
         byte[] fullCipher = Convert.FromBase64String(payloadSpan.ToString());
         
         if (fullCipher.Length < NonceSize + TagSize)
+        {
             throw new ArgumentException("Invalid cipher text length.");
+        }
 
         using var aes = new AesGcm(_key, TagSize);
 

@@ -16,12 +16,7 @@ internal sealed class AddAddressCommandHandler(
         AddAddressCommand request,
         CancellationToken cancellationToken)
     {
-        var customer = await customerRepository.GetByIdAsync(request.CustomerId, cancellationToken);
-
-        if (customer is null)
-        {
-            return Result.Failure(CustomerErrors.NotFound);
-        }
+        var customer = await customerRepository.GetByPublicIdAsync(request.PublicCustomerId, cancellationToken);
 
         var address = Address.Create(
             request.AddressLine1,

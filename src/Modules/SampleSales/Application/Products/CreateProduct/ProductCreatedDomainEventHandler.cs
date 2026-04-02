@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Modules.SampleSales.Domain.Products;
 using Modules.SampleSales.Domain.Products.Events;
 using Modules.SampleSales.IntegrationEvents;
@@ -10,7 +11,8 @@ namespace Modules.SampleSales.Application.Products.CreateProduct;
 internal sealed class ProductCreatedDomainEventHandler(
     IProductRepository productRepository,
     IEventBus eventBus,
-    IDateTimeProvider dateTimeProvider) : DomainEventHandler<ProductCreatedDomainEvent>
+    IDateTimeProvider dateTimeProvider,
+    ILogger<ProductCreatedDomainEventHandler> logger) : DomainEventHandler<ProductCreatedDomainEvent>
 {
     public override async Task Handle(
         ProductCreatedDomainEvent domainEvent,
@@ -20,7 +22,13 @@ internal sealed class ProductCreatedDomainEventHandler(
             domainEvent.EntityId,
             cancellationToken);
 
-        if (product is null) return;
+        if (product is null)
+        {
+            logger.LogWarning(
+                "Product with EntityId={EntityId} not found when handling ProductCreatedDomainEvent. Skipping integration event publish.",
+                domainEvent.EntityId);
+            return;
+        }
 
         await eventBus.PublishAsync(
             new ProductCreatedIntegrationEvent(

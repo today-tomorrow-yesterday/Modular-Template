@@ -6,9 +6,9 @@ internal sealed class SetShippingAddressCommandValidator : AbstractValidator<Set
 {
     public SetShippingAddressCommandValidator()
     {
-        RuleFor(x => x.OrderId)
-            .GreaterThan(0)
-            .WithMessage("OrderId is required");
+        RuleFor(x => x.PublicOrderId)
+            .NotEmpty()
+            .WithMessage("PublicOrderId is required");
 
         RuleFor(x => x.AddressLine1)
             .NotEmpty()
@@ -25,8 +25,8 @@ internal sealed class SetShippingAddressCommandValidator : AbstractValidator<Set
         RuleFor(x => x.State)
             .NotEmpty()
             .WithMessage("State is required")
-            .MaximumLength(100)
-            .WithMessage("State cannot exceed 100 characters");
+            .MaximumLength(2)
+            .WithMessage("State cannot exceed 2 characters");
 
         RuleFor(x => x.PostalCode)
             .NotEmpty()

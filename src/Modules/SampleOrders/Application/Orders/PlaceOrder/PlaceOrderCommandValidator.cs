@@ -6,9 +6,9 @@ internal sealed class PlaceOrderCommandValidator : AbstractValidator<PlaceOrderC
 {
     public PlaceOrderCommandValidator()
     {
-        RuleFor(x => x.CustomerId)
-            .GreaterThan(0)
-            .WithMessage("CustomerId is required");
+        RuleFor(x => x.PublicCustomerId)
+            .NotEmpty()
+            .WithMessage("PublicCustomerId is required");
 
         RuleFor(x => x.ProductCacheId)
             .GreaterThan(0)

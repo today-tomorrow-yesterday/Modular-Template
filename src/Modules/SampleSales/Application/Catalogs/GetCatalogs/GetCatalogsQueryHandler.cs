@@ -14,6 +14,7 @@ internal sealed class GetCatalogsQueryHandler(ICatalogRepository catalogReposito
     {
         IReadOnlyCollection<Catalog> catalogs = await catalogRepository.GetAllAsync(
             request.Limit,
+            request.Offset,
             cancellationToken);
 
         var response = catalogs.Select(c => new CatalogResponse(

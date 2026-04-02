@@ -50,43 +50,27 @@ public abstract class IdempotentIntegrationEventHandlerBase<TIntegrationEvent, T
 
         var inboxMessageConsumer = new InboxMessageConsumer(integrationEvent.Id, _decorated.GetType().Name);
 
-        if (await InboxConsumerExistsAsync(connection, inboxMessageConsumer))
+        // Atomically insert the consumer record; if it already exists, skip handling.
+        if (!await TryInsertInboxConsumerAsync(connection, inboxMessageConsumer))
         {
             return;
         }
 
         await _decorated.HandleAsync(integrationEvent, cancellationToken);
-
-        await InsertInboxConsumerAsync(connection, inboxMessageConsumer);
     }
 
-    private async Task<bool> InboxConsumerExistsAsync(
+    private static async Task<bool> TryInsertInboxConsumerAsync(
         DbConnection dbConnection,
         InboxMessageConsumer inboxMessageConsumer)
     {
         var sql =
-            $"""
-            SELECT EXISTS(
-                SELECT 1
-                FROM messaging.inbox_message_consumers
-                WHERE inbox_message_id = @InboxMessageId AND
-                      name = @Name
-            )
-            """;
-
-        return await dbConnection.ExecuteScalarAsync<bool>(sql, inboxMessageConsumer);
-    }
-
-    private async Task InsertInboxConsumerAsync(
-        DbConnection dbConnection,
-        InboxMessageConsumer inboxMessageConsumer)
-    {
-        var sql =
-            $"""
+            """
             INSERT INTO messaging.inbox_message_consumers(inbox_message_id, name)
             VALUES (@InboxMessageId, @Name)
+            ON CONFLICT DO NOTHING
             """;
 
-        await dbConnection.ExecuteAsync(sql, inboxMessageConsumer);
+        var rowsAffected = await dbConnection.ExecuteAsync(sql, inboxMessageConsumer);
+        return rowsAffected > 0;
     }
 }

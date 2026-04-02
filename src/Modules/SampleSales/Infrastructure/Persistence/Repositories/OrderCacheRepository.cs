@@ -23,6 +23,13 @@ internal sealed class OrderCacheRepository(SampleDbContext dbContext)
         return await query.ToListAsync(cancellationToken);
     }
 
+    public async Task<OrderCache?> GetByRefPublicIdAsync(
+        Guid refPublicId,
+        CancellationToken cancellationToken = default)
+    {
+        return await DbSet.FirstOrDefaultAsync(o => o.RefPublicId == refPublicId, cancellationToken);
+    }
+
     public async Task<IReadOnlyCollection<OrderCache>> GetByCustomerIdAsync(
         Guid publicCustomerId,
         CancellationToken cancellationToken = default)

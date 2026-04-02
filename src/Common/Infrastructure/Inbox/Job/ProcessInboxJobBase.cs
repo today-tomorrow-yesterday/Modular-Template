@@ -13,6 +13,7 @@ using ModularTemplate.Infrastructure.Inbox.Handlers;
 using ModularTemplate.Infrastructure.Messaging;
 using ModularTemplate.Infrastructure.Serialization;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 
 namespace ModularTemplate.Infrastructure.Inbox.Job;
@@ -87,7 +88,8 @@ public abstract class ProcessInboxJobBase<TModule>(
                 // Check cancellation before potentially long deserialization
                 context.CancellationToken.ThrowIfCancellationRequested();
 
-                var integrationEventType = Type.GetType(inboxMessage.Type)!;
+                var integrationEventType = Type.GetType(inboxMessage.Type)
+                    ?? ResolveTypeByName(inboxMessage.Type);
                 var integrationEvent = (IIntegrationEvent)JsonConvert.DeserializeObject(
                     inboxMessage.Content,
                     integrationEventType,
@@ -240,6 +242,30 @@ public abstract class ProcessInboxJobBase<TModule>(
                     transaction: transaction);
             }
         }
+    }
+
+    /// <summary>
+    /// Resolves an integration event type by short name when Type.GetType() fails.
+    /// The inbox stores short class names (e.g., "CustomerCreatedIntegrationEvent").
+    /// This scans HandlersAssembly and its referenced assemblies (which includes
+    /// the assembly where integration events are defined).
+    /// </summary>
+    private Type ResolveTypeByName(string typeName)
+    {
+        var assemblies = new[] { HandlersAssembly }
+            .Concat(HandlersAssembly.GetReferencedAssemblies().Select(Assembly.Load));
+
+        foreach (var assembly in assemblies)
+        {
+            var type = assembly.GetTypes().FirstOrDefault(t => t.Name == typeName);
+            if (type is not null)
+            {
+                return type;
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"Could not resolve integration event type '{typeName}' in {HandlersAssembly.GetName().Name} or its referenced assemblies.");
     }
 
     /// <summary>

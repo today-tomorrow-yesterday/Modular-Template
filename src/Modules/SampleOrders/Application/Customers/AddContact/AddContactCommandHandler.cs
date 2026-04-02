@@ -15,12 +15,7 @@ internal sealed class AddContactCommandHandler(
         AddContactCommand request,
         CancellationToken cancellationToken)
     {
-        var customer = await customerRepository.GetByIdAsync(request.CustomerId, cancellationToken);
-
-        if (customer is null)
-        {
-            return Result.Failure(CustomerErrors.NotFound);
-        }
+        var customer = await customerRepository.GetByPublicIdAsync(request.PublicCustomerId, cancellationToken);
 
         customer.AddContact(request.Type, request.Value, request.IsPrimary);
 

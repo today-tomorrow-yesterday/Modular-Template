@@ -16,12 +16,7 @@ internal sealed class SetShippingAddressCommandHandler(
         SetShippingAddressCommand request,
         CancellationToken cancellationToken)
     {
-        var order = await orderRepository.GetByIdAsync(request.OrderId, cancellationToken);
-
-        if (order is null)
-        {
-            return Result.Failure(OrderErrors.NotFound(request.OrderId));
-        }
+        var order = await orderRepository.GetByPublicIdAsync(request.PublicOrderId, cancellationToken);
 
         var address = Address.Create(
             request.AddressLine1,

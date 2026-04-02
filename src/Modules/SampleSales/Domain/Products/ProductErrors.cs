@@ -4,8 +4,8 @@ namespace Modules.SampleSales.Domain.Products;
 
 public static class ProductErrors
 {
-    public static Error NotFound(int productId) =>
-        Error.NotFound("Products.NotFound", $"The product with ID '{productId}' was not found.");
+    public static Error NotFound(Guid publicId) =>
+        Error.NotFound("Products.NotFound", $"The product with ID '{publicId}' was not found.");
 
     public static readonly Error NameEmpty =
         Error.Validation("Products.NameEmpty", "The product name cannot be empty.");
